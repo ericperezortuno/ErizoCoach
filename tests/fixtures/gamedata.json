@@ -1,0 +1,5702 @@
+{
+ "version": "16.22.834.8910",
+ "perkstyles": {
+  "schemaVersion": 2,
+  "styles": [
+   {
+    "id": 8400,
+    "name": "Valor",
+    "allowedSubStyles": [
+     8000,
+     8100,
+     8200,
+     8300
+    ],
+    "defaultPageName": "Valor: el coloso",
+    "slots": [
+     {
+      "type": "kKeyStone",
+      "perks": [
+       8437,
+       8439,
+       8465
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8446,
+       8463,
+       8401
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8429,
+       8444,
+       8473
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8451,
+       8453,
+       8242
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5005,
+       5007
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5010,
+       5001
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5011,
+       5013,
+       5001
+      ]
+     }
+    ]
+   },
+   {
+    "id": 8100,
+    "name": "Dominación",
+    "allowedSubStyles": [
+     8300,
+     8400,
+     8200,
+     8000
+    ],
+    "defaultPageName": "Dominación: el verdugo",
+    "slots": [
+     {
+      "type": "kKeyStone",
+      "perks": [
+       8112,
+       8128,
+       9923
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8126,
+       8139,
+       8143
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8137,
+       8140,
+       8141
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8135,
+       8105,
+       8106
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5005,
+       5007
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5010,
+       5001
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5011,
+       5013,
+       5001
+      ]
+     }
+    ]
+   },
+   {
+    "id": 8000,
+    "name": "Precisión",
+    "allowedSubStyles": [
+     8200,
+     8400,
+     8300,
+     8100
+    ],
+    "defaultPageName": "Precisión: la perfección",
+    "slots": [
+     {
+      "type": "kKeyStone",
+      "perks": [
+       8005,
+       8008,
+       8021,
+       8010
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       9101,
+       9111,
+       8009
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       9104,
+       9105,
+       9103
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8014,
+       8017,
+       8299
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5005,
+       5007
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5010,
+       5001
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5011,
+       5013,
+       5001
+      ]
+     }
+    ]
+   },
+   {
+    "id": 8200,
+    "name": "Brujería",
+    "allowedSubStyles": [
+     8000,
+     8300,
+     8400,
+     8100
+    ],
+    "defaultPageName": "Brujería: la calamidad",
+    "slots": [
+     {
+      "type": "kKeyStone",
+      "perks": [
+       8214,
+       8229,
+       8230,
+       8992
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8224,
+       8226,
+       8275
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8210,
+       8234,
+       8233
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8237,
+       8232,
+       8236
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5005,
+       5007
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5010,
+       5001
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5011,
+       5013,
+       5001
+      ]
+     }
+    ]
+   },
+   {
+    "id": 8300,
+    "name": "Inspiración",
+    "allowedSubStyles": [
+     8100,
+     8200,
+     8400,
+     8000
+    ],
+    "defaultPageName": "Inspiración: el atemporal",
+    "slots": [
+     {
+      "type": "kKeyStone",
+      "perks": [
+       8351,
+       8360,
+       8369
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8306,
+       8304,
+       8321
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8313,
+       8352,
+       8345
+      ]
+     },
+     {
+      "type": "kMixedRegularSplashable",
+      "perks": [
+       8347,
+       8410,
+       8316
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5005,
+       5007
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5008,
+       5010,
+       5001
+      ]
+     },
+     {
+      "type": "kStatMod",
+      "perks": [
+       5011,
+       5013,
+       5001
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "perks": [
+  {
+   "id": 8369,
+   "name": "Primer golpe"
+  },
+  {
+   "id": 8446,
+   "name": "Demoler"
+  },
+  {
+   "id": 8126,
+   "name": "Golpe bajo"
+  },
+  {
+   "id": 8415,
+   "name": "El coloso arcano"
+  },
+  {
+   "id": 8410,
+   "name": "Velocidad de acercamiento"
+  },
+  {
+   "id": 8232,
+   "name": "Caminar sobre agua"
+  },
+  {
+   "id": 8299,
+   "name": "Último esfuerzo"
+  },
+  {
+   "id": 8112,
+   "name": "Electrocutar"
+  },
+  {
+   "id": 8234,
+   "name": "Celeridad"
+  },
+  {
+   "id": 8453,
+   "name": "Revitalizar"
+  },
+  {
+   "id": 8360,
+   "name": "Libro de hechizos"
+  },
+  {
+   "id": 8004,
+   "name": "El perfecto descarado"
+  },
+  {
+   "id": 8128,
+   "name": "Cosecha oscura"
+  },
+  {
+   "id": 8220,
+   "name": "La calamidad"
+  },
+  {
+   "id": 8016,
+   "name": "El élite despiadado"
+  },
+  {
+   "id": 8473,
+   "name": "Revestimiento de huesos"
+  },
+  {
+   "id": 8339,
+   "name": "Cuerpo celeste"
+  },
+  {
+   "id": 8214,
+   "name": "Invocar a Aery"
+  },
+  {
+   "id": 8141,
+   "name": "Guardián de profundidad"
+  },
+  {
+   "id": 8237,
+   "name": "Piroláser"
+  },
+  {
+   "id": 8139,
+   "name": "Sabor a sangre"
+  },
+  {
+   "id": 9101,
+   "name": "Absorber vida"
+  },
+  {
+   "id": 8008,
+   "name": "Compás letal"
+  },
+  {
+   "id": 8010,
+   "name": "Conquistador"
+  },
+  {
+   "id": 9105,
+   "name": "Leyenda: Velocidad"
+  },
+  {
+   "id": 8106,
+   "name": "Cazador definitivo"
+  },
+  {
+   "id": 8017,
+   "name": "Derribado"
+  },
+  {
+   "id": 8224,
+   "name": "Arcanólogo axiomático"
+  },
+  {
+   "id": 8210,
+   "name": "Trascendencia"
+  },
+  {
+   "id": 8005,
+   "name": "Ataque intensificado"
+  },
+  {
+   "id": 8435,
+   "name": "Concha espejo"
+  },
+  {
+   "id": 8115,
+   "name": "La cuchilla de éter"
+  },
+  {
+   "id": 8137,
+   "name": "Sexto sentido"
+  },
+  {
+   "id": 8359,
+   "name": "Cleptomanía"
+  },
+  {
+   "id": 8352,
+   "name": "Tónico de distorsión temporal"
+  },
+  {
+   "id": 5003,
+   "name": "Resistencia mágica"
+  },
+  {
+   "id": 8135,
+   "name": "Cazador de tesoros"
+  },
+  {
+   "id": 8120,
+   "name": "Poro fantasmal"
+  },
+  {
+   "id": 8134,
+   "name": "Cazador ingenioso"
+  },
+  {
+   "id": 8351,
+   "name": "Mejora glacial"
+  },
+  {
+   "id": 8242,
+   "name": "Inquebrantable"
+  },
+  {
+   "id": 8401,
+   "name": "Golpe de escudo"
+  },
+  {
+   "id": 9111,
+   "name": "Triunfo"
+  },
+  {
+   "id": 8105,
+   "name": "Cazador incesante"
+  },
+  {
+   "id": 8454,
+   "name": "El leviatán"
+  },
+  {
+   "id": 8275,
+   "name": "Capa del nimbo"
+  },
+  {
+   "id": 8207,
+   "name": "El enigmático"
+  },
+  {
+   "id": 5012,
+   "name": "Progresión de resistencias"
+  },
+  {
+   "id": 8439,
+   "name": "Reverberacción"
+  },
+  {
+   "id": 8109,
+   "name": "El maestro maligno "
+  },
+  {
+   "id": 5002,
+   "name": "Armadura"
+  },
+  {
+   "id": 5011,
+   "name": "Vida"
+  },
+  {
+   "id": 5013,
+   "name": "Tenacidad y resistencia a las ralentizaciones"
+  },
+  {
+   "id": 8414,
+   "name": "El mastodonte"
+  },
+  {
+   "id": 5008,
+   "name": "Fuerza adaptable"
+  },
+  {
+   "id": 8320,
+   "name": "El atemporal"
+  },
+  {
+   "id": 8319,
+   "name": "El soñador"
+  },
+  {
+   "id": 5001,
+   "name": "Progresión de vida"
+  },
+  {
+   "id": 8430,
+   "name": "Piel de hierro"
+  },
+  {
+   "id": 8014,
+   "name": "Golpe de gracia"
+  },
+  {
+   "id": 5007,
+   "name": "Velocidad de habilidades"
+  },
+  {
+   "id": 8021,
+   "name": "Pies veloces"
+  },
+  {
+   "id": 8226,
+   "name": "Banda de maná"
+  },
+  {
+   "id": 8451,
+   "name": "Sobrecrecimiento"
+  },
+  {
+   "id": 8313,
+   "name": "Tónico triple"
+  },
+  {
+   "id": 9103,
+   "name": "Leyenda: Linaje"
+  },
+  {
+   "id": 8114,
+   "name": "El carnicero inmortal"
+  },
+  {
+   "id": 8230,
+   "name": "Tensión del saqueador de tormentas"
+  },
+  {
+   "id": 8318,
+   "name": "El visionario implacable"
+  },
+  {
+   "id": 8463,
+   "name": "Fuente de vida"
+  },
+  {
+   "id": 7000,
+   "name": "Template"
+  },
+  {
+   "id": 8304,
+   "name": "Calzado mágico"
+  },
+  {
+   "id": 8236,
+   "name": "Se avecina tormenta"
+  },
+  {
+   "id": 8009,
+   "name": "Claridad mental"
+  },
+  {
+   "id": 8006,
+   "name": "El campeón eterno"
+  },
+  {
+   "id": 9104,
+   "name": "Leyenda: Presteza"
+  },
+  {
+   "id": 8416,
+   "name": "El titán iluminado"
+  },
+  {
+   "id": 5005,
+   "name": "Velocidad de ataque"
+  },
+  {
+   "id": 8306,
+   "name": "Destello hextech"
+  },
+  {
+   "id": 8992,
+   "name": "Toque de muerte ígnea"
+  },
+  {
+   "id": 8465,
+   "name": "Protector"
+  },
+  {
+   "id": 8138,
+   "name": "Colección de globos oculares"
+  },
+  {
+   "id": 5010,
+   "name": "Velocidad de movimiento"
+  },
+  {
+   "id": 8127,
+   "name": "El cirujano retorcido"
+  },
+  {
+   "id": 8140,
+   "name": "Recuerdo macabro"
+  },
+  {
+   "id": 8143,
+   "name": "Impacto repentino"
+  },
+  {
+   "id": 8345,
+   "name": "Entrega de galletas"
+  },
+  {
+   "id": 8444,
+   "name": "Fuerzas renovadas"
+  },
+  {
+   "id": 8205,
+   "name": "El lanzahechizos indiscutible"
+  },
+  {
+   "id": 8437,
+   "name": "Garras del inmortal"
+  },
+  {
+   "id": 9923,
+   "name": "Lluvia de cuchillas"
+  },
+  {
+   "id": 8429,
+   "name": "Condicionamiento"
+  },
+  {
+   "id": 8124,
+   "name": "Depredador"
+  },
+  {
+   "id": 8233,
+   "name": "Concentración absoluta"
+  },
+  {
+   "id": 8007,
+   "name": "El erudito"
+  },
+  {
+   "id": 8136,
+   "name": "Guardián zombi"
+  },
+  {
+   "id": 8208,
+   "name": "El anciano"
+  },
+  {
+   "id": 8347,
+   "name": "Perspicacia cósmica"
+  },
+  {
+   "id": 8472,
+   "name": "Crisálida"
+  },
+  {
+   "id": 8316,
+   "name": "Manitas"
+  },
+  {
+   "id": 8229,
+   "name": "Cometa arcano"
+  },
+  {
+   "id": 8344,
+   "name": "El duelista elegante "
+  },
+  {
+   "id": 8321,
+   "name": "Reembolso"
+  }
+ ],
+ "summonerSpells": [
+  {
+   "id": 1,
+   "name": "Limpiar",
+   "gameModes": [
+    "ARAM",
+    "TUTORIAL",
+    "KIWI",
+    "ULTBOOK",
+    "FIRSTBLOOD",
+    "SWIFTPLAY",
+    "CLASSIC",
+    "PRACTICETOOL",
+    "RUBY",
+    "RUBY_TRIAL_1",
+    "BRAWL",
+    "URF",
+    "KIWI_JADE",
+    "RUBY_TRIAL_3",
+    "ONEFORALL",
+    "ARSR",
+    "NEXUSBLITZ",
+    "DOOMBOTSTEEMO",
+    "RUBY_TRIAL_2"
+   ],
+   "summonerLevel": 9
+  },
+  {
+   "id": 3,
+   "name": "Extenuación",
+   "gameModes": [
+    "URF",
+    "PRACTICETOOL",
+    "CLASSIC",
+    "ULTBOOK",
+    "DOOMBOTSTEEMO",
+    "ARAM",
+    "RUBY_TRIAL_3",
+    "NEXUSBLITZ",
+    "SWIFTPLAY",
+    "ONEFORALL",
+    "TUTORIAL",
+    "RUBY",
+    "WIPMODEWIP",
+    "RUBY_TRIAL_2",
+    "WIPMODEWIP3",
+    "RUBY_TRIAL_1",
+    "ARSR"
+   ],
+   "summonerLevel": 4
+  },
+  {
+   "id": 4,
+   "name": "Destello",
+   "gameModes": [
+    "ARAM",
+    "TUTORIAL",
+    "KIWI",
+    "ULTBOOK",
+    "FIRSTBLOOD",
+    "SWIFTPLAY",
+    "CLASSIC",
+    "PRACTICETOOL",
+    "RUBY",
+    "RUBY_TRIAL_1",
+    "BRAWL",
+    "WIPMODEWIP4",
+    "URF",
+    "SNOWURF",
+    "KIWI_JADE",
+    "RUBY_TRIAL_3",
+    "ONEFORALL",
+    "ARSR",
+    "NEXUSBLITZ",
+    "DOOMBOTSTEEMO",
+    "RUBY_TRIAL_2"
+   ],
+   "summonerLevel": 7
+  },
+  {
+   "id": 5,
+   "name": "",
+   "gameModes": [],
+   "summonerLevel": 4
+  },
+  {
+   "id": 6,
+   "name": "Fantasmal",
+   "gameModes": [
+    "ARAM",
+    "TUTORIAL_MODULE_1",
+    "TUTORIAL",
+    "KIWI",
+    "ULTBOOK",
+    "FIRSTBLOOD",
+    "SWIFTPLAY",
+    "CLASSIC",
+    "PRACTICETOOL",
+    "RUBY",
+    "RUBY_TRIAL_1",
+    "BRAWL",
+    "URF",
+    "KIWI_JADE",
+    "RUBY_TRIAL_3",
+    "TUTORIAL_MODULE_2",
+    "ONEFORALL",
+    "ASSASSINATE",
+    "ARSR",
+    "NEXUSBLITZ",
+    "DOOMBOTSTEEMO",
+    "RUBY_TRIAL_2"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 7,
+   "name": "Curar",
+   "gameModes": [
+    "ARAM",
+    "TUTORIAL_MODULE_1",
+    "TUTORIAL",
+    "KIWI",
+    "ULTBOOK",
+    "SWIFTPLAY",
+    "CLASSIC",
+    "PRACTICETOOL",
+    "RUBY",
+    "RUBY_TRIAL_1",
+    "BRAWL",
+    "URF",
+    "KIWI_JADE",
+    "RUBY_TRIAL_3",
+    "TUTORIAL_MODULE_2",
+    "ONEFORALL",
+    "ASSASSINATE",
+    "ARSR",
+    "NEXUSBLITZ",
+    "DOOMBOTSTEEMO",
+    "RUBY_TRIAL_2"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 11,
+   "name": "Aplastar",
+   "gameModes": [
+    "DOOMBOTSTEEMO",
+    "PRACTICETOOL",
+    "CLASSIC",
+    "SWIFTPLAY",
+    "URF",
+    "NEXUSBLITZ",
+    "ONEFORALL",
+    "TUTORIAL",
+    "ARSR"
+   ],
+   "summonerLevel": 3
+  },
+  {
+   "id": 12,
+   "name": "Teleportar",
+   "gameModes": [
+    "CLASSIC",
+    "SWIFTPLAY",
+    "ULTBOOK",
+    "WIPMODEWIP4",
+    "DOOMBOTSTEEMO",
+    "PRACTICETOOL",
+    "ONEFORALL",
+    "RUBY",
+    "ARSR",
+    "RUBY_TRIAL_2",
+    "TUTORIAL",
+    "ASSASSINATE",
+    "RUBY_TRIAL_3",
+    "RUBY_TRIAL_1"
+   ],
+   "summonerLevel": 7
+  },
+  {
+   "id": 13,
+   "name": "Claridad",
+   "gameModes": [
+    "KIWI",
+    "FIRSTBLOOD",
+    "ARAM",
+    "KIWI_JADE"
+   ],
+   "summonerLevel": 6
+  },
+  {
+   "id": 14,
+   "name": "Prender",
+   "gameModes": [
+    "ARAM",
+    "TUTORIAL",
+    "KIWI",
+    "ULTBOOK",
+    "FIRSTBLOOD",
+    "SWIFTPLAY",
+    "CLASSIC",
+    "PRACTICETOOL",
+    "RUBY",
+    "RUBY_TRIAL_1",
+    "BRAWL",
+    "URF",
+    "KIWI_JADE",
+    "RUBY_TRIAL_3",
+    "ONEFORALL",
+    "ASSASSINATE",
+    "ARSR",
+    "NEXUSBLITZ",
+    "DOOMBOTSTEEMO",
+    "RUBY_TRIAL_2"
+   ],
+   "summonerLevel": 9
+  },
+  {
+   "id": 21,
+   "name": "Barrera",
+   "gameModes": [
+    "ARAM",
+    "TUTORIAL",
+    "KIWI",
+    "ULTBOOK",
+    "FIRSTBLOOD",
+    "SWIFTPLAY",
+    "CLASSIC",
+    "PRACTICETOOL",
+    "RUBY",
+    "RUBY_TRIAL_1",
+    "BRAWL",
+    "URF",
+    "KIWI_JADE",
+    "RUBY_TRIAL_3",
+    "ONEFORALL",
+    "ASSASSINATE",
+    "ARSR",
+    "NEXUSBLITZ",
+    "DOOMBOTSTEEMO",
+    "RUBY_TRIAL_2"
+   ],
+   "summonerLevel": 4
+  },
+  {
+   "id": 30,
+   "name": "¡Al Rey!",
+   "gameModes": [
+    "KINGPORO"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 31,
+   "name": "Porolanzamiento",
+   "gameModes": [
+    "KINGPORO"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 32,
+   "name": "Marca",
+   "gameModes": [
+    "KIWI",
+    "KIWI_JADE",
+    "ARAM",
+    "FIRSTBLOOD"
+   ],
+   "summonerLevel": 6
+  },
+  {
+   "id": 39,
+   "name": "Marca",
+   "gameModes": [
+    "SNOWURF"
+   ],
+   "summonerLevel": 6
+  },
+  {
+   "id": 54,
+   "name": "Por determinar",
+   "gameModes": [
+    "ULTBOOK"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 55,
+   "name": "Provisional y Aplastar automático",
+   "gameModes": [
+    "ULTBOOK"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 71,
+   "name": "Limpiar",
+   "gameModes": [
+    "JADE"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 73,
+   "name": "Extenuación",
+   "gameModes": [
+    "JADE"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 74,
+   "name": "Destello",
+   "gameModes": [
+    "JADE"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 75,
+   "name": "Clarividente",
+   "gameModes": [
+    "JADE"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 76,
+   "name": "Fantasmal",
+   "gameModes": [
+    "JADE"
+   ],
+   "summonerLevel": 1
+  },
+  {
+   "id": 77,
+   "name": "Curar",
+   "gameModes": [
+    "JADE"
+   ],
+   "summonerLevel": 1
+  }
+ ],
+ "championSummary": [
+  {
+   "id": -1,
+   "name": "Ninguno",
+   "alias": "None",
+   "roles": []
+  },
+  {
+   "id": 1,
+   "name": "Annie",
+   "alias": "Annie",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 2,
+   "name": "Olaf",
+   "alias": "Olaf",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 3,
+   "name": "Galio",
+   "alias": "Galio",
+   "roles": [
+    "tank",
+    "mage"
+   ]
+  },
+  {
+   "id": 4,
+   "name": "Twisted Fate",
+   "alias": "TwistedFate",
+   "roles": [
+    "mage",
+    "marksman"
+   ]
+  },
+  {
+   "id": 5,
+   "name": "Xin Zhao",
+   "alias": "XinZhao",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 6,
+   "name": "Urgot",
+   "alias": "Urgot",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 7,
+   "name": "LeBlanc",
+   "alias": "Leblanc",
+   "roles": [
+    "assassin",
+    "mage"
+   ]
+  },
+  {
+   "id": 8,
+   "name": "Vladimir",
+   "alias": "Vladimir",
+   "roles": [
+    "mage",
+    "fighter"
+   ]
+  },
+  {
+   "id": 9,
+   "name": "Fiddlesticks",
+   "alias": "FiddleSticks",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 10,
+   "name": "Kayle",
+   "alias": "Kayle",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 11,
+   "name": "Maestro Yi",
+   "alias": "MasterYi",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 12,
+   "name": "Alistar",
+   "alias": "Alistar",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 13,
+   "name": "Ryze",
+   "alias": "Ryze",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 14,
+   "name": "Sion",
+   "alias": "Sion",
+   "roles": [
+    "tank",
+    "fighter"
+   ]
+  },
+  {
+   "id": 15,
+   "name": "Sivir",
+   "alias": "Sivir",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 16,
+   "name": "Soraka",
+   "alias": "Soraka",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 17,
+   "name": "Teemo",
+   "alias": "Teemo",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 18,
+   "name": "Tristana",
+   "alias": "Tristana",
+   "roles": [
+    "marksman",
+    "assassin"
+   ]
+  },
+  {
+   "id": 19,
+   "name": "Warwick",
+   "alias": "Warwick",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 20,
+   "name": "Nunu y Willump",
+   "alias": "Nunu",
+   "roles": [
+    "tank",
+    "mage"
+   ]
+  },
+  {
+   "id": 21,
+   "name": "Miss Fortune",
+   "alias": "MissFortune",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 22,
+   "name": "Ashe",
+   "alias": "Ashe",
+   "roles": [
+    "marksman",
+    "support"
+   ]
+  },
+  {
+   "id": 23,
+   "name": "Tryndamere",
+   "alias": "Tryndamere",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 24,
+   "name": "Jax",
+   "alias": "Jax",
+   "roles": [
+    "fighter"
+   ]
+  },
+  {
+   "id": 25,
+   "name": "Morgana",
+   "alias": "Morgana",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 26,
+   "name": "Zilean",
+   "alias": "Zilean",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 27,
+   "name": "Singed",
+   "alias": "Singed",
+   "roles": [
+    "tank",
+    "mage"
+   ]
+  },
+  {
+   "id": 28,
+   "name": "Evelynn",
+   "alias": "Evelynn",
+   "roles": [
+    "assassin",
+    "mage"
+   ]
+  },
+  {
+   "id": 29,
+   "name": "Twitch",
+   "alias": "Twitch",
+   "roles": [
+    "marksman",
+    "assassin"
+   ]
+  },
+  {
+   "id": 30,
+   "name": "Karthus",
+   "alias": "Karthus",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 31,
+   "name": "Cho'Gath",
+   "alias": "Chogath",
+   "roles": [
+    "tank",
+    "mage"
+   ]
+  },
+  {
+   "id": 32,
+   "name": "Amumu",
+   "alias": "Amumu",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 33,
+   "name": "Rammus",
+   "alias": "Rammus",
+   "roles": [
+    "tank"
+   ]
+  },
+  {
+   "id": 34,
+   "name": "Anivia",
+   "alias": "Anivia",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 35,
+   "name": "Shaco",
+   "alias": "Shaco",
+   "roles": [
+    "assassin"
+   ]
+  },
+  {
+   "id": 36,
+   "name": "Dr. Mundo",
+   "alias": "DrMundo",
+   "roles": [
+    "tank",
+    "fighter"
+   ]
+  },
+  {
+   "id": 37,
+   "name": "Sona",
+   "alias": "Sona",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 38,
+   "name": "Kassadin",
+   "alias": "Kassadin",
+   "roles": [
+    "assassin",
+    "mage"
+   ]
+  },
+  {
+   "id": 39,
+   "name": "Irelia",
+   "alias": "Irelia",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 40,
+   "name": "Janna",
+   "alias": "Janna",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 41,
+   "name": "Gangplank",
+   "alias": "Gangplank",
+   "roles": [
+    "fighter"
+   ]
+  },
+  {
+   "id": 42,
+   "name": "Corki",
+   "alias": "Corki",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 43,
+   "name": "Karma",
+   "alias": "Karma",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 44,
+   "name": "Taric",
+   "alias": "Taric",
+   "roles": [
+    "support",
+    "tank"
+   ]
+  },
+  {
+   "id": 45,
+   "name": "Veigar",
+   "alias": "Veigar",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 48,
+   "name": "Trundle",
+   "alias": "Trundle",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 50,
+   "name": "Swain",
+   "alias": "Swain",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 51,
+   "name": "Caitlyn",
+   "alias": "Caitlyn",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 53,
+   "name": "Blitzcrank",
+   "alias": "Blitzcrank",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 54,
+   "name": "Malphite",
+   "alias": "Malphite",
+   "roles": [
+    "tank",
+    "mage"
+   ]
+  },
+  {
+   "id": 55,
+   "name": "Katarina",
+   "alias": "Katarina",
+   "roles": [
+    "assassin",
+    "mage"
+   ]
+  },
+  {
+   "id": 56,
+   "name": "Nocturne",
+   "alias": "Nocturne",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 57,
+   "name": "Maokai",
+   "alias": "Maokai",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 58,
+   "name": "Renekton",
+   "alias": "Renekton",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 59,
+   "name": "Jarvan IV",
+   "alias": "JarvanIV",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 60,
+   "name": "Elise",
+   "alias": "Elise",
+   "roles": [
+    "assassin",
+    "mage"
+   ]
+  },
+  {
+   "id": 61,
+   "name": "Orianna",
+   "alias": "Orianna",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 62,
+   "name": "Wukong",
+   "alias": "MonkeyKing",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 63,
+   "name": "Brand",
+   "alias": "Brand",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 64,
+   "name": "Lee Sin",
+   "alias": "LeeSin",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 67,
+   "name": "Vayne",
+   "alias": "Vayne",
+   "roles": [
+    "marksman",
+    "assassin"
+   ]
+  },
+  {
+   "id": 68,
+   "name": "Rumble",
+   "alias": "Rumble",
+   "roles": [
+    "fighter",
+    "mage"
+   ]
+  },
+  {
+   "id": 69,
+   "name": "Cassiopeia",
+   "alias": "Cassiopeia",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 72,
+   "name": "Skarner",
+   "alias": "Skarner",
+   "roles": [
+    "tank",
+    "fighter"
+   ]
+  },
+  {
+   "id": 74,
+   "name": "Heimerdinger",
+   "alias": "Heimerdinger",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 75,
+   "name": "Nasus",
+   "alias": "Nasus",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 76,
+   "name": "Nidalee",
+   "alias": "Nidalee",
+   "roles": [
+    "assassin",
+    "mage"
+   ]
+  },
+  {
+   "id": 77,
+   "name": "Udyr",
+   "alias": "Udyr",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 78,
+   "name": "Poppy",
+   "alias": "Poppy",
+   "roles": [
+    "tank",
+    "fighter"
+   ]
+  },
+  {
+   "id": 79,
+   "name": "Gragas",
+   "alias": "Gragas",
+   "roles": [
+    "fighter",
+    "mage"
+   ]
+  },
+  {
+   "id": 80,
+   "name": "Pantheon",
+   "alias": "Pantheon",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 81,
+   "name": "Ezreal",
+   "alias": "Ezreal",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 82,
+   "name": "Mordekaiser",
+   "alias": "Mordekaiser",
+   "roles": [
+    "fighter",
+    "mage"
+   ]
+  },
+  {
+   "id": 83,
+   "name": "Yorick",
+   "alias": "Yorick",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 84,
+   "name": "Akali",
+   "alias": "Akali",
+   "roles": [
+    "assassin"
+   ]
+  },
+  {
+   "id": 85,
+   "name": "Kennen",
+   "alias": "Kennen",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 86,
+   "name": "Garen",
+   "alias": "Garen",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 89,
+   "name": "Leona",
+   "alias": "Leona",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 90,
+   "name": "Malzahar",
+   "alias": "Malzahar",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 91,
+   "name": "Talon",
+   "alias": "Talon",
+   "roles": [
+    "assassin"
+   ]
+  },
+  {
+   "id": 92,
+   "name": "Riven",
+   "alias": "Riven",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 96,
+   "name": "Kog'Maw",
+   "alias": "KogMaw",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 98,
+   "name": "Shen",
+   "alias": "Shen",
+   "roles": [
+    "tank"
+   ]
+  },
+  {
+   "id": 99,
+   "name": "Lux",
+   "alias": "Lux",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 101,
+   "name": "Xerath",
+   "alias": "Xerath",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 102,
+   "name": "Shyvana",
+   "alias": "Shyvana",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 103,
+   "name": "Ahri",
+   "alias": "Ahri",
+   "roles": [
+    "mage",
+    "assassin"
+   ]
+  },
+  {
+   "id": 104,
+   "name": "Graves",
+   "alias": "Graves",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 105,
+   "name": "Fizz",
+   "alias": "Fizz",
+   "roles": [
+    "assassin",
+    "fighter"
+   ]
+  },
+  {
+   "id": 106,
+   "name": "Volibear",
+   "alias": "Volibear",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 107,
+   "name": "Rengar",
+   "alias": "Rengar",
+   "roles": [
+    "assassin",
+    "fighter"
+   ]
+  },
+  {
+   "id": 110,
+   "name": "Varus",
+   "alias": "Varus",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 111,
+   "name": "Nautilus",
+   "alias": "Nautilus",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 112,
+   "name": "Viktor",
+   "alias": "Viktor",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 113,
+   "name": "Sejuani",
+   "alias": "Sejuani",
+   "roles": [
+    "tank"
+   ]
+  },
+  {
+   "id": 114,
+   "name": "Fiora",
+   "alias": "Fiora",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 115,
+   "name": "Ziggs",
+   "alias": "Ziggs",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 117,
+   "name": "Lulu",
+   "alias": "Lulu",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 119,
+   "name": "Draven",
+   "alias": "Draven",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 120,
+   "name": "Hecarim",
+   "alias": "Hecarim",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 121,
+   "name": "Kha'Zix",
+   "alias": "Khazix",
+   "roles": [
+    "assassin"
+   ]
+  },
+  {
+   "id": 122,
+   "name": "Darius",
+   "alias": "Darius",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 126,
+   "name": "Jayce",
+   "alias": "Jayce",
+   "roles": [
+    "fighter",
+    "marksman"
+   ]
+  },
+  {
+   "id": 127,
+   "name": "Lissandra",
+   "alias": "Lissandra",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 131,
+   "name": "Diana",
+   "alias": "Diana",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 133,
+   "name": "Quinn",
+   "alias": "Quinn",
+   "roles": [
+    "marksman",
+    "assassin"
+   ]
+  },
+  {
+   "id": 134,
+   "name": "Syndra",
+   "alias": "Syndra",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 136,
+   "name": "Aurelion Sol",
+   "alias": "AurelionSol",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 141,
+   "name": "Kayn",
+   "alias": "Kayn",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 142,
+   "name": "Zoe",
+   "alias": "Zoe",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 143,
+   "name": "Zyra",
+   "alias": "Zyra",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 145,
+   "name": "Kai'Sa",
+   "alias": "Kaisa",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 147,
+   "name": "Seraphine",
+   "alias": "Seraphine",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 150,
+   "name": "Gnar",
+   "alias": "Gnar",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 154,
+   "name": "Zac",
+   "alias": "Zac",
+   "roles": [
+    "tank",
+    "fighter"
+   ]
+  },
+  {
+   "id": 157,
+   "name": "Yasuo",
+   "alias": "Yasuo",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 161,
+   "name": "Vel'Koz",
+   "alias": "Velkoz",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 163,
+   "name": "Taliyah",
+   "alias": "Taliyah",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 164,
+   "name": "Camille",
+   "alias": "Camille",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 166,
+   "name": "Akshan",
+   "alias": "Akshan",
+   "roles": [
+    "marksman",
+    "assassin"
+   ]
+  },
+  {
+   "id": 200,
+   "name": "Bel'Veth",
+   "alias": "Belveth",
+   "roles": [
+    "fighter"
+   ]
+  },
+  {
+   "id": 201,
+   "name": "Braum",
+   "alias": "Braum",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 202,
+   "name": "Jhin",
+   "alias": "Jhin",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 203,
+   "name": "Kindred",
+   "alias": "Kindred",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 221,
+   "name": "Zeri",
+   "alias": "Zeri",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 222,
+   "name": "Jinx",
+   "alias": "Jinx",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 223,
+   "name": "Tahm Kench",
+   "alias": "TahmKench",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 233,
+   "name": "Briar",
+   "alias": "Briar",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 234,
+   "name": "Viego",
+   "alias": "Viego",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 235,
+   "name": "Senna",
+   "alias": "Senna",
+   "roles": [
+    "support",
+    "marksman"
+   ]
+  },
+  {
+   "id": 236,
+   "name": "Lucian",
+   "alias": "Lucian",
+   "roles": [
+    "marksman",
+    "assassin"
+   ]
+  },
+  {
+   "id": 238,
+   "name": "Zed",
+   "alias": "Zed",
+   "roles": [
+    "assassin"
+   ]
+  },
+  {
+   "id": 240,
+   "name": "Kled",
+   "alias": "Kled",
+   "roles": [
+    "fighter"
+   ]
+  },
+  {
+   "id": 245,
+   "name": "Ekko",
+   "alias": "Ekko",
+   "roles": [
+    "assassin",
+    "mage"
+   ]
+  },
+  {
+   "id": 246,
+   "name": "Qiyana",
+   "alias": "Qiyana",
+   "roles": [
+    "assassin"
+   ]
+  },
+  {
+   "id": 254,
+   "name": "Vi",
+   "alias": "Vi",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 266,
+   "name": "Aatrox",
+   "alias": "Aatrox",
+   "roles": [
+    "fighter"
+   ]
+  },
+  {
+   "id": 267,
+   "name": "Nami",
+   "alias": "Nami",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 268,
+   "name": "Azir",
+   "alias": "Azir",
+   "roles": [
+    "mage",
+    "marksman"
+   ]
+  },
+  {
+   "id": 350,
+   "name": "Yuumi",
+   "alias": "Yuumi",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 360,
+   "name": "Samira",
+   "alias": "Samira",
+   "roles": [
+    "marksman",
+    "assassin"
+   ]
+  },
+  {
+   "id": 412,
+   "name": "Thresh",
+   "alias": "Thresh",
+   "roles": [
+    "support",
+    "tank"
+   ]
+  },
+  {
+   "id": 420,
+   "name": "Illaoi",
+   "alias": "Illaoi",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 421,
+   "name": "Rek'Sai",
+   "alias": "RekSai",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 427,
+   "name": "Ivern",
+   "alias": "Ivern",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 429,
+   "name": "Kalista",
+   "alias": "Kalista",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 432,
+   "name": "Bardo",
+   "alias": "Bard",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 497,
+   "name": "Rakan",
+   "alias": "Rakan",
+   "roles": [
+    "support"
+   ]
+  },
+  {
+   "id": 498,
+   "name": "Xayah",
+   "alias": "Xayah",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 516,
+   "name": "Ornn",
+   "alias": "Ornn",
+   "roles": [
+    "tank"
+   ]
+  },
+  {
+   "id": 517,
+   "name": "Sylas",
+   "alias": "Sylas",
+   "roles": [
+    "mage",
+    "assassin"
+   ]
+  },
+  {
+   "id": 518,
+   "name": "Neeko",
+   "alias": "Neeko",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 523,
+   "name": "Aphelios",
+   "alias": "Aphelios",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 526,
+   "name": "Rell",
+   "alias": "Rell",
+   "roles": [
+    "tank",
+    "support"
+   ]
+  },
+  {
+   "id": 555,
+   "name": "Pyke",
+   "alias": "Pyke",
+   "roles": [
+    "support",
+    "assassin"
+   ]
+  },
+  {
+   "id": 711,
+   "name": "Vex",
+   "alias": "Vex",
+   "roles": [
+    "mage"
+   ]
+  },
+  {
+   "id": 777,
+   "name": "Yone",
+   "alias": "Yone",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 799,
+   "name": "Ambessa",
+   "alias": "Ambessa",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 800,
+   "name": "Mel",
+   "alias": "Mel",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 804,
+   "name": "Yunara",
+   "alias": "Yunara",
+   "roles": [
+    "marksman"
+   ]
+  },
+  {
+   "id": 805,
+   "name": "Locke",
+   "alias": "Locke",
+   "roles": [
+    "assassin",
+    "mage"
+   ]
+  },
+  {
+   "id": 875,
+   "name": "Sett",
+   "alias": "Sett",
+   "roles": [
+    "fighter",
+    "tank"
+   ]
+  },
+  {
+   "id": 876,
+   "name": "Lillia",
+   "alias": "Lillia",
+   "roles": [
+    "fighter",
+    "mage"
+   ]
+  },
+  {
+   "id": 887,
+   "name": "Gwen",
+   "alias": "Gwen",
+   "roles": [
+    "fighter"
+   ]
+  },
+  {
+   "id": 888,
+   "name": "Renata Glasc",
+   "alias": "Renata",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 893,
+   "name": "Aurora",
+   "alias": "Aurora",
+   "roles": [
+    "mage",
+    "assassin"
+   ]
+  },
+  {
+   "id": 895,
+   "name": "Nilah",
+   "alias": "Nilah",
+   "roles": [
+    "fighter",
+    "assassin"
+   ]
+  },
+  {
+   "id": 897,
+   "name": "K'Sante",
+   "alias": "KSante",
+   "roles": [
+    "tank",
+    "fighter"
+   ]
+  },
+  {
+   "id": 901,
+   "name": "Smolder",
+   "alias": "Smolder",
+   "roles": [
+    "marksman",
+    "mage"
+   ]
+  },
+  {
+   "id": 902,
+   "name": "Milio",
+   "alias": "Milio",
+   "roles": [
+    "support",
+    "mage"
+   ]
+  },
+  {
+   "id": 904,
+   "name": "Zaahen",
+   "alias": "Zaahen",
+   "roles": [
+    "fighter"
+   ]
+  },
+  {
+   "id": 910,
+   "name": "Hwei",
+   "alias": "Hwei",
+   "roles": [
+    "mage",
+    "support"
+   ]
+  },
+  {
+   "id": 950,
+   "name": "Naafiri",
+   "alias": "Naafiri",
+   "roles": [
+    "assassin",
+    "fighter"
+   ]
+  }
+ ],
+ "recommendedPositions": {
+  "1": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "10": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "101": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "102": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "103": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "104": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "105": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "106": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "107": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "11": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "110": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "TOP"
+   ]
+  },
+  "111": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "112": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE"
+   ]
+  },
+  "113": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "114": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "115": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "117": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "119": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "12": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "120": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "121": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "122": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "126": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "127": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "13": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "131": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "133": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "134": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "136": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE"
+   ]
+  },
+  "14": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "141": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "142": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "143": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "UTILITY"
+   ]
+  },
+  "145": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "147": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "15": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "150": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "154": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "157": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "16": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "161": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "163": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "164": {
+   "recommendedPositions": [
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "166": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "17": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "18": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "19": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "2": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "20": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "200": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "201": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "202": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "203": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "21": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "22": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "UTILITY"
+   ]
+  },
+  "221": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "222": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "223": {
+   "recommendedPositions": [
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "23": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "233": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "234": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "235": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "236": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "238": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "24": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "240": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "245": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "246": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "25": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "254": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "26": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "266": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "267": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "268": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "27": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "28": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "29": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "3": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "30": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "JUNGLE"
+   ]
+  },
+  "31": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "32": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "UTILITY"
+   ]
+  },
+  "33": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "34": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "35": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "UTILITY"
+   ]
+  },
+  "350": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "36": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "360": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "37": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "38": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "39": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "4": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "40": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "41": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "412": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "42": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "420": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "421": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "427": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "UTILITY"
+   ]
+  },
+  "429": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "43": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "432": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "44": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "45": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE"
+   ]
+  },
+  "48": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "497": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "498": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "5": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "50": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "51": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "516": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "517": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "518": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "523": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "526": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "53": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "54": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "55": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "555": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "56": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "57": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "58": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "59": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "6": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "60": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "UTILITY"
+   ]
+  },
+  "61": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "62": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "63": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "64": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "66602": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "66608": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "TOP"
+   ]
+  },
+  "66614": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "TOP"
+   ]
+  },
+  "66617": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "66619": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "TOP"
+   ]
+  },
+  "67": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "TOP"
+   ]
+  },
+  "68": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "69": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "7": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "711": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "72": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "74": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "75": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "76": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "UTILITY"
+   ]
+  },
+  "77": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "777": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "78": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "79": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "799": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "8": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "80": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "800": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "804": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "805": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "81": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "82": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "83": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "84": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "85": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "86": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "875": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "876": {
+   "recommendedPositions": [
+    "JUNGLE"
+   ]
+  },
+  "887": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "888": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "89": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "893": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "895": {
+   "recommendedPositions": [
+    "BOTTOM"
+   ]
+  },
+  "897": {
+   "recommendedPositions": [
+    "TOP"
+   ]
+  },
+  "9": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "90": {
+   "recommendedPositions": [
+    "MIDDLE"
+   ]
+  },
+  "901": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE"
+   ]
+  },
+  "902": {
+   "recommendedPositions": [
+    "UTILITY"
+   ]
+  },
+  "904": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP"
+   ]
+  },
+  "91": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "910": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE",
+    "UTILITY"
+   ]
+  },
+  "92": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "TOP"
+   ]
+  },
+  "950": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "MIDDLE"
+   ]
+  },
+  "96": {
+   "recommendedPositions": [
+    "BOTTOM",
+    "MIDDLE"
+   ]
+  },
+  "98": {
+   "recommendedPositions": [
+    "JUNGLE",
+    "TOP",
+    "UTILITY"
+   ]
+  },
+  "99": {
+   "recommendedPositions": [
+    "MIDDLE",
+    "UTILITY"
+   ]
+  }
+ },
+ "champions": {
+  "103": {
+   "id": 103,
+   "name": "Ahri",
+   "alias": "Ahri",
+   "roles": [
+    "mage",
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "86": {
+   "id": 86,
+   "name": "Garen",
+   "alias": "Garen",
+   "roles": [
+    "fighter",
+    "tank"
+   ],
+   "tacticalInfo": {
+    "style": 8,
+    "difficulty": 1,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 3,
+    "crowdControl": 1,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "64": {
+   "id": 64,
+   "name": "Lee Sin",
+   "alias": "LeeSin",
+   "roles": [
+    "fighter",
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 6,
+    "difficulty": 3,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 2,
+    "crowdControl": 2,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "222": {
+   "id": 222,
+   "name": "Jinx",
+   "alias": "Jinx",
+   "roles": [
+    "marksman"
+   ],
+   "tacticalInfo": {
+    "style": 2,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "412": {
+   "id": 412,
+   "name": "Thresh",
+   "alias": "Thresh",
+   "roles": [
+    "support",
+    "tank"
+   ],
+   "tacticalInfo": {
+    "style": 8,
+    "difficulty": 3,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 1,
+    "durability": 2,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 3
+   }
+  },
+  "122": {
+   "id": 122,
+   "name": "Darius",
+   "alias": "Darius",
+   "roles": [
+    "fighter",
+    "tank"
+   ],
+   "tacticalInfo": {
+    "style": 6,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 2,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "104": {
+   "id": 104,
+   "name": "Graves",
+   "alias": "Graves",
+   "roles": [
+    "marksman"
+   ],
+   "tacticalInfo": {
+    "style": 3,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 2,
+    "crowdControl": 1,
+    "mobility": 2,
+    "utility": 2
+   }
+  },
+  "238": {
+   "id": 238,
+   "name": "Zed",
+   "alias": "Zed",
+   "roles": [
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 6,
+    "difficulty": 3,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "145": {
+   "id": 145,
+   "name": "Kai'Sa",
+   "alias": "Kaisa",
+   "roles": [
+    "marksman",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 2,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 0,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "111": {
+   "id": 111,
+   "name": "Nautilus",
+   "alias": "Nautilus",
+   "roles": [
+    "tank",
+    "support"
+   ],
+   "tacticalInfo": {
+    "style": 8,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 1,
+    "durability": 3,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "7": {
+   "id": 7,
+   "name": "LeBlanc",
+   "alias": "Leblanc",
+   "roles": [
+    "assassin",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 3,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "89": {
+   "id": 89,
+   "name": "Leona",
+   "alias": "Leona",
+   "roles": [
+    "tank",
+    "support"
+   ],
+   "tacticalInfo": {
+    "style": 9,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 1,
+    "durability": 3,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "25": {
+   "id": 25,
+   "name": "Morgana",
+   "alias": "Morgana",
+   "roles": [
+    "support",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 1,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 2
+   }
+  },
+  "22": {
+   "id": 22,
+   "name": "Ashe",
+   "alias": "Ashe",
+   "roles": [
+    "marksman",
+    "support"
+   ],
+   "tacticalInfo": {
+    "style": 3,
+    "difficulty": 1,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 1,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 2
+   }
+  },
+  "99": {
+   "id": 99,
+   "name": "Lux",
+   "alias": "Lux",
+   "roles": [
+    "mage",
+    "support"
+   ],
+   "tacticalInfo": {
+    "style": 9,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 2
+   }
+  },
+  "54": {
+   "id": 54,
+   "name": "Malphite",
+   "alias": "Malphite",
+   "roles": [
+    "tank",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 8,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 1,
+    "durability": 3,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "32": {
+   "id": 32,
+   "name": "Amumu",
+   "alias": "Amumu",
+   "roles": [
+    "tank",
+    "support"
+   ],
+   "tacticalInfo": {
+    "style": 9,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 3,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "84": {
+   "id": 84,
+   "name": "Akali",
+   "alias": "Akali",
+   "roles": [
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 7,
+    "difficulty": 3,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "55": {
+   "id": 55,
+   "name": "Katarina",
+   "alias": "Katarina",
+   "roles": [
+    "assassin",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 3,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "157": {
+   "id": 157,
+   "name": "Yasuo",
+   "alias": "Yasuo",
+   "roles": [
+    "fighter",
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 3,
+    "difficulty": 3,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 3,
+    "utility": 2
+   }
+  },
+  "1": {
+   "id": 1,
+   "name": "Annie",
+   "alias": "Annie",
+   "roles": [
+    "mage",
+    "support"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 2
+   }
+  },
+  "517": {
+   "id": 517,
+   "name": "Sylas",
+   "alias": "Sylas",
+   "roles": [
+    "mage",
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 7,
+    "difficulty": 3,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 2,
+    "crowdControl": 1,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "21": {
+   "id": 21,
+   "name": "Miss Fortune",
+   "alias": "MissFortune",
+   "roles": [
+    "marksman",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 4,
+    "difficulty": 1,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "117": {
+   "id": 117,
+   "name": "Lulu",
+   "alias": "Lulu",
+   "roles": [
+    "support",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 8,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 3
+   }
+  }
+ },
+ "recommendedPages": {
+  "103/MIDDLE/11": [
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8139,
+      "name": "Sabor a sangre"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000521",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   },
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8300,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8139,
+      "name": "Sabor a sangre"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 8345,
+      "name": "Entrega de galletas"
+     },
+     {
+      "id": 8347,
+      "name": "Perspicacia cósmica"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000523",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   },
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8200,
+    "secondaryPerkStyleId": 8100,
+    "perks": [
+     {
+      "id": 8992,
+      "name": "Toque de muerte ígnea"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 8237,
+      "name": "Piroláser"
+     },
+     {
+      "id": 8139,
+      "name": "Sabor a sangre"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000522",
+    "keystone": {
+     "id": 8992,
+     "name": "Toque de muerte ígnea",
+     "recommendationDescriptor": "Daño de habilidad continuado"
+    }
+   }
+  ],
+  "222/BOTTOM/11": [
+   {
+    "position": "BOTTOM",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8000,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8021,
+      "name": "Pies veloces"
+     },
+     {
+      "id": 8009,
+      "name": "Claridad mental"
+     },
+     {
+      "id": 9103,
+      "name": "Leyenda: Linaje"
+     },
+     {
+      "id": 8014,
+      "name": "Golpe de gracia"
+     },
+     {
+      "id": 8233,
+      "name": "Concentración absoluta"
+     },
+     {
+      "id": 8236,
+      "name": "Se avecina tormenta"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     21,
+     4
+    ],
+    "recommendationId": "2026-10-26.000795",
+    "keystone": {
+     "id": 8021,
+     "name": "Pies veloces",
+     "recommendationDescriptor": "Movimiento, recuperación de vida"
+    }
+   },
+   {
+    "position": "BOTTOM",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8000,
+    "secondaryPerkStyleId": 8300,
+    "perks": [
+     {
+      "id": 8008,
+      "name": "Compás letal"
+     },
+     {
+      "id": 8009,
+      "name": "Claridad mental"
+     },
+     {
+      "id": 9103,
+      "name": "Leyenda: Linaje"
+     },
+     {
+      "id": 8017,
+      "name": "Derribado"
+     },
+     {
+      "id": 8321,
+      "name": "Reembolso"
+     },
+     {
+      "id": 8313,
+      "name": "Tónico triple"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5011,
+      "name": "Vida"
+     }
+    ],
+    "summonerSpellIds": [
+     21,
+     4
+    ],
+    "recommendationId": "2026-10-26.000794",
+    "keystone": {
+     "id": 8008,
+     "name": "Compás letal",
+     "recommendationDescriptor": "Velocidad de ataque creciente"
+    }
+   },
+   {
+    "position": "BOTTOM",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8000,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8008,
+      "name": "Compás letal"
+     },
+     {
+      "id": 8009,
+      "name": "Claridad mental"
+     },
+     {
+      "id": 9103,
+      "name": "Leyenda: Linaje"
+     },
+     {
+      "id": 8014,
+      "name": "Golpe de gracia"
+     },
+     {
+      "id": 8233,
+      "name": "Concentración absoluta"
+     },
+     {
+      "id": 8236,
+      "name": "Se avecina tormenta"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     21,
+     4
+    ],
+    "recommendationId": "2026-10-26.000793",
+    "keystone": {
+     "id": 8008,
+     "name": "Compás letal",
+     "recommendationDescriptor": "Velocidad de ataque creciente"
+    }
+   }
+  ],
+  "412/UTILITY/11": [
+   {
+    "position": "UTILITY",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8400,
+    "secondaryPerkStyleId": 8300,
+    "perks": [
+     {
+      "id": 8465,
+      "name": "Protector"
+     },
+     {
+      "id": 8463,
+      "name": "Fuente de vida"
+     },
+     {
+      "id": 8473,
+      "name": "Revestimiento de huesos"
+     },
+     {
+      "id": 8242,
+      "name": "Inquebrantable"
+     },
+     {
+      "id": 8345,
+      "name": "Entrega de galletas"
+     },
+     {
+      "id": 8347,
+      "name": "Perspicacia cósmica"
+     },
+     {
+      "id": 5007,
+      "name": "Velocidad de habilidades"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.001171",
+    "keystone": {
+     "id": 8465,
+     "name": "Protector",
+     "recommendationDescriptor": "Escudo a aliados"
+    }
+   },
+   {
+    "position": "UTILITY",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8400,
+    "secondaryPerkStyleId": 8300,
+    "perks": [
+     {
+      "id": 8439,
+      "name": "Reverberacción"
+     },
+     {
+      "id": 8463,
+      "name": "Fuente de vida"
+     },
+     {
+      "id": 8473,
+      "name": "Revestimiento de huesos"
+     },
+     {
+      "id": 8242,
+      "name": "Inquebrantable"
+     },
+     {
+      "id": 8345,
+      "name": "Entrega de galletas"
+     },
+     {
+      "id": 8347,
+      "name": "Perspicacia cósmica"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.001170",
+    "keystone": {
+     "id": 8439,
+     "name": "Reverberacción",
+     "recommendationDescriptor": "Defensa explosiva"
+    }
+   },
+   {
+    "position": "UTILITY",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8300,
+    "secondaryPerkStyleId": 8400,
+    "perks": [
+     {
+      "id": 8351,
+      "name": "Mejora glacial"
+     },
+     {
+      "id": 8306,
+      "name": "Destello hextech"
+     },
+     {
+      "id": 8345,
+      "name": "Entrega de galletas"
+     },
+     {
+      "id": 8347,
+      "name": "Perspicacia cósmica"
+     },
+     {
+      "id": 8473,
+      "name": "Revestimiento de huesos"
+     },
+     {
+      "id": 8242,
+      "name": "Inquebrantable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.001172",
+    "keystone": {
+     "id": 8351,
+     "name": "Mejora glacial",
+     "recommendationDescriptor": "Ralentización de enemigos"
+    }
+   }
+  ],
+  "64/JUNGLE/11": [
+   {
+    "position": "JUNGLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8000,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8143,
+      "name": "Impacto repentino"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 8014,
+      "name": "Golpe de gracia"
+     },
+     {
+      "id": 9111,
+      "name": "Triunfo"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     11
+    ],
+    "recommendationId": "2026-03-11.000845",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   },
+   {
+    "position": "JUNGLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8000,
+    "secondaryPerkStyleId": 8100,
+    "perks": [
+     {
+      "id": 8010,
+      "name": "Conquistador"
+     },
+     {
+      "id": 9111,
+      "name": "Triunfo"
+     },
+     {
+      "id": 9104,
+      "name": "Leyenda: Presteza"
+     },
+     {
+      "id": 8014,
+      "name": "Golpe de gracia"
+     },
+     {
+      "id": 8143,
+      "name": "Impacto repentino"
+     },
+     {
+      "id": 8135,
+      "name": "Cazador de tesoros"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     11
+    ],
+    "recommendationId": "2026-03-11.000844",
+    "keystone": {
+     "id": 8010,
+     "name": "Conquistador",
+     "recommendationDescriptor": "Daño adicional, aguante"
+    }
+   },
+   {
+    "position": "JUNGLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8000,
+    "secondaryPerkStyleId": 8300,
+    "perks": [
+     {
+      "id": 8010,
+      "name": "Conquistador"
+     },
+     {
+      "id": 9111,
+      "name": "Triunfo"
+     },
+     {
+      "id": 9104,
+      "name": "Leyenda: Presteza"
+     },
+     {
+      "id": 8014,
+      "name": "Golpe de gracia"
+     },
+     {
+      "id": 8347,
+      "name": "Perspicacia cósmica"
+     },
+     {
+      "id": 8304,
+      "name": "Calzado mágico"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     11
+    ],
+    "recommendationId": "2026-03-11.000843",
+    "keystone": {
+     "id": 8010,
+     "name": "Conquistador",
+     "recommendationDescriptor": "Daño adicional, aguante"
+    }
+   }
+  ],
+  "86/TOP/11": [
+   {
+    "position": "TOP",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8000,
+    "secondaryPerkStyleId": 8400,
+    "perks": [
+     {
+      "id": 8010,
+      "name": "Conquistador"
+     },
+     {
+      "id": 9111,
+      "name": "Triunfo"
+     },
+     {
+      "id": 9105,
+      "name": "Leyenda: Velocidad"
+     },
+     {
+      "id": 8299,
+      "name": "Último esfuerzo"
+     },
+     {
+      "id": 8429,
+      "name": "Condicionamiento"
+     },
+     {
+      "id": 8451,
+      "name": "Sobrecrecimiento"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000709",
+    "keystone": {
+     "id": 8010,
+     "name": "Conquistador",
+     "recommendationDescriptor": "Daño adicional, aguante"
+    }
+   },
+   {
+    "position": "TOP",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8200,
+    "secondaryPerkStyleId": 8400,
+    "perks": [
+     {
+      "id": 8230,
+      "name": "Tensión del saqueador de tormentas"
+     },
+     {
+      "id": 8224,
+      "name": "Arcanólogo axiomático"
+     },
+     {
+      "id": 8234,
+      "name": "Celeridad"
+     },
+     {
+      "id": 8236,
+      "name": "Se avecina tormenta"
+     },
+     {
+      "id": 8451,
+      "name": "Sobrecrecimiento"
+     },
+     {
+      "id": 8444,
+      "name": "Fuerzas renovadas"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000708",
+    "keystone": {
+     "id": 8230,
+     "name": "Tensión del saqueador de tormentas",
+     "recommendationDescriptor": "Mejora de movimiento"
+    }
+   },
+   {
+    "position": "TOP",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8000,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8010,
+      "name": "Conquistador"
+     },
+     {
+      "id": 9111,
+      "name": "Triunfo"
+     },
+     {
+      "id": 9105,
+      "name": "Leyenda: Velocidad"
+     },
+     {
+      "id": 8299,
+      "name": "Último esfuerzo"
+     },
+     {
+      "id": 8224,
+      "name": "Arcanólogo axiomático"
+     },
+     {
+      "id": 8234,
+      "name": "Celeridad"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000707",
+    "keystone": {
+     "id": 8010,
+     "name": "Conquistador",
+     "recommendationDescriptor": "Daño adicional, aguante"
+    }
+   }
+  ],
+  "7/MIDDLE/11": [
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8143,
+      "name": "Impacto repentino"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8105,
+      "name": "Cazador incesante"
+     },
+     {
+      "id": 8236,
+      "name": "Se avecina tormenta"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000853",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   },
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8000,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8143,
+      "name": "Impacto repentino"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8105,
+      "name": "Cazador incesante"
+     },
+     {
+      "id": 9101,
+      "name": "Absorber vida"
+     },
+     {
+      "id": 8017,
+      "name": "Derribado"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5011,
+      "name": "Vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000854",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   }
+  ],
+  "99/MIDDLE/11": [
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": false,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8128,
+      "name": "Cosecha oscura"
+     },
+     {
+      "id": 8126,
+      "name": "Golpe bajo"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     12
+    ],
+    "recommendationId": "2026-03-11.000862",
+    "keystone": {
+     "id": 8128,
+     "name": "Cosecha oscura",
+     "recommendationDescriptor": "Ejecución de enemigos"
+    }
+   },
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": false,
+    "primaryPerkStyleId": 8200,
+    "secondaryPerkStyleId": 8100,
+    "perks": [
+     {
+      "id": 8229,
+      "name": "Cometa arcano"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 8237,
+      "name": "Piroláser"
+     },
+     {
+      "id": 8126,
+      "name": "Golpe bajo"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     12
+    ],
+    "recommendationId": "2026-03-11.000861",
+    "keystone": {
+     "id": 8229,
+     "name": "Cometa arcano",
+     "recommendationDescriptor": "Daño de habilidad"
+    }
+   },
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": false,
+    "primaryPerkStyleId": 8200,
+    "secondaryPerkStyleId": 8000,
+    "perks": [
+     {
+      "id": 8229,
+      "name": "Cometa arcano"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 8237,
+      "name": "Piroláser"
+     },
+     {
+      "id": 8014,
+      "name": "Golpe de gracia"
+     },
+     {
+      "id": 8009,
+      "name": "Claridad mental"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     12
+    ],
+    "recommendationId": "2026-03-11.000863",
+    "keystone": {
+     "id": 8229,
+     "name": "Cometa arcano",
+     "recommendationDescriptor": "Daño de habilidad"
+    }
+   }
+  ],
+  "99/UTILITY/11": [
+   {
+    "position": "UTILITY",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8200,
+    "secondaryPerkStyleId": 8100,
+    "perks": [
+     {
+      "id": 8229,
+      "name": "Cometa arcano"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 8237,
+      "name": "Piroláser"
+     },
+     {
+      "id": 8126,
+      "name": "Golpe bajo"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-03-11.000864",
+    "keystone": {
+     "id": 8229,
+     "name": "Cometa arcano",
+     "recommendationDescriptor": "Daño de habilidad"
+    }
+   },
+   {
+    "position": "UTILITY",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8200,
+    "secondaryPerkStyleId": 8300,
+    "perks": [
+     {
+      "id": 8229,
+      "name": "Cometa arcano"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 8237,
+      "name": "Piroláser"
+     },
+     {
+      "id": 8345,
+      "name": "Entrega de galletas"
+     },
+     {
+      "id": 8347,
+      "name": "Perspicacia cósmica"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-03-11.000866",
+    "keystone": {
+     "id": 8229,
+     "name": "Cometa arcano",
+     "recommendationDescriptor": "Daño de habilidad"
+    }
+   },
+   {
+    "position": "UTILITY",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8128,
+      "name": "Cosecha oscura"
+     },
+     {
+      "id": 8126,
+      "name": "Golpe bajo"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-03-11.000865",
+    "keystone": {
+     "id": 8128,
+     "name": "Cosecha oscura",
+     "recommendationDescriptor": "Ejecución de enemigos"
+    }
+   }
+  ],
+  "103/NONE/12": [
+   {
+    "position": "NONE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8000,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8126,
+      "name": "Golpe bajo"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 8014,
+      "name": "Golpe de gracia"
+     },
+     {
+      "id": 8009,
+      "name": "Claridad mental"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     32
+    ],
+    "recommendationId": "2026-10-26.000005",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   },
+   {
+    "position": "NONE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8143,
+      "name": "Impacto repentino"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 8226,
+      "name": "Banda de maná"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     32
+    ],
+    "recommendationId": "2026-10-26.000004",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   },
+   {
+    "position": "NONE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8000,
+    "perks": [
+     {
+      "id": 8128,
+      "name": "Cosecha oscura"
+     },
+     {
+      "id": 8126,
+      "name": "Golpe bajo"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8106,
+      "name": "Cazador definitivo"
+     },
+     {
+      "id": 8014,
+      "name": "Golpe de gracia"
+     },
+     {
+      "id": 8009,
+      "name": "Claridad mental"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     32
+    ],
+    "recommendationId": "2026-10-26.000003",
+    "keystone": {
+     "id": 8128,
+     "name": "Cosecha oscura",
+     "recommendationDescriptor": "Ejecución de enemigos"
+    }
+   }
+  ],
+  "7/NONE/11": [
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8200,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8143,
+      "name": "Impacto repentino"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8105,
+      "name": "Cazador incesante"
+     },
+     {
+      "id": 8236,
+      "name": "Se avecina tormenta"
+     },
+     {
+      "id": 8210,
+      "name": "Trascendencia"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5001,
+      "name": "Progresión de vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000853",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   },
+   {
+    "position": "MIDDLE",
+    "isDefaultPosition": true,
+    "primaryPerkStyleId": 8100,
+    "secondaryPerkStyleId": 8000,
+    "perks": [
+     {
+      "id": 8112,
+      "name": "Electrocutar"
+     },
+     {
+      "id": 8143,
+      "name": "Impacto repentino"
+     },
+     {
+      "id": 8140,
+      "name": "Recuerdo macabro"
+     },
+     {
+      "id": 8105,
+      "name": "Cazador incesante"
+     },
+     {
+      "id": 9101,
+      "name": "Absorber vida"
+     },
+     {
+      "id": 8017,
+      "name": "Derribado"
+     },
+     {
+      "id": 5005,
+      "name": "Velocidad de ataque"
+     },
+     {
+      "id": 5008,
+      "name": "Fuerza adaptable"
+     },
+     {
+      "id": 5011,
+      "name": "Vida"
+     }
+    ],
+    "summonerSpellIds": [
+     4,
+     14
+    ],
+    "recommendationId": "2026-10-26.000854",
+    "keystone": {
+     "id": 8112,
+     "name": "Electrocutar",
+     "recommendationDescriptor": "Daño de combos"
+    }
+   }
+  ]
+ }
+}

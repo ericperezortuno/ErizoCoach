@@ -1,0 +1,3 @@
+# Finales de línea uniformes en el repositorio (LF), salvo los .bat, que Windows necesita con CRLF.
+* text=auto eol=lf
+*.bat text eol=crlf
