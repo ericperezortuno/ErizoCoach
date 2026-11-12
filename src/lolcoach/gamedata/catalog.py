@@ -23,6 +23,7 @@ from ..lcu import endpoints
 from ..lcu.client import LcuClient, LcuError
 from ..models import Position
 from ..util import as_dict, as_int, as_list, as_str
+from .items import Item
 from .runes import PerkStyle, RecommendedPage
 
 log = logging.getLogger(__name__)
@@ -126,6 +127,7 @@ class GameData:
         self._styles: dict[int, PerkStyle] = {}
         self._spells: dict[int, SummonerSpell] = {}
         self._positions: dict[int, tuple[Position, ...]] = {}
+        self._items: dict[int, Item] = {}
         self._profiles: dict[int, ChampionProfile] = {}
         self._recommended: dict[tuple[int, Position, int], tuple[RecommendedPage, ...]] = {}
 
@@ -148,12 +150,13 @@ class GameData:
             client.get(endpoints.PERK_STYLES),
             client.get(endpoints.SUMMONER_SPELLS),
             client.get(endpoints.RECOMMENDED_POSITIONS),
+            client.get(endpoints.ITEMS),
             return_exceptions=True,
         )
-        summary, perks, styles, spells, positions = (
+        summary, perks, styles, spells, positions, items = (
             None if isinstance(r, BaseException) else r for r in results
         )
-        labels = ("campeones", "runas", "árboles", "hechizos", "posiciones")
+        labels = ("campeones", "runas", "árboles", "hechizos", "posiciones", "objetos")
         for name, result in zip(labels, results, strict=True):
             if isinstance(result, BaseException):
                 log.warning("No se pudieron cargar los datos de %s: %s", name, result)
@@ -174,13 +177,15 @@ class GameData:
         }
         self._spells = _parse_spells(spells)
         self._positions = _parse_positions(positions)
+        self._items = _parse_items(items)
         self._profiles.clear()
         self._recommended.clear()
         if self._champions:
             self._version = version
         log.debug(
-            "Datos del parche %s: %d campeones, %d runas, %d árboles, %d hechizos",
+            "Datos del parche %s: %d campeones, %d runas, %d árboles, %d hechizos, %d objetos",
             version, len(self._champions), len(self._perks), len(self._styles), len(self._spells),
+            len(self._items),
         )  # fmt: skip
 
     def load_static(self, data: Mapping[str, Any], version: str) -> None:
@@ -193,6 +198,7 @@ class GameData:
         }
         self._spells = _parse_spells(data.get("summonerSpells"))
         self._positions = _parse_positions(data.get("recommendedPositions"))
+        self._items = _parse_items(data.get("items"))
         self._profiles = {
             as_int(k): ChampionProfile.from_json(v)
             for k, v in as_dict(data.get("champions")).items()
@@ -231,6 +237,22 @@ class GameData:
     def positions_for(self, champion_id: int) -> tuple[Position, ...]:
         """Posiciones habituales del campeón, de más a menos frecuente."""
         return self._positions.get(champion_id, ())
+
+    def item(self, item_id: int) -> Item | None:
+        return self._items.get(item_id)
+
+    def item_name(self, item_id: int) -> str:
+        item = self._items.get(item_id)
+        return item.name if item else f"objeto #{item_id}"
+
+    def is_buyable(self, item_id: int) -> bool:
+        """El objeto existe en este parche y se puede comprar en la Grieta."""
+        item = self._items.get(item_id)
+        return item is not None and item.buyable
+
+    def champion_id_by_alias(self, alias: str) -> int:
+        """Id a partir de la clave interna ("Kaisa", "DrMundo"...); 0 si no existe."""
+        return next((c.id for c in self._champions.values() if c.alias == alias), 0)
 
     # --- Consultas al cliente (con caché) ------------------------------------------
 
@@ -309,6 +331,16 @@ def _parse_spells(raw: Any) -> dict[int, SummonerSpell]:
             game_modes=frozenset(m for m in as_list(item.get("gameModes")) if isinstance(m, str)),
         )
     return spells
+
+
+def _parse_items(raw: Any) -> dict[int, Item]:
+    items: dict[int, Item] = {}
+    for entry in as_list(raw):
+        if isinstance(entry, dict):
+            item = Item.from_json(entry)
+            if item.id > 0:
+                items[item.id] = item
+    return items
 
 
 def _parse_positions(raw: Any) -> dict[int, tuple[Position, ...]]:

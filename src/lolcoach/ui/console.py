@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import logging
 
+from ..builds.models import ARCHETYPE_LABELS
 from ..bus import EventBus
 from ..champselect.models import PlayerSlot
 from ..events import (
+    BuildApplied,
+    BuildReady,
     ChampionLocked,
     ChampSelectEnded,
     ChampSelectOutcome,
@@ -40,6 +43,8 @@ class ConsoleReporter:
         bus.subscribe(PicksFinalized, self._on_finalized)
         bus.subscribe(LoadoutReady, self._on_loadout)
         bus.subscribe(LoadoutApplied, self._on_applied)
+        bus.subscribe(BuildReady, self._on_build)
+        bus.subscribe(BuildApplied, self._on_build_applied)
         bus.subscribe(ChampSelectEnded, self._on_ended)
 
     # --- Cliente y estado ---------------------------------------------------------
@@ -146,6 +151,50 @@ class ConsoleReporter:
             log.info(
                 "Aplicado: %s. Puedes cambiarlos a mano; no se volverán a tocar.", " y ".join(done)
             )
+        for problem in event.problems:
+            log.warning(problem)
+
+    # --- Build ---------------------------------------------------------------------------
+
+    def _on_build(self, event: BuildReady) -> None:
+        plan = event.plan
+        gd = self._gamedata
+
+        def names(ids: tuple[int, ...], sep: str = ", ") -> str:
+            return sep.join(gd.item_name(i) for i in ids)
+
+        log.info(
+            "Build para %s: %s (base por %s)",
+            gd.champion_name(plan.champion_id),
+            ARCHETYPE_LABELS[plan.archetype],
+            plan.source,
+        )
+        start = ", ".join(
+            gd.item_name(s.item_id) + (f" x{s.count}" if s.count > 1 else "") for s in plan.starting
+        )
+        log.info("  Inicio:   %s", start)
+        if plan.boots is not None:
+            log.info("  Botas:    %s", gd.item_name(plan.boots))
+        log.info("  Núcleo:   %s", names(plan.core, " > "))
+        log.info("  Completa: %s", names(plan.full))
+        for adjustment in plan.adjustments:
+            log.info("  Ajuste: %s", adjustment)
+        extra = [s for s in plan.situational if s.item_id not in plan.full]
+        for item in extra:
+            log.info("  Si hace falta: %s", item.reason)
+        for item in plan.situational:
+            if item.component_id is not None:
+                log.info(
+                    "  Consejo: compra pronto %s para %s",
+                    gd.item_name(item.component_id),
+                    gd.item_name(item.item_id),
+                )
+        for note in plan.notes:
+            log.info("  Nota: %s", note)
+
+    def _on_build_applied(self, event: BuildApplied) -> None:
+        if event.applied:
+            log.info("Aplicado: build en la tienda, conjunto «%s».", event.set_title)
         for problem in event.problems:
             log.warning(problem)
 

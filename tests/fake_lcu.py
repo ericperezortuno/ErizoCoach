@@ -46,6 +46,23 @@ def rune_page(page_id: int, name: str, *, valid: bool = True, temporary: bool = 
     }
 
 
+def user_item_set(uid: str, title: str) -> dict[str, Any]:
+    return {
+        "uid": uid,
+        "title": title,
+        "type": "custom",
+        "map": "any",
+        "mode": "any",
+        "sortrank": 0,
+        "startedFrom": "blank",
+        "associatedChampions": [],
+        "associatedMaps": [11, 12],
+        "preferredItemSlots": [],
+        "blocks": [{"type": "Mis objetos", "items": [{"id": "3089", "count": 1}],
+                    "hideIfSummonerSpell": "", "showIfSummonerSpell": ""}],
+    }  # fmt: skip
+
+
 class FakeLcu:
     def __init__(self, password: str = "fake-pass-123") -> None:
         self.password = password
@@ -61,6 +78,10 @@ class FakeLcu:
         self.page_slots = 3
         self.current_page_id = 11
         self._next_page_id = 500
+        # Conjuntos de objetos: uno tuyo (como el que tienes en tu cuenta)
+        self.summoner_id = 4242
+        self.item_sets: list[dict[str, Any]] = [user_item_set("user-set-1", "Mi conjunto")]
+        self.drop_other_item_sets = False  # simula un fallo del cliente al guardar
         self._sockets: list[web.WebSocketResponse] = []
         self._runner: web.AppRunner | None = None
 
@@ -83,6 +104,9 @@ class FakeLcu:
         r.add_get(endpoints.PERK_INVENTORY, self._inventory)
         r.add_get(endpoints.PERK_CURRENT_PAGE, self._get_current_page)
         r.add_put(endpoints.PERK_CURRENT_PAGE, self._set_current_page)
+        r.add_get(endpoints.CURRENT_SUMMONER, self._current_summoner)
+        r.add_get("/lol-item-sets/v1/item-sets/{summoner_id}/sets", self._get_item_sets)
+        r.add_put("/lol-item-sets/v1/item-sets/{summoner_id}/sets", self._put_item_sets)
         r.add_get("/{tail:.*}", self._static)  # datos del juego grabados
         self._app = app
 
@@ -219,6 +243,35 @@ class FakeLcu:
             "selectedPerkIds": list(body["selectedPerkIds"]),
             "isValid": True,
         }
+
+    # --- Invocador y conjuntos de objetos ---------------------------------------------
+
+    async def _current_summoner(self, _request: web.Request) -> web.Response:
+        return web.json_response(
+            {"summonerId": self.summoner_id, "accountId": 777, "gameName": "Jugador",
+             "tagLine": "EUW", "puuid": "00000000-0000-0000-0000-000000000000"}
+        )  # fmt: skip
+
+    def _check_summoner(self, request: web.Request) -> web.Response | None:
+        if int(request.match_info["summoner_id"]) != self.summoner_id:
+            return self._error(403, "Not your summoner")
+        return None
+
+    async def _get_item_sets(self, request: web.Request) -> web.Response:
+        if (error := self._check_summoner(request)) is not None:
+            return error
+        return web.json_response({"accountId": 777, "itemSets": self.item_sets, "timestamp": 1})
+
+    async def _put_item_sets(self, request: web.Request) -> web.Response:
+        if (error := self._check_summoner(request)) is not None:
+            return error
+        body = await request.json()
+        sets = copy.deepcopy(body["itemSets"])
+        if self.drop_other_item_sets:
+            sets = [s for s in sets if s["title"].startswith("LoL Coach")]
+            self.drop_other_item_sets = False  # solo falla una vez
+        self.item_sets = sets
+        return web.Response(status=201)
 
     def add_temporary_page(self, *, make_current: bool = True) -> int:
         """Simula la página temporal que el cliente crea al bloquear un campeón."""

@@ -7,11 +7,15 @@ import contextlib
 import ssl
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
+from lolcoach.builds.service import BuildService
 from lolcoach.bus import EventBus
 from lolcoach.champselect.tracker import ChampSelectTracker
 from lolcoach.config import Settings
 from lolcoach.events import (
+    BuildApplied,
+    BuildReady,
     ChampionLocked,
     ChampSelectEnded,
     ChampSelectStarted,
@@ -24,14 +28,19 @@ from lolcoach.events import (
     PicksFinalized,
 )
 from lolcoach.gamedata.catalog import GameData
+from lolcoach.lcu import endpoints
 from lolcoach.lcu.connector import LcuConnector
 from lolcoach.lcu.discovery import LcuCredentials
 from lolcoach.loadout.service import LoadoutService
+from lolcoach.models import GameflowPhase
 from lolcoach.monitor import ClientMonitor
 
+from .factories import DraftScenario
 from .fake_lcu import FakeLcu
 
 EVENT_TYPES = (
+    BuildReady,
+    BuildApplied,
     ClientConnected,
     ClientDisconnected,
     GameflowPhaseChanged,
@@ -78,13 +87,11 @@ class Harness:
         self.gamedata = GameData()
         self.tracker = ChampSelectTracker(self.bus)
         self.monitor = ClientMonitor(self.bus, self.connector, self.gamedata, self.tracker)
+        settings = settings or Settings(data_dir=Path("."))
         self.loadout = LoadoutService(
-            self.bus,
-            self.connector,
-            self.gamedata,
-            settings or Settings(data_dir=Path(".")),
-            page_check_delay=0.05,
+            self.bus, self.connector, self.gamedata, settings, page_check_delay=0.05
         )
+        self.builds = BuildService(self.bus, self.connector, self.gamedata, settings)
         self._task: asyncio.Task[None] | None = None
 
     def of(self, event_type: type) -> list:
@@ -109,3 +116,28 @@ async def wait_until(predicate: Callable[[], bool], timeout: float = 5.0) -> Non
 
 def credentials_for(fake: FakeLcu, password: str | None = None) -> LcuCredentials:
     return LcuCredentials(port=fake.port, password=password or fake.password)
+
+
+async def play_draft(
+    fake: FakeLcu,
+    app: Harness,
+    *,
+    my_spells: tuple[int, int] = (4, 14),
+    until: tuple[type, ...] = (LoadoutApplied, BuildApplied),
+) -> dict[str, Any]:
+    """Juega una selección en draft completa (Ahri medio contra Zed).
+
+    Espera a que se hayan aplicado runas/hechizos y build (``until``).
+    """
+    await wait_until(lambda: app.monitor.phase == GameflowPhase.LOBBY)
+    await fake.set_phase("ChampSelect")
+    await wait_until(lambda: endpoints.CHAMP_SELECT_SESSION in fake.requests)
+    scenario = DraftScenario()
+    state: dict[str, Any] = {}
+    for picks in range(11):
+        state = scenario.state(picks)
+        me = state["myTeam"][2]
+        me["spell1Id"], me["spell2Id"] = my_spells
+        await fake.set_session(state)
+    await wait_until(lambda: all(app.of(event_type) for event_type in until))
+    return state

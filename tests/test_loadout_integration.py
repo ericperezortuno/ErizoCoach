@@ -13,31 +13,13 @@ from lolcoach.events import LoadoutApplied, LoadoutReady
 from lolcoach.lcu import endpoints
 from lolcoach.models import GameflowPhase
 
-from .factories import AHRI, JINX, DraftScenario, blind_session
+from .factories import AHRI, JINX, blind_session
 from .fake_lcu import FakeLcu, rune_page
-from .harness import Harness, credentials_for, wait_until
+from .harness import Harness, credentials_for, play_draft, wait_until
 
 # Recomendación de Riot para Ahri (medio) con el fragmento de Vida por tener a Zed delante
 AHRI_VS_ZED = [8112, 8139, 8140, 8106, 8226, 8210, 5005, 5008, 5011]
 PAGES = "/lol-perks/v1/pages"
-
-
-async def play_draft(
-    fake: FakeLcu, app: Harness, *, my_spells: tuple[int, int] = (4, 14), applies: int = 1
-) -> dict[str, Any]:
-    """Juega una selección en draft completa y espera a que se apliquen runas y hechizos."""
-    await wait_until(lambda: app.monitor.phase == GameflowPhase.LOBBY)
-    await fake.set_phase("ChampSelect")
-    await wait_until(lambda: endpoints.CHAMP_SELECT_SESSION in fake.requests)
-    scenario = DraftScenario()
-    state: dict[str, Any] = {}
-    for picks in range(11):
-        state = scenario.state(picks)
-        me = state["myTeam"][2]
-        me["spell1Id"], me["spell2Id"] = my_spells
-        await fake.set_session(state)
-    await wait_until(lambda: len(app.of(LoadoutApplied)) >= applies)
-    return state
 
 
 def our_page(fake: FakeLcu) -> dict[str, Any]:
@@ -156,7 +138,9 @@ async def test_client_temporary_page_is_replaced(fake: FakeLcu, client_ssl: ssl.
 async def test_disabled_in_settings_only_recommends(
     fake: FakeLcu, client_ssl: ssl.SSLContext
 ) -> None:
-    settings = Settings(data_dir=Path("."), auto_runes=False, auto_spells=False)
+    settings = Settings(
+        data_dir=Path("."), auto_runes=False, auto_spells=False, auto_item_set=False
+    )
     async with Harness(credentials_for(fake), client_ssl, settings=settings) as app:
         await play_draft(fake, app, my_spells=(4, 12))
     assert fake.writes == []

@@ -4163,6 +4163,551 @@
     "mobility": 1,
     "utility": 3
    }
+  },
+  "16": {
+   "id": 16,
+   "name": "Soraka",
+   "alias": "Soraka",
+   "roles": [
+    "support",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 1,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 3
+   }
+  },
+  "266": {
+   "id": 266,
+   "name": "Aatrox",
+   "alias": "Aatrox",
+   "roles": [
+    "fighter"
+   ],
+   "tacticalInfo": {
+    "style": 3,
+    "difficulty": 3,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 3,
+    "crowdControl": 2,
+    "mobility": 2,
+    "utility": 2
+   }
+  },
+  "8": {
+   "id": 8,
+   "name": "Vladimir",
+   "alias": "Vladimir",
+   "roles": [
+    "mage",
+    "fighter"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 2,
+    "crowdControl": 1,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "90": {
+   "id": 90,
+   "name": "Malzahar",
+   "alias": "Malzahar",
+   "roles": [
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 2
+   }
+  },
+  "14": {
+   "id": 14,
+   "name": "Sion",
+   "alias": "Sion",
+   "roles": [
+    "tank",
+    "fighter"
+   ],
+   "tacticalInfo": {
+    "style": 7,
+    "difficulty": 1,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 3,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "516": {
+   "id": 516,
+   "name": "Ornn",
+   "alias": "Ornn",
+   "roles": [
+    "tank"
+   ],
+   "tacticalInfo": {
+    "style": 7,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 1,
+    "durability": 3,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 2
+   }
+  },
+  "901": {
+   "id": 901,
+   "name": "Smolder",
+   "alias": "Smolder",
+   "roles": [
+    "marksman",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 4,
+    "difficulty": 1,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "81": {
+   "id": 81,
+   "name": "Ezreal",
+   "alias": "Ezreal",
+   "roles": [
+    "marksman",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 1,
+    "difficulty": 3,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 1,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "67": {
+   "id": 67,
+   "name": "Vayne",
+   "alias": "Vayne",
+   "roles": [
+    "marksman",
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 1,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 2,
+    "utility": 1
+   }
+  },
+  "63": {
+   "id": 63,
+   "name": "Brand",
+   "alias": "Brand",
+   "roles": [
+    "mage",
+    "support"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "69": {
+   "id": 69,
+   "name": "Cassiopeia",
+   "alias": "Cassiopeia",
+   "roles": [
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 3,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "82": {
+   "id": 82,
+   "name": "Mordekaiser",
+   "alias": "Mordekaiser",
+   "roles": [
+    "fighter",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 8,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 2,
+    "crowdControl": 1,
+    "mobility": 1,
+    "utility": 2
+   }
+  },
+  "72": {
+   "id": 72,
+   "name": "Skarner",
+   "alias": "Skarner",
+   "roles": [
+    "tank",
+    "fighter"
+   ],
+   "tacticalInfo": {
+    "style": 5,
+    "difficulty": 3,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 3,
+    "crowdControl": 3,
+    "mobility": 2,
+    "utility": 1
+   }
+  },
+  "6": {
+   "id": 6,
+   "name": "Urgot",
+   "alias": "Urgot",
+   "roles": [
+    "fighter",
+    "tank"
+   ],
+   "tacticalInfo": {
+    "style": 6,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 2,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "19": {
+   "id": 19,
+   "name": "Warwick",
+   "alias": "Warwick",
+   "roles": [
+    "fighter",
+    "tank"
+   ],
+   "tacticalInfo": {
+    "style": 4,
+    "difficulty": 1,
+    "damageType": "kMixed",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 2,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "36": {
+   "id": 36,
+   "name": "Dr. Mundo",
+   "alias": "DrMundo",
+   "roles": [
+    "tank",
+    "fighter"
+   ],
+   "tacticalInfo": {
+    "style": 6,
+    "difficulty": 1,
+    "damageType": "kMixed",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 3,
+    "crowdControl": 1,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "50": {
+   "id": 50,
+   "name": "Swain",
+   "alias": "Swain",
+   "roles": [
+    "mage",
+    "support"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 2,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "350": {
+   "id": 350,
+   "name": "Yuumi",
+   "alias": "Yuumi",
+   "roles": [
+    "support",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 1,
+    "damageType": "kMagic",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 1,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 3,
+    "utility": 3
+   }
+  },
+  "233": {
+   "id": 233,
+   "name": "Briar",
+   "alias": "Briar",
+   "roles": [
+    "fighter",
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 2,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 2,
+    "crowdControl": 3,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "202": {
+   "id": 202,
+   "name": "Jhin",
+   "alias": "Jhin",
+   "roles": [
+    "marksman",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 3,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 2,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "96": {
+   "id": 96,
+   "name": "Kog'Maw",
+   "alias": "KogMaw",
+   "roles": [
+    "marksman",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 2,
+    "difficulty": 2,
+    "damageType": "kMixed",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 1,
+    "utility": 1
+   }
+  },
+  "29": {
+   "id": 29,
+   "name": "Twitch",
+   "alias": "Twitch",
+   "roles": [
+    "marksman",
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 1,
+    "difficulty": 2,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 2,
+    "utility": 1
+   }
+  },
+  "429": {
+   "id": 429,
+   "name": "Kalista",
+   "alias": "Kalista",
+   "roles": [
+    "marksman"
+   ],
+   "tacticalInfo": {
+    "style": 2,
+    "difficulty": 3,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 1,
+    "crowdControl": 1,
+    "mobility": 3,
+    "utility": 2
+   }
+  },
+  "360": {
+   "id": 360,
+   "name": "Samira",
+   "alias": "Samira",
+   "roles": [
+    "marksman",
+    "assassin"
+   ],
+   "tacticalInfo": {
+    "style": 1,
+    "difficulty": 3,
+    "damageType": "kPhysical",
+    "attackType": "ranged"
+   },
+   "playstyleInfo": {
+    "damage": 3,
+    "durability": 2,
+    "crowdControl": 1,
+    "mobility": 3,
+    "utility": 1
+   }
+  },
+  "3": {
+   "id": 3,
+   "name": "Galio",
+   "alias": "Galio",
+   "roles": [
+    "tank",
+    "mage"
+   ],
+   "tacticalInfo": {
+    "style": 10,
+    "difficulty": 2,
+    "damageType": "kMagic",
+    "attackType": "melee"
+   },
+   "playstyleInfo": {
+    "damage": 2,
+    "durability": 3,
+    "crowdControl": 3,
+    "mobility": 2,
+    "utility": 1
+   }
   }
  },
  "recommendedPages": {
@@ -5698,5 +6243,8338 @@
     }
    }
   ]
- }
+ },
+ "items": [
+  {
+   "id": 1001,
+   "name": "Botas",
+   "priceTotal": 300,
+   "price": 300,
+   "from": [],
+   "to": [
+    3117,
+    3158,
+    3047,
+    3009,
+    3111,
+    3006,
+    3005,
+    3008,
+    3010,
+    3020
+   ],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1004,
+   "name": "Amuleto de las hadas",
+   "priceTotal": 200,
+   "price": 200,
+   "from": [],
+   "to": [
+    3114,
+    3012,
+    4642
+   ],
+   "categories": [
+    "ManaRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1006,
+   "name": "Perla de rejuvenecimiento",
+   "priceTotal": 300,
+   "price": 300,
+   "from": [],
+   "to": [
+    3801,
+    3211,
+    323109,
+    3109
+   ],
+   "categories": [
+    "HealthRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1011,
+   "name": "Cinturón de gigante",
+   "priceTotal": 900,
+   "price": 500,
+   "from": [
+    1028
+   ],
+   "to": [
+    3119,
+    8001,
+    3748,
+    3083,
+    3039,
+    2525,
+    3084,
+    3116,
+    3143,
+    323119,
+    6665,
+    4637,
+    6609,
+    6667
+   ],
+   "categories": [
+    "Health"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1018,
+   "name": "Capa de agilidad",
+   "priceTotal": 600,
+   "price": 600,
+   "from": [],
+   "to": [
+    6670,
+    123430,
+    3086,
+    3095,
+    3039,
+    6676,
+    3031,
+    3033,
+    3508,
+    667666
+   ],
+   "categories": [
+    "CriticalStrike"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1026,
+   "name": "Vara explosiva",
+   "priceTotal": 850,
+   "price": 850,
+   "from": [],
+   "to": [
+    3115,
+    326657,
+    326621,
+    3100,
+    3118,
+    2510,
+    2522,
+    3116,
+    324005,
+    3135,
+    3165,
+    4637,
+    6621,
+    6657
+   ],
+   "categories": [
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1027,
+   "name": "Cristal de zafiro",
+   "priceTotal": 300,
+   "price": 300,
+   "from": [],
+   "to": [
+    3803,
+    3024,
+    3802
+   ],
+   "categories": [
+    "Mana"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1028,
+   "name": "Cristal de rubí",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [
+    323075,
+    323107,
+    1011,
+    323222,
+    4635,
+    6035,
+    3801,
+    2526,
+    2021,
+    3211,
+    4401,
+    3023,
+    3161,
+    6662,
+    6660,
+    3803,
+    3068,
+    2502,
+    3012,
+    3044,
+    3053,
+    3066,
+    3067,
+    3075,
+    326617,
+    3147,
+    3152,
+    322526,
+    3742
+   ],
+   "categories": [
+    "Health"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1029,
+   "name": "Armadura de tela",
+   "priceTotal": 300,
+   "price": 300,
+   "from": [],
+   "to": [
+    1031,
+    3047,
+    323190,
+    323050,
+    3190,
+    2019,
+    2524,
+    2421,
+    3023,
+    3082,
+    2420,
+    3024,
+    3193,
+    3050,
+    3076,
+    3105
+   ],
+   "categories": [
+    "Armor"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1031,
+   "name": "Chaleco de cadenas",
+   "priceTotal": 800,
+   "price": 500,
+   "from": [
+    1029
+   ],
+   "to": [
+    323075,
+    6662,
+    3068,
+    2502,
+    3002,
+    323109,
+    3075,
+    3109,
+    323002,
+    3742,
+    6665
+   ],
+   "categories": [
+    "Armor"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1033,
+   "name": "Manto de anulación de magia",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [
+    1057,
+    4632,
+    323190,
+    323050,
+    3190,
+    2524,
+    3211,
+    3001,
+    3111,
+    3155,
+    3193,
+    3050,
+    3105,
+    3140
+   ],
+   "categories": [
+    "SpellBlock"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1035,
+   "name": "Cuchillo de ascuas",
+   "priceTotal": 350,
+   "price": 350,
+   "from": [],
+   "to": [],
+   "categories": [
+    "LifeSteal",
+    "SpellVamp",
+    "Jungle"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1036,
+   "name": "Espada larga",
+   "priceTotal": 350,
+   "price": 350,
+   "from": [],
+   "to": [
+    3032,
+    6670,
+    1053,
+    3133,
+    3004,
+    2015,
+    2019,
+    2021,
+    2517,
+    6692,
+    3123,
+    3051,
+    6671,
+    3134,
+    323004,
+    3155,
+    3035,
+    3077,
+    2523,
+    3044,
+    4003,
+    3142,
+    6690,
+    6699,
+    6701
+   ],
+   "categories": [
+    "Damage",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1037,
+   "name": "Pico",
+   "priceTotal": 875,
+   "price": 875,
+   "from": [],
+   "to": [
+    3181,
+    6035,
+    3139,
+    2020,
+    2517,
+    6692,
+    3071,
+    3072,
+    6673,
+    3161,
+    6676,
+    2523,
+    3031,
+    3053,
+    3087,
+    3124,
+    3153,
+    6695,
+    6029,
+    6333,
+    667666,
+    6701
+   ],
+   "categories": [
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1038,
+   "name": "Espadón",
+   "priceTotal": 1300,
+   "price": 1300,
+   "from": [],
+   "to": [
+    3032,
+    3072,
+    6671,
+    3095,
+    3026,
+    3031,
+    4403
+   ],
+   "categories": [
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1039,
+   "name": "Espada de granizo",
+   "priceTotal": 350,
+   "price": 350,
+   "from": [],
+   "to": [],
+   "categories": [
+    "LifeSteal",
+    "SpellVamp",
+    "Jungle"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1040,
+   "name": "Filo de obsidiana",
+   "priceTotal": 350,
+   "price": 350,
+   "from": [],
+   "to": [],
+   "categories": [
+    "LifeSteal",
+    "SpellVamp",
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1042,
+   "name": "Daga",
+   "priceTotal": 250,
+   "price": 250,
+   "from": [],
+   "to": [
+    6631,
+    1043,
+    3046,
+    3051,
+    6675,
+    6677,
+    3144,
+    3086,
+    3006,
+    2510,
+    3073,
+    3131
+   ],
+   "categories": [
+    "AttackSpeed"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1043,
+   "name": "Arco curvo",
+   "priceTotal": 700,
+   "price": 450,
+   "from": [
+    1042
+   ],
+   "to": [
+    3115,
+    3302,
+    3091,
+    3124,
+    3153,
+    6672
+   ],
+   "categories": [
+    "AttackSpeed",
+    "OnHit"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1052,
+   "name": "Tomo amplificador",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [
+    4635,
+    4632,
+    124011,
+    3146,
+    3145,
+    2421,
+    3108,
+    2508,
+    2420,
+    4628,
+    3113,
+    3116,
+    3124,
+    3147,
+    323504,
+    326616,
+    3802,
+    3916,
+    4005,
+    4630,
+    4637,
+    4642,
+    4644,
+    6656
+   ],
+   "categories": [
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1053,
+   "name": "Cetro vampírico",
+   "priceTotal": 900,
+   "price": 550,
+   "from": [
+    1036
+   ],
+   "to": [
+    3139,
+    3146,
+    3072,
+    3074,
+    3153,
+    4403
+   ],
+   "categories": [
+    "Damage",
+    "LifeSteal"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1054,
+   "name": "Escudo de Doran",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1055,
+   "name": "Espada de Doran",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "LifeSteal",
+    "SpellVamp",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1056,
+   "name": "Anillo de Doran",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Lane",
+    "ManaRegen",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1057,
+   "name": "Capa negatrón",
+   "priceTotal": 850,
+   "price": 450,
+   "from": [
+    1033
+   ],
+   "to": [
+    4401,
+    2504,
+    3091,
+    328020,
+    6665,
+    8020
+   ],
+   "categories": [
+    "SpellBlock"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1058,
+   "name": "Vara innecesariamente grande",
+   "priceTotal": 1200,
+   "price": 1200,
+   "from": [],
+   "to": [
+    3128,
+    3102,
+    3157,
+    4645,
+    3089,
+    4403
+   ],
+   "categories": [
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1082,
+   "name": "Sello oscuro",
+   "priceTotal": 350,
+   "price": 350,
+   "from": [],
+   "to": [
+    3041
+   ],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1083,
+   "name": "Preferencia",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Damage",
+    "OnHit",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1086,
+   "name": "Arco de Doran",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Damage",
+    "AttackSpeed",
+    "SpellVamp",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1090,
+   "name": "Misión: Calle superior",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1091,
+   "name": "Misión: Calle central",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1092,
+   "name": "Misión: Calle inferior",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1093,
+   "name": "Misión: Apoyo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1094,
+   "name": "Misión: Jungla",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1101,
+   "name": "Cachorro de Garra ígnea",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1102,
+   "name": "Cría de Caminabrisas",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1103,
+   "name": "Brote de Brincamontes",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1104,
+   "name": "Ojo del Heraldo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Trinket",
+    "Active"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1105,
+   "name": "Brote de Brincamontes",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1106,
+   "name": "Cría de Caminabrisas",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1107,
+   "name": "Cachorro de Garra ígnea",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1111,
+   "name": "Las favoritas de Jarvan I",
+   "priceTotal": 300,
+   "price": 300,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "AttackSpeed",
+    "Boots",
+    "Tenacity",
+    "MagicPenetration",
+    "MagicResist",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1120,
+   "name": "Yelmo de Doran",
+   "priceTotal": 450,
+   "price": 450,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1200,
+   "name": "Misión de la calle superior",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1201,
+   "name": "Misión de la calle central",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1202,
+   "name": "Misión de la calle inferior",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1203,
+   "name": "Misión de apoyo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1204,
+   "name": "Misión de la jungla",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1205,
+   "name": "Recompensa de la misión de la jungla",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1206,
+   "name": "Recompensa de la misión de la calle central",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1207,
+   "name": "Recompensa de la misión de la calle inferior",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1208,
+   "name": "Recompensa de la misión de apoyo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1209,
+   "name": "Recompensa de la misión de la jungla",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1210,
+   "name": "Recompensa de la misión de la jungla",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1211,
+   "name": "Recompensa de la misión de la jungla",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1220,
+   "name": "Teleportar desatado (recompensa de la misión de la calle superior)",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1221,
+   "name": "Recompensa de la misión de la calle superior",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1222,
+   "name": "Misión de la calle superior",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1500,
+   "name": "Balas penetrantes",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "HealthRegen",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1501,
+   "name": "Fortificación",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1502,
+   "name": "Armadura reforzada",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1503,
+   "name": "Ojo del guardián",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "HealthRegen",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1504,
+   "name": "Vanguardia",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1505,
+   "name": "Armadura reforzada",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1506,
+   "name": "Armadura reforzada",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1507,
+   "name": "Sobrecargado",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1508,
+   "name": "Calcetines antitorres",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1509,
+   "name": "Afán",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1510,
+   "name": "Afán peculiar",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1511,
+   "name": "Armadura de supermecha",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1512,
+   "name": "Campo energético de supermecha",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1515,
+   "name": "Placas de torreta",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1516,
+   "name": "Recompensa de estructura",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "HealthRegen",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1517,
+   "name": "Recompensa de estructura",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "HealthRegen",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1518,
+   "name": "Recompensa de estructura",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "HealthRegen",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1519,
+   "name": "Recompensa de estructura",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "HealthRegen",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1520,
+   "name": "Sobrecargado",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1521,
+   "name": "Fortificación",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1522,
+   "name": "Mejora de torre",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "Damage"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1523,
+   "name": "Sobrecarga",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "ManaRegen",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 1524,
+   "name": "Sobrecrecimiento",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Armor",
+    "Damage"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2001,
+   "name": "Retirada",
+   "priceTotal": 60,
+   "price": 60,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2002,
+   "name": "Retirada mejorada",
+   "priceTotal": 60,
+   "price": 60,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2003,
+   "name": "Poción de vida",
+   "priceTotal": 50,
+   "price": 50,
+   "from": [],
+   "to": [],
+   "categories": [
+    "HealthRegen",
+    "Consumable",
+    "Lane",
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2007,
+   "name": "Retirada desactivada",
+   "priceTotal": 60,
+   "price": 60,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2008,
+   "name": "",
+   "priceTotal": 60,
+   "price": 60,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2010,
+   "name": "Galleta de la voluntad eterna",
+   "priceTotal": 50,
+   "price": 50,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2015,
+   "name": "Fragmento de Kircheis",
+   "priceTotal": 700,
+   "price": 350,
+   "from": [
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2019,
+   "name": "Sello de acero",
+   "priceTotal": 1100,
+   "price": 150,
+   "from": [
+    1029,
+    1036,
+    1029
+   ],
+   "to": [
+    3026,
+    6333,
+    6700
+   ],
+   "categories": [
+    "Armor",
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2020,
+   "name": "Embrutecedor",
+   "priceTotal": 1337,
+   "price": 212,
+   "from": [
+    2022,
+    1037
+   ],
+   "to": [
+    6696,
+    2520,
+    6698,
+    6699
+   ],
+   "categories": [
+    "Damage",
+    "CooldownReduction",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2021,
+   "name": "Tuneladora",
+   "priceTotal": 1150,
+   "price": 400,
+   "from": [
+    1036,
+    1028
+   ],
+   "to": [
+    3181,
+    3748,
+    3161,
+    3814,
+    6610,
+    2501,
+    3053,
+    3073
+   ],
+   "categories": [
+    "Health",
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2022,
+   "name": "Mota brillante",
+   "priceTotal": 250,
+   "price": 250,
+   "from": [],
+   "to": [
+    3158,
+    3133,
+    2020,
+    3108,
+    6660,
+    3024,
+    3057,
+    3067,
+    3802,
+    4642
+   ],
+   "categories": [
+    "CooldownReduction"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2031,
+   "name": "Poción reutilizable",
+   "priceTotal": 150,
+   "price": 150,
+   "from": [],
+   "to": [
+    2033
+   ],
+   "categories": [
+    "HealthRegen",
+    "Consumable",
+    "Active",
+    "Lane",
+    "Jungle"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2033,
+   "name": "Poción de corrupción",
+   "priceTotal": 500,
+   "price": 350,
+   "from": [
+    2031
+   ],
+   "to": [],
+   "categories": [
+    "Active",
+    "Consumable",
+    "HealthRegen",
+    "Lane",
+    "ManaRegen"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2049,
+   "name": "Amuleto del protector",
+   "priceTotal": 500,
+   "price": 500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "CooldownReduction",
+    "Lane",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2050,
+   "name": "Sudario del guardián",
+   "priceTotal": 500,
+   "price": 500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "CooldownReduction",
+    "Lane",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2051,
+   "name": "Cuerno del guardián",
+   "priceTotal": 950,
+   "price": 950,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2052,
+   "name": "Snack para poros",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2055,
+   "name": "Guardián de control",
+   "priceTotal": 75,
+   "price": 75,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "Lane",
+    "Stealth",
+    "Vision"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2056,
+   "name": "Guardián invisible",
+   "priceTotal": 40,
+   "price": 40,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "Lane",
+    "Stealth",
+    "Vision"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2065,
+   "name": "Canción de batalla de Shurelya",
+   "priceTotal": 2200,
+   "price": 400,
+   "from": [
+    3113,
+    4642
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "Active",
+    "CooldownReduction",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2138,
+   "name": "Elixir de hierro",
+   "priceTotal": 500,
+   "price": 500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Consumable",
+    "NonbootsMovement",
+    "Tenacity"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2139,
+   "name": "Elixir de brujería",
+   "priceTotal": 500,
+   "price": 500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "ManaRegen",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2140,
+   "name": "Elixir de cólera",
+   "priceTotal": 500,
+   "price": 500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "Damage",
+    "LifeSteal",
+    "SpellVamp"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2141,
+   "name": "Zumito de la risa",
+   "priceTotal": 300,
+   "price": 300,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Consumable"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2142,
+   "name": "Zumito de poder",
+   "priceTotal": 500,
+   "price": 500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "Consumable"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2143,
+   "name": "Zumito de vitalidad",
+   "priceTotal": 500,
+   "price": 500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Consumable"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2144,
+   "name": "Zumito de velocidad",
+   "priceTotal": 500,
+   "price": 500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "CooldownReduction"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2145,
+   "name": "Dados de la suerte",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2146,
+   "name": "Dados de la suerte mejorados",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2147,
+   "name": "Nivel de aumento",
+   "priceTotal": 1250,
+   "price": 1250,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2150,
+   "name": "Elixir de habilidad",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2151,
+   "name": "Elixir de la avaricia",
+   "priceTotal": 50,
+   "price": 50,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Consumable",
+    "Tenacity"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2152,
+   "name": "Elixir de fuerza",
+   "priceTotal": 50,
+   "price": 50,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "Tenacity"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2161,
+   "name": "Zumito de poder de Bandle",
+   "priceTotal": 1000,
+   "price": 1000,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "Consumable"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2162,
+   "name": "Zumito de vitalidad de Bandle",
+   "priceTotal": 1000,
+   "price": 1000,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Consumable"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2163,
+   "name": "Zumito de velocidad de Bandle",
+   "priceTotal": 1000,
+   "price": 1000,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "CooldownReduction"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2403,
+   "name": "Desmaterializador de súbditos",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2420,
+   "name": "Brazalete de la buscadora",
+   "priceTotal": 1600,
+   "price": 500,
+   "from": [
+    1052,
+    1029,
+    1052
+   ],
+   "to": [
+    3157
+   ],
+   "categories": [
+    "Armor",
+    "SpellDamage",
+    "Active"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2421,
+   "name": "Brazalete quebrado",
+   "priceTotal": 1600,
+   "price": 500,
+   "from": [
+    1052,
+    1029,
+    1052
+   ],
+   "to": [
+    3157
+   ],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2422,
+   "name": "Calzado ligeramente mágico",
+   "priceTotal": 300,
+   "price": 300,
+   "from": [],
+   "to": [
+    3006,
+    3047,
+    3020,
+    3158,
+    3111,
+    3117,
+    3009,
+    3008
+   ],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2501,
+   "name": "Sangría del soberano",
+   "priceTotal": 3300,
+   "price": 1000,
+   "from": [
+    2021,
+    2021
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2502,
+   "name": "Desesperanza eterna",
+   "priceTotal": 2800,
+   "price": 800,
+   "from": [
+    1031,
+    3067,
+    1028
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Armor",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2503,
+   "name": "Antorcha de fuego negro",
+   "priceTotal": 2800,
+   "price": 700,
+   "from": [
+    3802,
+    2508
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "Mana",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2504,
+   "name": "Rookern kaénico",
+   "priceTotal": 2900,
+   "price": 800,
+   "from": [
+    3211,
+    1057
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "HealthRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2508,
+   "name": "Cenizas predestinadas",
+   "priceTotal": 900,
+   "price": 500,
+   "from": [
+    1052
+   ],
+   "to": [
+    6653,
+    2503
+   ],
+   "categories": [
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2510,
+   "name": "Amanecer y anochecer",
+   "priceTotal": 3100,
+   "price": 300,
+   "from": [
+    3057,
+    1026,
+    3067,
+    1042
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "AttackSpeed",
+    "SpellDamage",
+    "OnHit",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2512,
+   "name": "Dardos rastreademonios",
+   "priceTotal": 2650,
+   "price": 850,
+   "from": [
+    3086,
+    3144
+   ],
+   "to": [],
+   "categories": [
+    "CriticalStrike",
+    "AttackSpeed",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2517,
+   "name": "Hambre insaciable",
+   "priceTotal": 3100,
+   "price": 825,
+   "from": [
+    3133,
+    1037,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "LifeSteal",
+    "SpellVamp",
+    "Tenacity",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2520,
+   "name": "Quiebrabastiones",
+   "priceTotal": 3000,
+   "price": 663,
+   "from": [
+    2020,
+    3134
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2522,
+   "name": "Actualizador",
+   "priceTotal": 2800,
+   "price": 750,
+   "from": [
+    3802,
+    1026
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "Mana",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2523,
+   "name": "Óptica hextech C44",
+   "priceTotal": 2800,
+   "price": 275,
+   "from": [
+    1037,
+    6670,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2524,
+   "name": "Bandlemusa",
+   "priceTotal": 2300,
+   "price": 800,
+   "from": [
+    3067,
+    1029,
+    1033
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "AttackSpeed",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2525,
+   "name": "Arnés de protoplasma",
+   "priceTotal": 2600,
+   "price": 900,
+   "from": [
+    3067,
+    1011
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "NonbootsMovement",
+    "Tenacity",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2526,
+   "name": "Diadema susurrante",
+   "priceTotal": 2250,
+   "price": 850,
+   "from": [
+    3114,
+    1028,
+    3070
+   ],
+   "to": [
+    2530
+   ],
+   "categories": [
+    "Health",
+    "Mana",
+    "ManaRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 2530,
+   "name": "Diadema melodiosa",
+   "priceTotal": 2250,
+   "price": 2250,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Mana",
+    "ManaRegen",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3001,
+   "name": "Mortaja de la quietud",
+   "priceTotal": 2300,
+   "price": 850,
+   "from": [
+    3023,
+    1033
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3002,
+   "name": "Marcasendas",
+   "priceTotal": 2400,
+   "price": 800,
+   "from": [
+    3066,
+    1031
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Armor",
+    "NonbootsMovement"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3003,
+   "name": "Bastón del arcángel",
+   "priceTotal": 2900,
+   "price": 450,
+   "from": [
+    3070,
+    3802,
+    3108
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "Mana",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3004,
+   "name": "Manamune",
+   "priceTotal": 2900,
+   "price": 1100,
+   "from": [
+    3070,
+    3133,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Mana",
+    "CooldownReduction",
+    "OnHit",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3005,
+   "name": "Exploradores fantasmales",
+   "priceTotal": 1000,
+   "price": 700,
+   "from": [
+    1001
+   ],
+   "to": [],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3006,
+   "name": "Grebas de berserker",
+   "priceTotal": 1100,
+   "price": 300,
+   "from": [
+    1001,
+    1042,
+    1042
+   ],
+   "to": [
+    3172
+   ],
+   "categories": [
+    "AttackSpeed",
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3008,
+   "name": "Grebas codiciosas",
+   "priceTotal": 1100,
+   "price": 800,
+   "from": [
+    1001
+   ],
+   "to": [
+    3168
+   ],
+   "categories": [
+    "LifeSteal",
+    "SpellVamp",
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3009,
+   "name": "Botas de rapidez",
+   "priceTotal": 1000,
+   "price": 700,
+   "from": [
+    1001
+   ],
+   "to": [
+    3170
+   ],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3010,
+   "name": "Suelas simbióticas",
+   "priceTotal": 900,
+   "price": 600,
+   "from": [
+    1001
+   ],
+   "to": [
+    3013
+   ],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3011,
+   "name": "Putrificador tecnoquímico",
+   "priceTotal": 1900,
+   "price": 500,
+   "from": [
+    3916,
+    3114
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3012,
+   "name": "Cáliz de la bendición",
+   "priceTotal": 900,
+   "price": 300,
+   "from": [
+    1028,
+    1004
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "ManaRegen"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3013,
+   "name": "Almas en sincronía",
+   "priceTotal": 900,
+   "price": 0,
+   "from": [
+    3010
+   ],
+   "to": [
+    3176
+   ],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3020,
+   "name": "Botas de hechicero",
+   "priceTotal": 1100,
+   "price": 800,
+   "from": [
+    1001
+   ],
+   "to": [
+    3175
+   ],
+   "categories": [
+    "Boots",
+    "MagicPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3023,
+   "name": "Colgante de la buena vida",
+   "priceTotal": 1050,
+   "price": 350,
+   "from": [
+    1028,
+    1029
+   ],
+   "to": [
+    3001
+   ],
+   "categories": [
+    "Health",
+    "Armor",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3024,
+   "name": "Broquel glacial",
+   "priceTotal": 900,
+   "price": 50,
+   "from": [
+    1029,
+    1027,
+    2022
+   ],
+   "to": [
+    3110,
+    323110
+   ],
+   "categories": [
+    "Armor",
+    "Mana",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3026,
+   "name": "Ángel de la guarda",
+   "priceTotal": 3200,
+   "price": 800,
+   "from": [
+    2019,
+    1038
+   ],
+   "to": [],
+   "categories": [
+    "Armor",
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3031,
+   "name": "Filo infinito",
+   "priceTotal": 3500,
+   "price": 725,
+   "from": [
+    1038,
+    1037,
+    1018
+   ],
+   "to": [],
+   "categories": [
+    "CriticalStrike",
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3032,
+   "name": "Flechas de los Yun Tal",
+   "priceTotal": 3000,
+   "price": 750,
+   "from": [
+    1038,
+    3144,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike",
+    "AttackSpeed"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3033,
+   "name": "Recordatorio letal",
+   "priceTotal": 3000,
+   "price": 150,
+   "from": [
+    3123,
+    3035,
+    1018
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3035,
+   "name": "Últimas palabras",
+   "priceTotal": 1450,
+   "price": 750,
+   "from": [
+    1036,
+    1036
+   ],
+   "to": [
+    6694,
+    3033,
+    3036
+   ],
+   "categories": [
+    "ArmorPenetration",
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3036,
+   "name": "Recuerdos de lord Dominik",
+   "priceTotal": 3300,
+   "price": 550,
+   "from": [
+    3035,
+    6670
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3039,
+   "name": "Juicio de Atma",
+   "priceTotal": 2900,
+   "price": 500,
+   "from": [
+    1011,
+    1018,
+    1011
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "CriticalStrike"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3040,
+   "name": "Abrazo del serafín",
+   "priceTotal": 2900,
+   "price": 2900,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "Mana",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3041,
+   "name": "Robaalmas de Mejai",
+   "priceTotal": 1500,
+   "price": 1150,
+   "from": [
+    1082
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3042,
+   "name": "Muramana",
+   "priceTotal": 2900,
+   "price": 2900,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Mana",
+    "CooldownReduction",
+    "OnHit",
+    "ArmorPenetration"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3044,
+   "name": "Bacteriófago",
+   "priceTotal": 1100,
+   "price": 350,
+   "from": [
+    1028,
+    1036
+   ],
+   "to": [
+    6631,
+    6630,
+    3071,
+    3073,
+    3078
+   ],
+   "categories": [
+    "Health",
+    "Damage",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3046,
+   "name": "Bailarín espectral",
+   "priceTotal": 2650,
+   "price": 950,
+   "from": [
+    1042,
+    3086,
+    1042
+   ],
+   "to": [],
+   "categories": [
+    "CriticalStrike",
+    "AttackSpeed",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3047,
+   "name": "Botas blindadas",
+   "priceTotal": 1200,
+   "price": 600,
+   "from": [
+    1001,
+    1029
+   ],
+   "to": [
+    3174
+   ],
+   "categories": [
+    "Armor",
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3050,
+   "name": "Convergencia de Zeke",
+   "priceTotal": 2200,
+   "price": 700,
+   "from": [
+    3067,
+    1029,
+    1033
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3051,
+   "name": "Hacha hogareña",
+   "priceTotal": 1200,
+   "price": 250,
+   "from": [
+    1036,
+    1042,
+    1036
+   ],
+   "to": [
+    3302,
+    3078,
+    6672
+   ],
+   "categories": [
+    "Damage",
+    "AttackSpeed"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3053,
+   "name": "Calibrador de Sterak",
+   "priceTotal": 3200,
+   "price": 775,
+   "from": [
+    1037,
+    2021,
+    1028
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "Tenacity"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3057,
+   "name": "Brillo",
+   "priceTotal": 900,
+   "price": 650,
+   "from": [
+    2022
+   ],
+   "to": [
+    3100,
+    6662,
+    2510,
+    3508,
+    3078,
+    6632
+   ],
+   "categories": [
+    "OnHit",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3065,
+   "name": "Rostro espiritual",
+   "priceTotal": 2700,
+   "price": 650,
+   "from": [
+    3211,
+    3067
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "HealthRegen",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3066,
+   "name": "Armadura lunar alada",
+   "priceTotal": 800,
+   "price": 400,
+   "from": [
+    1028
+   ],
+   "to": [
+    3181,
+    4401,
+    3002,
+    323002,
+    3742
+   ],
+   "categories": [
+    "Health",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3067,
+   "name": "Gema avivadora",
+   "priceTotal": 800,
+   "price": 150,
+   "from": [
+    1028,
+    2022
+   ],
+   "to": [
+    323107,
+    323222,
+    6630,
+    124011,
+    323190,
+    323050,
+    3119,
+    8001,
+    3190,
+    2524,
+    3071,
+    6620,
+    2502,
+    2510,
+    2525,
+    3050,
+    323109,
+    3065,
+    3109,
+    326617,
+    3152,
+    3165,
+    3222,
+    323119,
+    326620,
+    328020,
+    4403,
+    4629,
+    4644,
+    6617,
+    6632,
+    6656,
+    8020
+   ],
+   "categories": [
+    "Health",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3068,
+   "name": "Égida de fuego solar",
+   "priceTotal": 2800,
+   "price": 700,
+   "from": [
+    6660,
+    1031,
+    1028
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Armor",
+    "Aura",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3070,
+   "name": "Lágrima de la diosa",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [
+    3003,
+    3004,
+    3119,
+    2526
+   ],
+   "categories": [
+    "Mana",
+    "ManaRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3071,
+   "name": "Cuchilla negra",
+   "priceTotal": 3000,
+   "price": 225,
+   "from": [
+    3044,
+    3067,
+    1037
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "CooldownReduction",
+    "OnHit",
+    "NonbootsMovement",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3072,
+   "name": "Sanguinaria",
+   "priceTotal": 3400,
+   "price": 325,
+   "from": [
+    1038,
+    1037,
+    1053
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "LifeSteal"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3073,
+   "name": "Experimento de hexarmadura",
+   "priceTotal": 3000,
+   "price": 500,
+   "from": [
+    2021,
+    1042,
+    3044
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "AttackSpeed",
+    "CooldownReduction",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3074,
+   "name": "Hidra voraz",
+   "priceTotal": 3300,
+   "price": 150,
+   "from": [
+    3077,
+    1053,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "LifeSteal",
+    "CooldownReduction",
+    "OnHit",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3075,
+   "name": "Malla de espinas",
+   "priceTotal": 2450,
+   "price": 450,
+   "from": [
+    3076,
+    1031,
+    1028
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Armor"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3076,
+   "name": "Chaleco de zarzas",
+   "priceTotal": 800,
+   "price": 200,
+   "from": [
+    1029,
+    1029
+   ],
+   "to": [
+    323075,
+    3075
+   ],
+   "categories": [
+    "Armor"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3077,
+   "name": "Tiamat",
+   "priceTotal": 1200,
+   "price": 500,
+   "from": [
+    1036,
+    1036
+   ],
+   "to": [
+    3074,
+    3748,
+    6698,
+    6631
+   ],
+   "categories": [
+    "Damage",
+    "OnHit"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3078,
+   "name": "Fuerza de trinidad",
+   "priceTotal": 3333,
+   "price": 133,
+   "from": [
+    3057,
+    3044,
+    3051
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "AttackSpeed",
+    "CooldownReduction",
+    "OnHit",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3082,
+   "name": "Malla del guardián",
+   "priceTotal": 1000,
+   "price": 400,
+   "from": [
+    1029,
+    1029
+   ],
+   "to": [
+    3110,
+    323110,
+    3143
+   ],
+   "categories": [
+    "Armor"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3083,
+   "name": "Armadura de Warmog",
+   "priceTotal": 3100,
+   "price": 500,
+   "from": [
+    1011,
+    1011,
+    3801
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3084,
+   "name": "Corazón de acero",
+   "priceTotal": 3000,
+   "price": 400,
+   "from": [
+    1011,
+    3801,
+    1011
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3085,
+   "name": "Huracán de Runaan",
+   "priceTotal": 2650,
+   "price": 850,
+   "from": [
+    3086,
+    3144
+   ],
+   "to": [],
+   "categories": [
+    "CriticalStrike",
+    "AttackSpeed",
+    "OnHit",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3086,
+   "name": "Fervor",
+   "priceTotal": 1200,
+   "price": 350,
+   "from": [
+    1018,
+    1042
+   ],
+   "to": [
+    3046,
+    6675,
+    6671,
+    2512,
+    3085,
+    3094,
+    4403
+   ],
+   "categories": [
+    "CriticalStrike",
+    "AttackSpeed",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3087,
+   "name": "Puñal de Statikk",
+   "priceTotal": 3000,
+   "price": 625,
+   "from": [
+    3144,
+    3113,
+    1037
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "AttackSpeed",
+    "SpellDamage",
+    "OnHit",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3089,
+   "name": "Sombrero mortal de Rabadon",
+   "priceTotal": 3500,
+   "price": 1100,
+   "from": [
+    1058,
+    1058
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3091,
+   "name": "Final del ingenio",
+   "priceTotal": 2800,
+   "price": 550,
+   "from": [
+    1043,
+    1057,
+    1043
+   ],
+   "to": [],
+   "categories": [
+    "SpellBlock",
+    "AttackSpeed",
+    "OnHit",
+    "Tenacity"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3094,
+   "name": "Cañón de fuego rápido",
+   "priceTotal": 2650,
+   "price": 850,
+   "from": [
+    3086,
+    3144
+   ],
+   "to": [],
+   "categories": [
+    "CriticalStrike",
+    "AttackSpeed",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3095,
+   "name": "Navaja de asalto",
+   "priceTotal": 3200,
+   "price": 700,
+   "from": [
+    1038,
+    1018,
+    3144
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike",
+    "AttackSpeed",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3100,
+   "name": "Perdición del liche",
+   "priceTotal": 2900,
+   "price": 250,
+   "from": [
+    3057,
+    3113,
+    1026
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "OnHit",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3102,
+   "name": "Velo del hada de la muerte",
+   "priceTotal": 3000,
+   "price": 200,
+   "from": [
+    1058,
+    4632
+   ],
+   "to": [],
+   "categories": [
+    "SpellBlock",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3105,
+   "name": "Protección de la legión",
+   "priceTotal": 1100,
+   "price": 400,
+   "from": [
+    1033,
+    1029
+   ],
+   "to": [
+    3193,
+    4403,
+    6667
+   ],
+   "categories": [
+    "SpellBlock",
+    "Armor",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3107,
+   "name": "Redención",
+   "priceTotal": 2300,
+   "price": 850,
+   "from": [
+    3108,
+    3114
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3108,
+   "name": "Códice diabólico",
+   "priceTotal": 850,
+   "price": 200,
+   "from": [
+    1052,
+    2022
+   ],
+   "to": [
+    323003,
+    3128,
+    3115,
+    123430,
+    3003,
+    4628,
+    3137,
+    3107,
+    326616,
+    4636,
+    4629,
+    4633,
+    6616,
+    8010
+   ],
+   "categories": [
+    "SpellDamage",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3109,
+   "name": "Promesa de caballero",
+   "priceTotal": 2300,
+   "price": 400,
+   "from": [
+    3067,
+    1031,
+    1006
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "Armor",
+    "Aura",
+    "Active",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3110,
+   "name": "Corazón de hielo",
+   "priceTotal": 2500,
+   "price": 600,
+   "from": [
+    3082,
+    3024
+   ],
+   "to": [],
+   "categories": [
+    "Armor",
+    "Mana",
+    "Aura",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3111,
+   "name": "Botas de mercurio",
+   "priceTotal": 1250,
+   "price": 550,
+   "from": [
+    1001,
+    1033
+   ],
+   "to": [
+    3173
+   ],
+   "categories": [
+    "Boots",
+    "SpellBlock",
+    "Tenacity"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3112,
+   "name": "Orbe del guardián",
+   "priceTotal": 950,
+   "price": 950,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "ManaRegen",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3113,
+   "name": "Brisa de éter",
+   "priceTotal": 900,
+   "price": 500,
+   "from": [
+    1052
+   ],
+   "to": [
+    123430,
+    322065,
+    4646,
+    3504,
+    2065,
+    3100,
+    3087,
+    323504,
+    4629
+   ],
+   "categories": [
+    "NonbootsMovement",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3114,
+   "name": "Ídolo prohibido",
+   "priceTotal": 600,
+   "price": 400,
+   "from": [
+    1004
+   ],
+   "to": [
+    323107,
+    323222,
+    124011,
+    223011,
+    2526,
+    3504,
+    326621,
+    3011,
+    3107,
+    3222,
+    322526,
+    323504,
+    326616,
+    6616,
+    6621
+   ],
+   "categories": [
+    "ManaRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3115,
+   "name": "Diente de Nashor",
+   "priceTotal": 2900,
+   "price": 500,
+   "from": [
+    1043,
+    1026,
+    3108
+   ],
+   "to": [],
+   "categories": [
+    "AttackSpeed",
+    "SpellDamage",
+    "OnHit",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3116,
+   "name": "Cetro de cristal de Rylai",
+   "priceTotal": 2600,
+   "price": 450,
+   "from": [
+    1026,
+    1011,
+    1052
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "Slow"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3117,
+   "name": "Botas de movilidad",
+   "priceTotal": 1000,
+   "price": 700,
+   "from": [
+    1001
+   ],
+   "to": [],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3118,
+   "name": "Malignidad",
+   "priceTotal": 2700,
+   "price": 650,
+   "from": [
+    3802,
+    1026
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "Mana",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3119,
+   "name": "Llegada del invierno",
+   "priceTotal": 2400,
+   "price": 300,
+   "from": [
+    3070,
+    1011,
+    3067
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Mana",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3121,
+   "name": "El gran invierno",
+   "priceTotal": 2400,
+   "price": 2400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Mana",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3123,
+   "name": "Llamada del verdugo",
+   "priceTotal": 800,
+   "price": 450,
+   "from": [
+    1036
+   ],
+   "to": [
+    3033,
+    6609
+   ],
+   "categories": [
+    "Damage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3124,
+   "name": "Hoja de furia de Guinsoo",
+   "priceTotal": 3000,
+   "price": 1025,
+   "from": [
+    1052,
+    1043,
+    1037
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "AttackSpeed",
+    "SpellDamage",
+    "OnHit"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3128,
+   "name": "Tenaza de muerte ígnea",
+   "priceTotal": 2900,
+   "price": 850,
+   "from": [
+    1058,
+    3108
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "CooldownReduction"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3131,
+   "name": "Espada de los dioses",
+   "priceTotal": 2300,
+   "price": 800,
+   "from": [
+    3134,
+    1042,
+    1042
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike",
+    "AttackSpeed"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3133,
+   "name": "Martillo de guerra de Caulfield",
+   "priceTotal": 1050,
+   "price": 100,
+   "from": [
+    1036,
+    2022,
+    1036
+   ],
+   "to": [
+    6693,
+    126697,
+    3004,
+    6694,
+    3156,
+    6696,
+    2517,
+    6692,
+    6691,
+    323004,
+    3074,
+    6610,
+    6697,
+    4402,
+    3508,
+    3179,
+    6333,
+    6609,
+    6632
+   ],
+   "categories": [
+    "Damage",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3134,
+   "name": "Daga dentada",
+   "priceTotal": 1000,
+   "price": 300,
+   "from": [
+    1036,
+    1036
+   ],
+   "to": [
+    3142,
+    6693,
+    126697,
+    2520,
+    6691,
+    3814,
+    4004,
+    6676,
+    6697,
+    3131,
+    3179,
+    6695,
+    667666,
+    6701
+   ],
+   "categories": [
+    "Damage",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3135,
+   "name": "Bastón del Vacío",
+   "priceTotal": 3000,
+   "price": 1050,
+   "from": [
+    4630,
+    1026
+   ],
+   "to": [],
+   "categories": [
+    "MagicPenetration",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3137,
+   "name": "Florescencia sepulcral",
+   "priceTotal": 3000,
+   "price": 200,
+   "from": [
+    4630,
+    3108,
+    3108
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "MagicPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3139,
+   "name": "Cimitarra mercurial",
+   "priceTotal": 3200,
+   "price": 125,
+   "from": [
+    3140,
+    1037,
+    1053
+   ],
+   "to": [],
+   "categories": [
+    "SpellBlock",
+    "Damage",
+    "LifeSteal",
+    "Active",
+    "NonbootsMovement",
+    "Tenacity"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3140,
+   "name": "Fajín de mercurio",
+   "priceTotal": 1300,
+   "price": 900,
+   "from": [
+    1033
+   ],
+   "to": [
+    6035,
+    3139
+   ],
+   "categories": [
+    "Active",
+    "SpellBlock"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3142,
+   "name": "Filo fantasmal de Youmuu",
+   "priceTotal": 2800,
+   "price": 675,
+   "from": [
+    3134,
+    6690,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Active",
+    "NonbootsMovement",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3143,
+   "name": "Presagio de Randuin",
+   "priceTotal": 2700,
+   "price": 800,
+   "from": [
+    3082,
+    1011
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Armor",
+    "Active",
+    "Slow"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3144,
+   "name": "Honda de explorador",
+   "priceTotal": 600,
+   "price": 100,
+   "from": [
+    1042,
+    1042
+   ],
+   "to": [
+    3032,
+    3095,
+    2512,
+    3087,
+    3085,
+    3094
+   ],
+   "categories": [
+    "AttackSpeed"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3145,
+   "name": "Alternador hextech",
+   "priceTotal": 1100,
+   "price": 300,
+   "from": [
+    1052,
+    1052
+   ],
+   "to": [
+    3146,
+    4646,
+    4645,
+    3152,
+    4636,
+    6655
+   ],
+   "categories": [
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3146,
+   "name": "Sable-pistola hextech",
+   "priceTotal": 3000,
+   "price": 600,
+   "from": [
+    1053,
+    3145,
+    1052
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "LifeSteal",
+    "SpellDamage",
+    "Active",
+    "SpellVamp"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3147,
+   "name": "Disfraz encantado",
+   "priceTotal": 1300,
+   "price": 500,
+   "from": [
+    1052,
+    1028
+   ],
+   "to": [
+    6653,
+    4633,
+    8010
+   ],
+   "categories": [
+    "Health",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3152,
+   "name": "Cintomisil hextech",
+   "priceTotal": 2650,
+   "price": 350,
+   "from": [
+    3145,
+    3067,
+    1028
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "Active",
+    "CooldownReduction",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3153,
+   "name": "Hoja del rey arruinado",
+   "priceTotal": 3200,
+   "price": 725,
+   "from": [
+    1053,
+    1043,
+    1037
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "AttackSpeed",
+    "LifeSteal",
+    "Slow",
+    "OnHit"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3155,
+   "name": "Sorbemaleficios",
+   "priceTotal": 1300,
+   "price": 200,
+   "from": [
+    1036,
+    1033,
+    1036
+   ],
+   "to": [
+    3156
+   ],
+   "categories": [
+    "Damage",
+    "SpellBlock"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3156,
+   "name": "Fauces de Malmortius",
+   "priceTotal": 3100,
+   "price": 750,
+   "from": [
+    3155,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "SpellBlock",
+    "Damage",
+    "LifeSteal",
+    "SpellVamp",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3157,
+   "name": "Reloj de arena de Zhonya",
+   "priceTotal": 3250,
+   "price": 450,
+   "from": [
+    1058,
+    2420
+   ],
+   "to": [],
+   "categories": [
+    "Armor",
+    "SpellDamage",
+    "Active"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3158,
+   "name": "Botas jonias de la lucidez",
+   "priceTotal": 900,
+   "price": 350,
+   "from": [
+    1001,
+    2022
+   ],
+   "to": [
+    3171
+   ],
+   "categories": [
+    "Boots",
+    "CooldownReduction"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3161,
+   "name": "Lanza de Shojin",
+   "priceTotal": 3100,
+   "price": 675,
+   "from": [
+    1037,
+    2021,
+    1028
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3165,
+   "name": "Morellonomicón",
+   "priceTotal": 2850,
+   "price": 400,
+   "from": [
+    3916,
+    1026,
+    3067
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3168,
+   "name": "Senda inmortal",
+   "priceTotal": 1100,
+   "price": 0,
+   "from": [
+    3008
+   ],
+   "to": [],
+   "categories": [
+    "LifeSteal",
+    "SpellVamp",
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3170,
+   "name": "Marcha veloz",
+   "priceTotal": 1000,
+   "price": 0,
+   "from": [
+    3009
+   ],
+   "to": [],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3171,
+   "name": "Lucidez carmesí",
+   "priceTotal": 900,
+   "price": 0,
+   "from": [
+    3158
+   ],
+   "to": [],
+   "categories": [
+    "CooldownReduction",
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3172,
+   "name": "Grebas de metal",
+   "priceTotal": 1100,
+   "price": 0,
+   "from": [
+    3006
+   ],
+   "to": [],
+   "categories": [
+    "AttackSpeed",
+    "LifeSteal",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3173,
+   "name": "Trituradoras encadenadas",
+   "priceTotal": 1250,
+   "price": 0,
+   "from": [
+    3111
+   ],
+   "to": [],
+   "categories": [
+    "SpellBlock",
+    "Boots",
+    "Tenacity",
+    "MagicResist"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3174,
+   "name": "Avance blindado",
+   "priceTotal": 1200,
+   "price": 0,
+   "from": [
+    3047
+   ],
+   "to": [],
+   "categories": [
+    "Armor",
+    "Boots"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3175,
+   "name": "Botas del lanzahechizos",
+   "priceTotal": 1100,
+   "price": 0,
+   "from": [
+    3020
+   ],
+   "to": [],
+   "categories": [
+    "Boots",
+    "MagicPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3176,
+   "name": "Avance eterno",
+   "priceTotal": 900,
+   "price": 0,
+   "from": [
+    3013
+   ],
+   "to": [],
+   "categories": [
+    "Boots"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3177,
+   "name": "Espada del guardián",
+   "priceTotal": 950,
+   "price": 950,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "Lane",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3179,
+   "name": "Guja sombría",
+   "priceTotal": 2800,
+   "price": 750,
+   "from": [
+    3134,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Vision",
+    "CooldownReduction",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3181,
+   "name": "Rompecascos",
+   "priceTotal": 3000,
+   "price": 175,
+   "from": [
+    2021,
+    3066,
+    1037
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3184,
+   "name": "Martillo del guardián",
+   "priceTotal": 950,
+   "price": 950,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "LifeSteal",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3190,
+   "name": "Medallón de los Solari de Hierro",
+   "priceTotal": 2200,
+   "price": 700,
+   "from": [
+    3067,
+    1029,
+    1033
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "Aura",
+    "Active",
+    "MagicResist",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3193,
+   "name": "Protector pétreo de gárgola",
+   "priceTotal": 3150,
+   "price": 1350,
+   "from": [
+    1029,
+    3105,
+    1033
+   ],
+   "to": [],
+   "categories": [
+    "SpellBlock",
+    "Armor",
+    "Active",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3211,
+   "name": "Hábito del espectro",
+   "priceTotal": 1250,
+   "price": 150,
+   "from": [
+    1028,
+    1033,
+    1006
+   ],
+   "to": [
+    2504,
+    3065,
+    6664
+   ],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "SpellBlock"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3222,
+   "name": "Bendición de Mikael",
+   "priceTotal": 2300,
+   "price": 900,
+   "from": [
+    3067,
+    3114
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "ManaRegen",
+    "Active",
+    "CooldownReduction",
+    "Tenacity",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3302,
+   "name": "El final",
+   "priceTotal": 3000,
+   "price": 1100,
+   "from": [
+    3051,
+    1043
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "AttackSpeed",
+    "OnHit",
+    "MagicPenetration",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3330,
+   "name": "Figura de espantapájaros",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Active",
+    "Jungle",
+    "Lane",
+    "Trinket",
+    "Vision"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "FiddleSticks",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3340,
+   "name": "Guardián invisible",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Active",
+    "Jungle",
+    "Lane",
+    "Trinket",
+    "Vision"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3348,
+   "name": "Barredor arcano",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Active",
+    "Jungle",
+    "Lane",
+    "Trinket",
+    "Vision"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3349,
+   "name": "Singularidad brillante",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Active",
+    "Jungle",
+    "Lane",
+    "Trinket",
+    "Vision"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3363,
+   "name": "Visión lejana modificada",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Active",
+    "Trinket",
+    "Vision"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3364,
+   "name": "Lente del oráculo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Active",
+    "Trinket",
+    "Vision"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3398,
+   "name": "Recuerdito de la fiesta",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "GoldPer"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3399,
+   "name": "Recuerdo de la fiesta",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "GoldPer"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3400,
+   "name": "Tu parte",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable",
+    "GoldPer"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3430,
+   "name": "Rito de la ruina",
+   "priceTotal": 2500,
+   "price": 2500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "CriticalStrike",
+    "SpellDamage",
+    "CooldownReduction"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3504,
+   "name": "Incensario ardiente",
+   "priceTotal": 2200,
+   "price": 700,
+   "from": [
+    3113,
+    3114
+   ],
+   "to": [],
+   "categories": [
+    "AttackSpeed",
+    "SpellDamage",
+    "ManaRegen",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3508,
+   "name": "Segador de esencia",
+   "priceTotal": 3050,
+   "price": 500,
+   "from": [
+    3057,
+    3133,
+    1018
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike",
+    "ManaRegen",
+    "CooldownReduction",
+    "OnHit",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3513,
+   "name": "Ojo del Heraldo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Trinket",
+    "Active"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3599,
+   "name": "La lanza negra de Kalista",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "Kalista",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3600,
+   "name": "La lanza negra de Kalista",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Consumable"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "Sylas",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3742,
+   "name": "Coraza del muerto",
+   "priceTotal": 2900,
+   "price": 900,
+   "from": [
+    3066,
+    1028,
+    1031
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Armor",
+    "Slow",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3748,
+   "name": "Hidra titánica",
+   "priceTotal": 3300,
+   "price": 50,
+   "from": [
+    3077,
+    2021,
+    1011
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "Damage",
+    "OnHit"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3801,
+   "name": "Brazal cristalino",
+   "priceTotal": 800,
+   "price": 100,
+   "from": [
+    1028,
+    1006
+   ],
+   "to": [
+    3083,
+    3084
+   ],
+   "categories": [
+    "Health",
+    "HealthRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3802,
+   "name": "Capítulo perdido",
+   "priceTotal": 1200,
+   "price": 250,
+   "from": [
+    1052,
+    1027,
+    2022
+   ],
+   "to": [
+    323003,
+    3003,
+    3118,
+    2503,
+    2522,
+    4644,
+    6655,
+    6656
+   ],
+   "categories": [
+    "SpellDamage",
+    "Mana",
+    "ManaRegen",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3803,
+   "name": "Catalizador de eones",
+   "priceTotal": 1300,
+   "price": 200,
+   "from": [
+    1028,
+    1028,
+    1027
+   ],
+   "to": [
+    326657,
+    4402,
+    6657
+   ],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "Mana",
+    "ManaRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3814,
+   "name": "Filo de la noche",
+   "priceTotal": 3000,
+   "price": 850,
+   "from": [
+    3134,
+    2021
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3850,
+   "name": "Daga de hechicero",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3851,
+   "name": "Colmillo de escarcha",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "GoldPer",
+    "Lane",
+    "ManaRegen",
+    "SpellDamage"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3853,
+   "name": "Fragmento de Hielo Puro",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "GoldPer",
+    "Lane",
+    "ManaRegen",
+    "SpellDamage"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3854,
+   "name": "Hombreras de acero",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "Damage",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3855,
+   "name": "Hombreras de acero rúnico",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3857,
+   "name": "Hombreras de Rocablanca",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3858,
+   "name": "Escudo reliquia",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "SpellDamage",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3859,
+   "name": "Broquel de Targon",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3860,
+   "name": "Baluarte de la montaña",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3862,
+   "name": "Hoz espectral",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3863,
+   "name": "Creciente de Harrowing",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "ManaRegen",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3864,
+   "name": "Guadaña de la Niebla Negra",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "ManaRegen",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3865,
+   "name": "Atlas mundial",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3866,
+   "name": "Brújula rúnica",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3867,
+   "name": "Botín universal",
+   "priceTotal": 400,
+   "price": 400,
+   "from": [],
+   "to": [
+    3869,
+    3870,
+    3871,
+    3876,
+    3877
+   ],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3869,
+   "name": "Detracción celestial",
+   "priceTotal": 400,
+   "price": 0,
+   "from": [
+    3867
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3870,
+   "name": "Tejesueños",
+   "priceTotal": 400,
+   "price": 0,
+   "from": [
+    3867
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3871,
+   "name": "Perforaplanos de Zaz'Zak",
+   "priceTotal": 400,
+   "price": 0,
+   "from": [
+    3867
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3876,
+   "name": "Trineo del solsticio",
+   "priceTotal": 400,
+   "price": 0,
+   "from": [
+    3867
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3877,
+   "name": "Tonada sanguina",
+   "priceTotal": 400,
+   "price": 0,
+   "from": [
+    3867
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "ManaRegen",
+    "Vision",
+    "GoldPer",
+    "Lane"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3901,
+   "name": "<rarityLegendary>Fuego a discreción</rarityLegendary><br><subtitleLeft> <silver>500 serpientes de plata</silver></subtitleLeft>",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "Gangplank",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3902,
+   "name": "<rarityLegendary>Hija de la muerte</rarityLegendary><br><subtitleLeft> <silver>500 serpientes de plata</silver></subtitleLeft>",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "Gangplank",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3903,
+   "name": "<rarityLegendary>Subir moral</rarityLegendary><br><subtitleLeft> <silver>500 serpientes de plata</silver></subtitleLeft>",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "Gangplank",
+   "requiredAlly": ""
+  },
+  {
+   "id": 3916,
+   "name": "Orbe del olvido",
+   "priceTotal": 800,
+   "price": 400,
+   "from": [
+    1052
+   ],
+   "to": [
+    223011,
+    3011,
+    3165
+   ],
+   "categories": [
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4003,
+   "name": "Salvavidas",
+   "priceTotal": 1600,
+   "price": 475,
+   "from": [
+    6690,
+    1036
+   ],
+   "to": [
+    4004
+   ],
+   "categories": [
+    "Damage",
+    "NonbootsMovement",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4004,
+   "name": "Sable espectral",
+   "priceTotal": 2800,
+   "price": 200,
+   "from": [
+    4003,
+    3134
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "NonbootsMovement",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4005,
+   "name": "Mandato imperial",
+   "priceTotal": 2400,
+   "price": 700,
+   "from": [
+    1052,
+    4642,
+    1052
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4010,
+   "name": "Maldición sanguinolenta",
+   "priceTotal": 2500,
+   "price": 2500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellBlock",
+    "SpellDamage",
+    "CooldownReduction",
+    "MagicPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4011,
+   "name": "Espada del amanecer floreciente",
+   "priceTotal": 2500,
+   "price": 2500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "CooldownReduction",
+    "OnHit",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4012,
+   "name": "Devorador de pecados",
+   "priceTotal": 3000,
+   "price": 3000,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "Tenacity"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4013,
+   "name": "Galón del rayo",
+   "priceTotal": 3000,
+   "price": 3000,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellBlock",
+    "Armor",
+    "SpellDamage",
+    "Tenacity"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4014,
+   "name": "Mazo helado",
+   "priceTotal": 3000,
+   "price": 3000,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "AttackSpeed",
+    "Slow"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4015,
+   "name": "Perplejidad",
+   "priceTotal": 2500,
+   "price": 2500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "CooldownReduction",
+    "NonbootsMovement",
+    "MagicPenetration",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4016,
+   "name": "Promesa sin palabras",
+   "priceTotal": 2500,
+   "price": 2500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4017,
+   "name": "Hacha infernal",
+   "priceTotal": 2500,
+   "price": 2500,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Damage",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4401,
+   "name": "Fuerza de la naturaleza",
+   "priceTotal": 2800,
+   "price": 750,
+   "from": [
+    1057,
+    1028,
+    3066
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4402,
+   "name": "Medallón estimulante",
+   "priceTotal": 2950,
+   "price": 600,
+   "from": [
+    3803,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "Mana",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4403,
+   "name": "Espátula dorada",
+   "priceTotal": 7187,
+   "price": 687,
+   "from": [
+    3086,
+    1038,
+    1053,
+    3067,
+    1058,
+    3105
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "HealthRegen",
+    "Armor",
+    "Damage",
+    "CriticalStrike",
+    "AttackSpeed",
+    "LifeSteal",
+    "SpellDamage",
+    "Mana",
+    "ManaRegen",
+    "CooldownReduction",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4628,
+   "name": "Precisión infalible",
+   "priceTotal": 2700,
+   "price": 600,
+   "from": [
+    3108,
+    3108,
+    1052
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4629,
+   "name": "Impulso cósmico",
+   "priceTotal": 3000,
+   "price": 450,
+   "from": [
+    3067,
+    3113,
+    3108
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4630,
+   "name": "Joya de la plaga",
+   "priceTotal": 1100,
+   "price": 700,
+   "from": [
+    1052
+   ],
+   "to": [
+    3137,
+    3135
+   ],
+   "categories": [
+    "MagicPenetration",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4632,
+   "name": "Barrera frondosa",
+   "priceTotal": 1600,
+   "price": 400,
+   "from": [
+    1052,
+    1033,
+    1052
+   ],
+   "to": [
+    3102
+   ],
+   "categories": [
+    "SpellBlock",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4633,
+   "name": "Creagrietas",
+   "priceTotal": 3100,
+   "price": 950,
+   "from": [
+    3147,
+    3108
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "CooldownReduction",
+    "SpellVamp"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4635,
+   "name": "Lapa maliciosa",
+   "priceTotal": 1265,
+   "price": 465,
+   "from": [
+    1028,
+    1052
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "SpellVamp"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4636,
+   "name": "Cosechador nocturno",
+   "priceTotal": 2765,
+   "price": 815,
+   "from": [
+    3145,
+    3108
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "CooldownReduction",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4637,
+   "name": "Abrazo demoníaco",
+   "priceTotal": 3000,
+   "price": 850,
+   "from": [
+    1026,
+    1011,
+    1052
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4638,
+   "name": "Piedra de guardianes atenta",
+   "priceTotal": 1100,
+   "price": 1100,
+   "from": [],
+   "to": [
+    4643
+   ],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "Vision",
+    "Active",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4641,
+   "name": "Piedra de visión inquieta",
+   "priceTotal": 350,
+   "price": 350,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "SpellDamage",
+    "ManaRegen",
+    "Vision",
+    "Active",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4642,
+   "name": "Espejo de cristal de Bandle",
+   "priceTotal": 900,
+   "price": 50,
+   "from": [
+    1004,
+    1052,
+    2022
+   ],
+   "to": [
+    322065,
+    2065,
+    6620,
+    324005,
+    326617,
+    326620,
+    4005,
+    6617
+   ],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4643,
+   "name": "Piedra de visión vigilante",
+   "priceTotal": 2300,
+   "price": 1200,
+   "from": [
+    4638
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "Vision",
+    "Active",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4644,
+   "name": "Corona de la reina quebrada",
+   "priceTotal": 2865,
+   "price": 465,
+   "from": [
+    3067,
+    3802,
+    1052
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "Mana",
+    "NonbootsMovement",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4645,
+   "name": "Llamasombría",
+   "priceTotal": 3200,
+   "price": 900,
+   "from": [
+    3145,
+    1058
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "MagicPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 4646,
+   "name": "Sobrecarga tormentosa",
+   "priceTotal": 2800,
+   "price": 800,
+   "from": [
+    3145,
+    3113
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "GoldPer",
+    "NonbootsMovement",
+    "MagicPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6029,
+   "name": "Látigo puntahierro",
+   "priceTotal": 1100,
+   "price": 225,
+   "from": [
+    1037
+   ],
+   "to": [
+    6630
+   ],
+   "categories": [
+    "Damage",
+    "Active"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6032,
+   "name": "Bonificación de estadística",
+   "priceTotal": 750,
+   "price": 750,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "Damage",
+    "CriticalStrike",
+    "AttackSpeed",
+    "SpellDamage",
+    "Mana",
+    "Consumable",
+    "CooldownReduction",
+    "SpellVamp",
+    "NonbootsMovement",
+    "Tenacity",
+    "MagicPenetration",
+    "ArmorPenetration",
+    "MagicResist",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6035,
+   "name": "Amanecer de Meraplata",
+   "priceTotal": 3000,
+   "price": 425,
+   "from": [
+    3140,
+    1037,
+    1028
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Damage",
+    "Active",
+    "Tenacity"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6333,
+   "name": "Baile de la muerte",
+   "priceTotal": 3300,
+   "price": 275,
+   "from": [
+    2019,
+    1037,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Armor",
+    "Damage",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6609,
+   "name": "Mecanoespada punki",
+   "priceTotal": 3000,
+   "price": 250,
+   "from": [
+    3123,
+    1011,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6610,
+   "name": "Firmamento desgarrado",
+   "priceTotal": 3100,
+   "price": 900,
+   "from": [
+    2021,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6616,
+   "name": "Bastón de aguas fluidas",
+   "priceTotal": 2250,
+   "price": 800,
+   "from": [
+    3108,
+    3114
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6617,
+   "name": "Renovación de piedra lunar",
+   "priceTotal": 2200,
+   "price": 500,
+   "from": [
+    3067,
+    4642
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "ManaRegen",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6620,
+   "name": "Ecos de Helia",
+   "priceTotal": 2200,
+   "price": 500,
+   "from": [
+    3067,
+    4642
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "ManaRegen",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6621,
+   "name": "Núcleo albar",
+   "priceTotal": 2500,
+   "price": 450,
+   "from": [
+    1026,
+    3114,
+    3114
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "ManaRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6630,
+   "name": "Chupasangre",
+   "priceTotal": 3200,
+   "price": 200,
+   "from": [
+    6029,
+    3044,
+    3067
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "LifeSteal",
+    "Active",
+    "CooldownReduction",
+    "SpellVamp",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6631,
+   "name": "Cortasendas",
+   "priceTotal": 3300,
+   "price": 750,
+   "from": [
+    3077,
+    3044,
+    1042
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "AttackSpeed",
+    "Slow"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6632,
+   "name": "Desgarrador divino",
+   "priceTotal": 3450,
+   "price": 700,
+   "from": [
+    3133,
+    3057,
+    3067
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Damage",
+    "CooldownReduction",
+    "OnHit",
+    "MagicPenetration",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6653,
+   "name": "Tormento de Liandry",
+   "priceTotal": 3000,
+   "price": 800,
+   "from": [
+    3147,
+    2508
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6655,
+   "name": "Eco de Luden",
+   "priceTotal": 2750,
+   "price": 450,
+   "from": [
+    3802,
+    3145
+   ],
+   "to": [],
+   "categories": [
+    "SpellDamage",
+    "Mana",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6656,
+   "name": "Escarcha eterna",
+   "priceTotal": 2865,
+   "price": 465,
+   "from": [
+    3067,
+    3802,
+    1052
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "Mana",
+    "Active",
+    "CooldownReduction",
+    "Slow",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6657,
+   "name": "Vara de las edades",
+   "priceTotal": 2600,
+   "price": 450,
+   "from": [
+    1026,
+    3803
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "HealthRegen",
+    "SpellDamage",
+    "Mana",
+    "ManaRegen"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6660,
+   "name": "Rescoldo de Bami",
+   "priceTotal": 900,
+   "price": 250,
+   "from": [
+    1028,
+    2022
+   ],
+   "to": [
+    3068,
+    6664
+   ],
+   "categories": [
+    "Health",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6662,
+   "name": "Guantelete de hielo",
+   "priceTotal": 2900,
+   "price": 800,
+   "from": [
+    3057,
+    1028,
+    1031
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Armor",
+    "CooldownReduction",
+    "Slow",
+    "OnHit",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6664,
+   "name": "Fulgor vano",
+   "priceTotal": 2800,
+   "price": 650,
+   "from": [
+    6660,
+    3211
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "HealthRegen",
+    "Aura",
+    "MagicResist",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6665,
+   "name": "Jak'Sho el Proteico",
+   "priceTotal": 3200,
+   "price": 650,
+   "from": [
+    1011,
+    1031,
+    1057
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "MagicResist"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6667,
+   "name": "Virtud radiante",
+   "priceTotal": 2600,
+   "price": 600,
+   "from": [
+    3105,
+    1011
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "Armor",
+    "Aura",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6670,
+   "name": "Carcaj del mediodía",
+   "priceTotal": 1300,
+   "price": 350,
+   "from": [
+    1036,
+    1018
+   ],
+   "to": [
+    6673,
+    2523,
+    3036
+   ],
+   "categories": [
+    "Damage",
+    "CriticalStrike"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6671,
+   "name": "Viento huracanado",
+   "priceTotal": 3500,
+   "price": 650,
+   "from": [
+    1038,
+    3086,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike",
+    "AttackSpeed",
+    "Active",
+    "NonbootsMovement"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6672,
+   "name": "Verdugo de krakens",
+   "priceTotal": 3000,
+   "price": 325,
+   "from": [
+    6690,
+    3051,
+    1043
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "AttackSpeed",
+    "OnHit",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6673,
+   "name": "Arcoescudo inmortal",
+   "priceTotal": 3000,
+   "price": 825,
+   "from": [
+    1037,
+    6670
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6675,
+   "name": "Filofugaz de Navori",
+   "priceTotal": 2650,
+   "price": 950,
+   "from": [
+    1042,
+    3086,
+    1042
+   ],
+   "to": [],
+   "categories": [
+    "CriticalStrike",
+    "AttackSpeed",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6676,
+   "name": "Recaudadora",
+   "priceTotal": 3000,
+   "price": 525,
+   "from": [
+    1037,
+    3134,
+    1018
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CriticalStrike",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6677,
+   "name": "Cuchillo de ira",
+   "priceTotal": 1100,
+   "price": 600,
+   "from": [
+    1042,
+    1042
+   ],
+   "to": [],
+   "categories": [
+    "AttackSpeed",
+    "OnHit"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6690,
+   "name": "Réctrice",
+   "priceTotal": 775,
+   "price": 425,
+   "from": [
+    1036
+   ],
+   "to": [
+    4003,
+    3142,
+    6672,
+    6700
+   ],
+   "categories": [
+    "Damage",
+    "NonbootsMovement"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6691,
+   "name": "Filoscuro de Draktharr",
+   "priceTotal": 2950,
+   "price": 900,
+   "from": [
+    3134,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Stealth",
+    "CooldownReduction",
+    "Slow",
+    "NonbootsMovement",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6692,
+   "name": "Eclipse",
+   "priceTotal": 2900,
+   "price": 625,
+   "from": [
+    3133,
+    1037,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6693,
+   "name": "Garra de merodeador",
+   "priceTotal": 2850,
+   "price": 800,
+   "from": [
+    3134,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CooldownReduction",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6694,
+   "name": "Rencor de Serylda",
+   "priceTotal": 3000,
+   "price": 500,
+   "from": [
+    3133,
+    3035
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "CooldownReduction",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6695,
+   "name": "Colmillo de serpiente",
+   "priceTotal": 2500,
+   "price": 625,
+   "from": [
+    3134,
+    1037
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "ArmorPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6696,
+   "name": "Arco axiomático",
+   "priceTotal": 2750,
+   "price": 363,
+   "from": [
+    2020,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6697,
+   "name": "Soberbia",
+   "priceTotal": 2800,
+   "price": 750,
+   "from": [
+    3134,
+    3133
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Active",
+    "CooldownReduction",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6698,
+   "name": "Hidra profana",
+   "priceTotal": 2850,
+   "price": 313,
+   "from": [
+    3077,
+    2020
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Active",
+    "CooldownReduction",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6699,
+   "name": "Espada ciclovoltaica",
+   "priceTotal": 3000,
+   "price": 963,
+   "from": [
+    2020,
+    1036,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Active",
+    "CooldownReduction",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6700,
+   "name": "Escudo de los rakkoranos",
+   "priceTotal": 2675,
+   "price": 800,
+   "from": [
+    6690,
+    2019
+   ],
+   "to": [],
+   "categories": [
+    "Armor",
+    "Damage",
+    "Active",
+    "CooldownReduction",
+    "ArmorPenetration",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6701,
+   "name": "Oportunidades",
+   "priceTotal": 2700,
+   "price": 475,
+   "from": [
+    1037,
+    3134,
+    1036
+   ],
+   "to": [],
+   "categories": [
+    "Damage",
+    "Active",
+    "NonbootsMovement",
+    "ArmorPenetration"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 6702,
+   "name": "Explorando el camino",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [
+    "Active",
+    "Jungle",
+    "Lane",
+    "Trinket",
+    "Vision"
+   ],
+   "inStore": false,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 7050,
+   "name": "Provisional de Gangplank",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "Gangplank",
+   "requiredAlly": ""
+  },
+  {
+   "id": 8001,
+   "name": "Cadenas de Anatema",
+   "priceTotal": 2500,
+   "price": 800,
+   "from": [
+    3067,
+    1011
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "Active",
+    "CooldownReduction",
+    "AbilityHaste"
+   ],
+   "inStore": false,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 8010,
+   "name": "Maldición sanguinolenta",
+   "priceTotal": 2900,
+   "price": 750,
+   "from": [
+    3147,
+    3108
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellDamage",
+    "CooldownReduction",
+    "MagicPenetration"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 8020,
+   "name": "Máscara abisal",
+   "priceTotal": 2650,
+   "price": 1000,
+   "from": [
+    3067,
+    1057
+   ],
+   "to": [],
+   "categories": [
+    "Health",
+    "SpellBlock",
+    "CooldownReduction",
+    "MagicResist",
+    "AbilityHaste"
+   ],
+   "inStore": true,
+   "displayInItemSets": true,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9168,
+   "name": "Casilla de armas bloqueada",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9171,
+   "name": "Hojas ciclónicas",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9172,
+   "name": "YuumiBot",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9173,
+   "name": "Campo radiante",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9174,
+   "name": "Espada de Statikk",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9175,
+   "name": "Lamento de la leona",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9176,
+   "name": "Ametralladora conejil",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9177,
+   "name": "Arco corto candente",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9178,
+   "name": "La aniquiladora",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9179,
+   "name": "Ballesta de conejo de batalla",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9180,
+   "name": "Artillería UwU",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9181,
+   "name": "Guante con vórtice",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9183,
+   "name": "Bumerán cortante",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9184,
+   "name": "Megaexplosión conejil",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9185,
+   "name": "Mina marina antiescualos",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9187,
+   "name": "T. I. B. B. E. R. S.",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9188,
+   "name": "Antiminas",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9189,
+   "name": "Transporte de Último Bastión",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9190,
+   "name": "Hojas murciélago resonantes",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9192,
+   "name": "Huella venenosa",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9193,
+   "name": "Armadura de explosión gélida",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9271,
+   "name": "Ciclón incesante",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9272,
+   "name": "YuumiBot_Final_FINAL",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9273,
+   "name": "Abrazo explosivo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9274,
+   "name": "Electrotrinchador de Prumbis",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9275,
+   "name": "Luz envolvente",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9276,
+   "name": "Andanada conejil doble",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9277,
+   "name": "Disparo de ámbar evolucionado",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9278,
+   "name": "Animaclismo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9279,
+   "name": "Ballesta de conejo prime",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9280,
+   "name": "Artillería OwO",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9281,
+   "name": "Guantelete de la tempestad",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9283,
+   "name": "Bumerán cuádruple",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9284,
+   "name": "Diluvio rápido conejil",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9285,
+   "name": "Rompemuelas incesante",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9287,
+   "name": "T. I. B. B. E. R. S. (edición E. N. O. R. M. E.)",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9288,
+   "name": "Trinamita de Jinx",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9289,
+   "name": "Alta velocidad de Último Bastión",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9290,
+   "name": "Hojas cromáticas de Vayne",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9292,
+   "name": "Dispensador químico úrsido",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9293,
+   "name": "Criogenización",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9300,
+   "name": "¡Miau, miau!",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9301,
+   "name": "Golpetazo con escudo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9302,
+   "name": "Onda sonora",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9303,
+   "name": "Golpe de picota",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9304,
+   "name": "Tempestad de acero",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9305,
+   "name": "Golpe con tentáculo",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9306,
+   "name": "Daga alada",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9307,
+   "name": "Embrujo guía",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9308,
+   "name": "Brinco conejil",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9400,
+   "name": "Andanada de gato de batalla",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9401,
+   "name": "Luz de la leona",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9402,
+   "name": "Eco de Ánima",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9403,
+   "name": "Tajo salvaje",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9404,
+   "name": "Tormentas errantes",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9405,
+   "name": "Golpe úrsido",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9406,
+   "name": "Ricochet de los amantes",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9407,
+   "name": "Embrujo esperanzador",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  },
+  {
+   "id": 9408,
+   "name": "Impacto de caroteno",
+   "priceTotal": 0,
+   "price": 0,
+   "from": [],
+   "to": [],
+   "categories": [],
+   "inStore": true,
+   "displayInItemSets": false,
+   "requiredChampion": "",
+   "requiredAlly": ""
+  }
+ ]
 }

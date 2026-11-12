@@ -3,8 +3,9 @@
 Es el "contrato" entre módulos. Las fases siguientes se enganchan aquí, por ejemplo:
 
 * Fase 2 (runas y hechizos): ``PicksFinalized`` y ``MyChampionChanged``.
-* Fase 3 (build inicial): ``PicksFinalized``.
-* Fase 4 (durante la partida): ``ChampSelectEnded`` con ``GAME_STARTING``.
+* Fase 3 (build inicial): ``PicksFinalized`` y ``MyChampionChanged``.
+* Fase 4 (durante la partida): ``ChampSelectEnded`` con ``GAME_STARTING`` y ``BuildApplied``
+  (la build de partida que se irá adaptando).
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
+from .builds.models import BuildPlan
 from .champselect.models import ChampSelectSnapshot, PlayerSlot
 from .loadout.models import Loadout
 from .models import ClientInfo, GameflowPhase, QueueInfo
@@ -81,6 +83,21 @@ class LoadoutReady:
     """Runas y hechizos calculados para tu campeón (antes de aplicarlos)."""
 
     loadout: Loadout
+
+
+@dataclass(frozen=True, slots=True)
+class BuildReady:
+    """Build calculada para tu campeón (antes de llevarla a la tienda)."""
+
+    plan: BuildPlan
+
+
+@dataclass(frozen=True, slots=True)
+class BuildApplied:
+    plan: BuildPlan
+    set_title: str | None  # conjunto de objetos de la tienda (None si no se escribió)
+    applied: bool
+    problems: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

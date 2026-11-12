@@ -1,9 +1,9 @@
 # LoL Coach
 
-Asistente local para League of Legends que te pone las runas y hechizos de
-invocador, te propondrá la build y la adaptará a la partida.
+Asistente local para League of Legends que te pone las runas, los hechizos de
+invocador y la build en la tienda, adaptados a cada partida.
 
-## Estado: Fase 2 (runas y hechizos automáticos)
+## Estado: Fase 3 (build inicial en la tienda)
 
 ### Lo que hace
 
@@ -45,6 +45,47 @@ La app usa **una sola página propia**, llamada «LoL Coach: (campeón)»:
 - Si no hay ninguna opción, no cambia las runas: te las muestra para que las pongas tú
   (los hechizos sí se aplican). Para darle una página, renombra una a «LoL Coach».
 
+### La build en la tienda
+
+En el mismo momento, la app escribe un **conjunto de objetos «LoL Coach: (campeón)»**, que
+verás en la tienda de la partida, pestaña *Conjuntos de objetos*:
+
+| Bloque | Contenido |
+|---|---|
+| Inicio | Objetos iniciales según tu posición (Doran, objeto de apoyo, mascota de jungla, objeto de guardián en ARAM) |
+| Botas | Las de tu tipo de campeón (o las defensivas, si eres de primera línea y hace falta) |
+| Núcleo (en orden) | Los 3 objetos clave, en orden de compra |
+| Contra este equipo | Objetos que pide el equipo enemigo, con su componente barato delante |
+| Build completa | 6 objetos: botas + núcleo + los 2 mejores huecos según los enemigos |
+| Mejora de apoyo | La mejora del Atlas mundial adecuada (solo apoyos) |
+
+**De dónde sale la build** (Riot no ofrece builds recomendadas en el cliente):
+
+1. **Tipo de campeón**: con su perfil oficial (roles, tipo de daño) se clasifica en uno de 10
+   tipos (mago de daño explosivo, tirador de críticos, luchador, tanque, apoyo encantador...).
+   Hay excepciones para campeones con builds especiales (Smolder, Kai'Sa, Ezreal, Jhin...).
+2. **Build base del tipo**, con todos sus objetos **validados contra el parche actual**: si
+   Riot retira uno, se descarta y se completa con los siguientes.
+3. **Adaptación a los enemigos**, con el motivo en la consola:
+
+   | Situación | Qué añade (según tu tipo de campeón) |
+   |---|---|
+   | Enemigos que se curan mucho (Soraka, Aatrox, Vladimir...) | Antisanación: Morellonomicón, Recordatorio letal, Mecanoespada punki o Malla de espinas |
+   | Supresiones (Malzahar, Skarner, Warwick, Urgot) | Cimitarra mercurial / Bendición de Mikael |
+   | 3+ enemigos de daño mágico | Velo del hada, Cimitarra, Fauces, Rostro espiritual, Rookern kaénico... |
+   | 3+ enemigos de daño físico | Zhonya, Ángel de la guarda, Baile de la muerte, Randuin... |
+   | 2+ asesinos muy móviles | Zhonya, Arcoescudo inmortal, Bendición de Mikael |
+   | 2+ tanques | Bastón del Vacío, Recuerdos de lord Dominik, Cuchilla negra |
+   | 2+ campeones con muchos escudos | Colmillo de serpiente |
+   | Eres de primera línea | Botas de mercurio o blindadas según el daño enemigo |
+
+Es una base **provisional por reglas**: el siguiente paso previsto es afinarla por campeón
+con estadísticas reales de partidas de alto elo (API oficial de Riot), sin cambiar el resto.
+
+**Tus conjuntos de objetos están a salvo**: el cliente solo permite reemplazar la lista
+entera, así que la app la lee, cambia solo el conjunto «LoL Coach» y comprueba después que
+los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
+
 ## Cómo se usa
 
 Requisitos: Windows y [uv](https://docs.astral.sh/uv/) (ya lo tienes instalado).
@@ -71,6 +112,7 @@ debug = false
 discovery_interval = 3  # segundos entre intentos de detectar el cliente
 auto_runes = true       # false = solo recomendar las runas, sin aplicarlas
 auto_spells = true      # false = solo recomendar los hechizos, sin aplicarlos
+auto_item_set = true    # false = solo mostrar la build, sin ponerla en la tienda
 ```
 
 ## Seguridad y normas de Riot
@@ -86,8 +128,11 @@ auto_spells = true      # false = solo recomendar los hechizos, sin aplicarlos
 - La contraseña temporal del cliente nunca se muestra ni se guarda en los registros.
   La sesión de la selección (que incluye tu Riot ID y credenciales del chat) tampoco.
 - Cada página de runas se **valida antes de enviarla**: si algo no cuadra, se usa la de
-  Riot o no se envía nada.
+  Riot o no se envía nada. Cada objeto de la build se valida contra el parche.
+- Tus páginas de runas y tus conjuntos de objetos no se tocan (ver arriba).
 - Solo puede haber una copia abierta (evita aplicar runas dos veces).
+- Una prueba automática comprueba, con el cliente abierto, que su contraseña temporal no
+  aparece en ningún archivo del proyecto.
 
 ## Estructura
 
@@ -102,14 +147,16 @@ src/lolcoach/
   champselect/         Modelo, lectura y seguimiento de la selección de campeones
   gamedata/            Datos del juego leídos del cliente: campeones, perfiles, runas, hechizos
   loadout/             Fase 2: posiciones, reglas, recomendación y aplicación de runas/hechizos
+  builds/              Fase 3: tipos de campeón, builds base, adaptación y conjunto de objetos
   ui/                  Presentación (consola; en la fase 4, ventana del segundo monitor)
 tests/                 Pruebas automáticas: cliente de LoL simulado y datos reales del parche
 ```
 
 Cada fase nueva se engancha a los eventos existentes (`PicksFinalized`,
-`MyChampionChanged`, `LoadoutApplied`, `ChampSelectEnded`...) sin modificar lo anterior.
-Las reglas de `loadout/rules.py` son funciones puras: se pueden ampliar, o sustituir por
-IA en un plan de pago, sin tocar el resto.
+`MyChampionChanged`, `LoadoutApplied`, `BuildApplied`, `ChampSelectEnded`...) sin modificar
+lo anterior. Las reglas (`loadout/rules.py`, `builds/rules.py`) son funciones puras: se
+pueden ampliar, o sustituir por IA en un plan de pago, sin tocar el resto. La build base
+llega por `BuildSource`, preparada para añadir estadísticas reales más adelante.
 
 ## Desarrollo
 
@@ -122,6 +169,7 @@ uv run ruff check .    # revisión de estilo y errores comunes
 
 1. **Conexión y lectura de la selección de campeones** ✅
 2. **Runas y hechizos automáticos al hacerse el último pick** ✅
-3. Build inicial en la tienda, adaptada a la composición enemiga.
+3. **Build inicial en la tienda, adaptada a la composición enemiga** ✅
 4. Ventana en el segundo monitor durante la partida: quién va fuerte y qué comprar.
-5. Mejoras: IA opcional (de pago), historial propio, pulido visual.
+5. Mejoras: builds afinadas con estadísticas reales (API de Riot), IA opcional (de pago),
+   historial propio, pulido visual.

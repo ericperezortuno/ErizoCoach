@@ -8,6 +8,7 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     discovery_interval = 3
     auto_runes = true    # poner las runas solas al hacerse el último pick
     auto_spells = true   # poner los hechizos de invocador solos
+    auto_item_set = true # poner la build en la tienda (conjunto de objetos)
 """
 
 from __future__ import annotations
@@ -35,6 +36,7 @@ class Settings:
     discovery_interval: float = 3.0  # segundos entre intentos de detectar el cliente
     auto_runes: bool = True
     auto_spells: bool = True
+    auto_item_set: bool = True
 
     @property
     def log_dir(self) -> Path:
@@ -71,6 +73,7 @@ def load_settings(
     file_debug = _bool(values, "debug", False, warnings)
     auto_runes = _bool(values, "auto_runes", True, warnings)
     auto_spells = _bool(values, "auto_spells", True, warnings)
+    auto_item_set = _bool(values, "auto_item_set", True, warnings)
 
     interval = values.get("discovery_interval", 3.0)
     if (
@@ -89,6 +92,7 @@ def load_settings(
         discovery_interval=float(interval),
         auto_runes=auto_runes,
         auto_spells=auto_spells,
+        auto_item_set=auto_item_set,
     )
     return settings, warnings
 

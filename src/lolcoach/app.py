@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
+from .builds.service import BuildService
 from .bus import EventBus
 from .champselect.tracker import ChampSelectTracker
 from .config import Settings
@@ -41,8 +42,9 @@ class Application:
         self.monitor = ClientMonitor(self.bus, self.connector, self.gamedata, self.tracker)
         # La consola se suscribe antes que los módulos para mostrar cada paso en orden.
         self.console = ConsoleReporter(self.bus, self.gamedata)
-        # Fase 2: runas y hechizos. (Fase 3+: builds, ventana del segundo monitor...)
+        # Fase 2: runas y hechizos. Fase 3: build en la tienda. (Fase 4: segundo monitor.)
         self.loadout = LoadoutService(self.bus, self.connector, self.gamedata, settings)
+        self.builds = BuildService(self.bus, self.connector, self.gamedata, settings)
 
     async def run(self) -> None:
         await self.connector.run()

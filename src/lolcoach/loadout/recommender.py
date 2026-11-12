@@ -20,12 +20,10 @@ from ..gamedata.runes import RecommendedPage, validate_page
 from ..lcu.client import LcuClient
 from ..models import Position, QueueInfo
 from .models import LANE_CONFIDENCE, Loadout, MatchContext
-from .positions import infer_positions, lane_opponent
+from .positions import SUMMONERS_RIFT, infer_positions, lane_opponent, resolve_my_position
 from .rules import adjust_runes, adjust_spells, keep_flash_key
 
 log = logging.getLogger(__name__)
-
-SUMMONERS_RIFT = 11
 
 
 class LoadoutRecommender:
@@ -34,12 +32,11 @@ class LoadoutRecommender:
 
     def resolve_position(self, snapshot: ChampSelectSnapshot, map_id: int) -> Position:
         me = snapshot.me
-        if me is None or map_id != SUMMONERS_RIFT:
+        if me is None:
             return Position.NONE
-        if me.position != Position.NONE:
-            return me.position
-        usual = self._gamedata.positions_for(me.champion_id)
-        return usual[0] if usual else Position.NONE
+        return resolve_my_position(
+            me.position, me.champion_id, map_id, self._gamedata.positions_for
+        )
 
     async def prefetch(
         self, client: LcuClient, snapshot: ChampSelectSnapshot, queue: QueueInfo | None

@@ -71,6 +71,24 @@ def infer_positions(
     return {c: {p: v / grand_total for p, v in row.items()} for c, row in totals.items()}
 
 
+SUMMONERS_RIFT = 11
+
+
+def resolve_my_position(
+    assigned: Position, champion_id: int, map_id: int, positions_for: PositionsLookup
+) -> Position:
+    """Tu posición: la asignada; si no hay (a ciegas, práctica), la habitual de tu campeón.
+
+    Fuera de la Grieta del Invocador (ARAM...) no hay posiciones.
+    """
+    if map_id != SUMMONERS_RIFT:
+        return Position.NONE
+    if assigned != Position.NONE:
+        return assigned
+    usual = positions_for(champion_id)
+    return usual[0] if usual else Position.NONE
+
+
 def lane_opponent(probabilities: Probabilities, position: Position) -> LaneGuess | None:
     """Enemigo más probable en ``position`` (tu rival de línea)."""
     if position == Position.NONE or not probabilities:

@@ -14,6 +14,11 @@ CHAMPION_DETAILS = "/lol-game-data/assets/v1/champions/{champion_id}.json"
 PERKS = "/lol-game-data/assets/v1/perks.json"
 PERK_STYLES = "/lol-game-data/assets/v1/perkstyles.json"
 SUMMONER_SPELLS = "/lol-game-data/assets/v1/summoner-spells.json"
+ITEMS = "/lol-game-data/assets/v1/items.json"
+
+# Cuenta y conjuntos de objetos (los que aparecen en la tienda de la partida)
+CURRENT_SUMMONER = "/lol-summoner/v1/current-summoner"
+ITEM_SETS = "/lol-item-sets/v1/item-sets/{summoner_id}/sets"
 
 # Runas
 PERK_PAGES = "/lol-perks/v1/pages"

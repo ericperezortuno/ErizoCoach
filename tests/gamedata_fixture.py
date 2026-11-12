@@ -50,6 +50,7 @@ def static_route(path: str) -> Any | None:
         "/lol-game-data/assets/v1/perkstyles.json": data["perkstyles"],
         "/lol-game-data/assets/v1/summoner-spells.json": data["summonerSpells"],
         "/lol-perks/v1/recommended-champion-positions": data["recommendedPositions"],
+        "/lol-game-data/assets/v1/items.json": data["items"],
     }
     if path in routes:
         return routes[path]
