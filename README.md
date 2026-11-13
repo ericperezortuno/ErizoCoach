@@ -181,7 +181,13 @@ icono junto al reloj → *Cerrar LoL Coach*).
 uv run python scripts/make_icon.py   # (solo si cambias el icono) assets/lolcoach.ico
 uv run python scripts/build_exe.py   # crea dist/LoL Coach/ con los ejecutables
 uv run python scripts/install.py     # lo instala con accesos directos (--desinstalar para quitarlo)
+uv run python scripts/build_installer.py  # instalador de un archivo para pasárselo a otra persona
 ```
+
+**Pasárselo a otra persona**: `scripts/build_installer.py` crea `dist\Instalar LoL Coach
+<versión>.exe`, un solo archivo que se instala con doble clic (sin permisos de administrador)
+y se desinstala desde *Aplicaciones instaladas*. Guía para quien lo instala:
+[docs/instalar-en-otro-pc.md](docs/instalar-en-otro-pc.md).
 
 Se instala en `%LOCALAPPDATA%\Programs\LoL Coach` (sin permisos de administrador) con dos
 ejecutables: **`LoL Coach.exe`** (la aplicación, sin consola) y **`lolcoach-consola.exe`** (los
@@ -268,10 +274,10 @@ src/lolcoach/
   ui/tray.py           Icono en la bandeja de Windows para el segundo plano
   ui/web/              Interfaz (HTML/CSS/JS), presentador, iconos, servidor de respaldo y demo
 assets/                Icono de la aplicación (generado con scripts/make_icon.py)
-packaging/             Especificación de PyInstaller e información de versión del .exe
-scripts/               Construir el .exe, instalarlo con accesos directos y generar el icono
+packaging/             PyInstaller, información de versión del .exe e instalador (installer.py)
+scripts/               Construir el .exe, instalarlo, crear el instalador y generar el icono
 tests/                 Pruebas automáticas: cliente de LoL simulado y datos reales del parche
-docs/                  Guías (p. ej., cómo pedir la clave personal de Riot)
+docs/                  Guías (clave personal de Riot, instalar en otro PC)
 ```
 
 Cada fase nueva se engancha a los eventos existentes (`PicksFinalized`,
