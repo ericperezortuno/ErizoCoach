@@ -8,7 +8,8 @@ Reglas clave:
   hay intercambios); la acción conserva el original.
 * En modos sin acciones de pick (ARAM), el campeón asignado cuenta como bloqueado.
 * Mientras miras un campeón sin bloquearlo, el cliente lo pone en ``championPickIntent``
-  y en la acción, pero no en ``championId`` (comprobado con datos reales).
+  y en la acción, pero no en ``championId`` (comprobado con datos reales). Es la
+  **preselección** (``intent_id``): sirve para enseñar por adelantado sus runas.
 
 Privacidad: la sesión en bruto contiene tu Riot ID y credenciales del chat (JWT).
 Nunca la escribas completa en los registros; el modelo solo guarda lo necesario.
@@ -83,6 +84,14 @@ def _parse_slot(
             champion_id = as_int(completed[-1].get("championId"))
     else:
         locked = champion_id > 0  # campeón asignado (ARAM y similares)
+    intent = 0
+    if is_ally and not locked:  # de los enemigos el cliente no enseña lo que miran
+        hovering = [a for a in actions if not a.get("completed") and as_int(a.get("championId"))]
+        intent = (
+            (as_int(hovering[-1].get("championId")) if hovering else 0)
+            or as_int(raw.get("championPickIntent"))
+            or champion_id
+        )
 
     return PlayerSlot(
         cell_id=cell_id,
@@ -93,6 +102,7 @@ def _parse_slot(
         position=Position.parse(raw.get("assignedPosition")),
         spell1_id=max(as_int(raw.get("spell1Id")), 0),
         spell2_id=max(as_int(raw.get("spell2Id")), 0),
+        intent_id=max(intent, 0),
     )
 
 

@@ -23,8 +23,10 @@ from lolcoach.events import (
     ClientDisconnected,
     GameflowPhaseChanged,
     LoadoutApplied,
+    LoadoutPreview,
     LoadoutReady,
     MyChampionChanged,
+    MyPickPreviewChanged,
     PicksFinalized,
 )
 from lolcoach.gamedata.catalog import GameData
@@ -51,6 +53,8 @@ EVENT_TYPES = (
     ChampSelectEnded,
     LoadoutReady,
     LoadoutApplied,
+    LoadoutPreview,
+    MyPickPreviewChanged,
 )
 
 
@@ -89,7 +93,12 @@ class Harness:
         self.monitor = ClientMonitor(self.bus, self.connector, self.gamedata, self.tracker)
         settings = settings or Settings(data_dir=Path("."))
         self.loadout = LoadoutService(
-            self.bus, self.connector, self.gamedata, settings, page_check_delay=0.05
+            self.bus,
+            self.connector,
+            self.gamedata,
+            settings,
+            page_check_delay=0.05,
+            preview_delay=0.01,
         )
         self.builds = BuildService(self.bus, self.connector, self.gamedata, settings)
         self._task: asyncio.Task[None] | None = None

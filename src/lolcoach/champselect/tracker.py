@@ -11,6 +11,7 @@ from ..events import (
     ChampSelectOutcome,
     ChampSelectStarted,
     MyChampionChanged,
+    MyPickPreviewChanged,
     PicksFinalized,
 )
 from ..models import GameflowPhase, QueueInfo
@@ -29,6 +30,7 @@ class ChampSelectTracker:
         self._queue: QueueInfo | None = None
         self._locked: set[tuple[bool, int]] = set()
         self._my_champion = 0
+        self._my_preview = 0
         self._finalized = False
 
     @property
@@ -74,6 +76,12 @@ class ChampSelectTracker:
         if me is not None and me.locked and me.has_champion and me.champion_id != self._my_champion:
             previous_champion, self._my_champion = self._my_champion, me.champion_id
             await self._bus.publish(MyChampionChanged(me.champion_id, previous_champion, snapshot))
+
+        if me is not None and not self._finalized and not snapshot.is_finalized:
+            shown = me.shown_champion
+            if shown != self._my_preview:
+                self._my_preview = shown
+                await self._bus.publish(MyPickPreviewChanged(shown, snapshot))
 
         if snapshot.is_finalized and not self._finalized:
             self._finalized = True

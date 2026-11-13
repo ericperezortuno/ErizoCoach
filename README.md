@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.9.0 (builds de alto elo también sin clave, segundo plano, equipos por línea)
+## Estado: v0.10.0 (previsión de runas al preseleccionar, builds de alto elo también sin clave)
 
 ### Lo que hace
 
@@ -12,6 +12,8 @@ dice en tu segundo monitor qué comprar y quién va fuerte.
   vuelvas a abrir) y se conecta de forma **segura**, verificada con el certificado oficial de Riot.
 - **Sigue la selección de campeones en tiempo real**: tu posición, quién bloquea qué campeón,
   baneos, intercambios, dodges y el momento en que **se hace el último pick**.
+- **Previsión al preseleccionar**: en cuanto preseleccionas o miras un campeón, la ventana
+  enseña las runas y hechizos que le pondrá (para tu posición asignada), sin tocar nada aún.
 - **Al hacerse el último pick, te pone las runas y los hechizos** (en el mismo segundo):
   1. **Base**: las runas y hechizos que más usan los jugadores de alto elo con tu campeón
      y posición (si hay estadísticas suficientes, ver abajo); si no, la recomendación

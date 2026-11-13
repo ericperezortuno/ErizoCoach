@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 
 from ..models import Position
@@ -37,10 +37,16 @@ class PlayerSlot:
     position: Position  # en enemigos siempre NONE: el cliente no lo revela
     spell1_id: int = 0
     spell2_id: int = 0
+    intent_id: int = 0  # campeón que preseleccionas o miras sin bloquear (0 = ninguno)
 
     @property
     def has_champion(self) -> bool:
         return self.champion_id > 0
+
+    @property
+    def shown_champion(self) -> int:
+        """El campeón bloqueado o, si aún no, el que preseleccionas (0 = ninguno)."""
+        return self.champion_id if self.locked and self.has_champion else self.intent_id
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,6 +93,14 @@ class ChampSelectSnapshot:
     def enemies_known(self) -> bool:
         """False en selección a ciegas (no se ven los campeones enemigos)."""
         return bool(self.known_enemies)
+
+    def with_my_champion(self, champion_id: int) -> ChampSelectSnapshot:
+        """La misma selección como si ya hubieras bloqueado ``champion_id`` (para previsiones)."""
+        team = tuple(
+            replace(slot, champion_id=champion_id, locked=True) if slot.is_local_player else slot
+            for slot in self.my_team
+        )
+        return replace(self, my_team=team)
 
     @property
     def is_finalized(self) -> bool:

@@ -2,6 +2,8 @@
 
 * Mientras se bloquean campeones: se descargan por adelantado los datos
   necesarios (perfiles, recomendaciones), en segundo plano.
+* Mientras preseleccionas o miras un campeón: se calculan sus runas y hechizos para
+  enseñarlos ya (``LoadoutPreview``), sin aplicar nada.
 * Al hacerse el último pick (``PicksFinalized``): se calcula y se aplica.
 * Si después cambia tu campeón (intercambio o banquillo de ARAM): se vuelve a aplicar.
 * Si cambias runas o hechizos a mano, no se vuelve a tocar nada en esa selección.
@@ -23,8 +25,10 @@ from ..events import (
     ChampSelectStarted,
     ClientDisconnected,
     LoadoutApplied,
+    LoadoutPreview,
     LoadoutReady,
     MyChampionChanged,
+    MyPickPreviewChanged,
     PicksFinalized,
 )
 from ..gamedata.catalog import GameData
@@ -40,6 +44,8 @@ log = logging.getLogger(__name__)
 
 # El cliente a veces activa su página temporal justo al bloquear: lo comprobamos poco después.
 PAGE_CHECK_DELAY = 1.5
+# Al pasar de un campeón a otro rápido, solo se calcula el último en el que te paras.
+PREVIEW_DELAY = 0.3
 
 
 class LoadoutService:
@@ -51,6 +57,7 @@ class LoadoutService:
         settings: Settings,
         *,
         page_check_delay: float = PAGE_CHECK_DELAY,
+        preview_delay: float = PREVIEW_DELAY,
         position_hint: PositionHint | None = None,
         stats: LoadoutStats | None = None,
     ) -> None:
@@ -59,6 +66,8 @@ class LoadoutService:
         self._gamedata = gamedata
         self._settings = settings
         self._page_check_delay = page_check_delay
+        self._preview_delay = preview_delay
+        self._preview_task: asyncio.Task[Any] | None = None
         self._recommender = LoadoutRecommender(gamedata, position_hint, stats)
         self._applier = LoadoutApplier()
         self._tasks: set[asyncio.Task[Any]] = set()
@@ -70,6 +79,7 @@ class LoadoutService:
         bus.subscribe(ChampSelectStarted, self._on_started)
         bus.subscribe(ChampionLocked, self._on_locked)
         bus.subscribe(MyChampionChanged, self._on_my_champion)
+        bus.subscribe(MyPickPreviewChanged, self._on_preview)
         bus.subscribe(PicksFinalized, self._on_finalized)
         bus.subscribe(ChampSelectEnded, self._on_end)
         bus.subscribe(ClientDisconnected, self._on_end)
@@ -98,6 +108,25 @@ class LoadoutService:
         client = self._connector.client
         if client is not None:
             self._spawn(self._recommender.prefetch(client, event.snapshot, self._queue), "precarga")
+
+    def _on_preview(self, event: MyPickPreviewChanged) -> None:
+        if self._finalized:
+            return
+        if self._preview_task is not None:
+            self._preview_task.cancel()  # ya miras otro: el anterior no interesa
+        self._preview_task = self._spawn(self._preview(self._generation, event), "previsión")
+
+    async def _preview(self, generation: int, event: MyPickPreviewChanged) -> None:
+        await asyncio.sleep(self._preview_delay)
+        client = self._connector.client
+        if client is None:
+            return
+        loadout = None
+        if event.champion_id:
+            snapshot = event.snapshot.with_my_champion(event.champion_id)
+            loadout = await self._recommender.recommend(client, snapshot, self._queue)
+        if generation == self._generation and not self._finalized:
+            await self._bus.publish(LoadoutPreview(event.champion_id, loadout))
 
     async def _on_finalized(self, event: PicksFinalized) -> None:
         self._finalized = True
@@ -167,11 +196,12 @@ class LoadoutService:
 
     def _reset(self) -> None:
         self._generation += 1
+        self._preview_task = None
         self._queue = None
         self._finalized = False
         self._applied_champion = 0
 
-    def _spawn(self, coroutine: Coroutine[Any, Any, Any], what: str) -> None:
+    def _spawn(self, coroutine: Coroutine[Any, Any, Any], what: str) -> asyncio.Task[Any]:
         task = asyncio.create_task(coroutine)
         self._tasks.add(task)
 
@@ -181,3 +211,4 @@ class LoadoutService:
                 log.debug("Tarea en segundo plano (%s) fallida: %s", what, finished.exception())
 
         task.add_done_callback(done)
+        return task

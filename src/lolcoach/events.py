@@ -62,6 +62,14 @@ class MyChampionChanged:
 
 
 @dataclass(frozen=True, slots=True)
+class MyPickPreviewChanged:
+    """Antes del último pick: cambia el campeón que preseleccionas, miras o bloqueas."""
+
+    champion_id: int  # 0 = ya no miras ninguno
+    snapshot: ChampSelectSnapshot
+
+
+@dataclass(frozen=True, slots=True)
 class PicksFinalized:
     """Se ha hecho el último pick. Se emite una sola vez por selección de campeones."""
 
@@ -86,6 +94,14 @@ class LoadoutReady:
     """Runas y hechizos calculados para tu campeón (antes de aplicarlos)."""
 
     loadout: Loadout
+
+
+@dataclass(frozen=True, slots=True)
+class LoadoutPreview:
+    """Runas y hechizos que tendría el campeón preseleccionado (aún no se aplican)."""
+
+    champion_id: int  # 0 = sin campeón preseleccionado
+    loadout: Loadout | None
 
 
 @dataclass(frozen=True, slots=True)

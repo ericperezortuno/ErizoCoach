@@ -616,6 +616,7 @@ main > .wide { grid-column: 1 / -1; }
 .tag.lane { color: var(--gold-bright); background: rgba(200, 170, 110, .20); box-shadow: inset 0 0 0 1px rgba(200, 170, 110, .45); }
 .tag.dmg-ap { color: #cbbfff; background: rgba(140, 112, 255, .20); }
 .tag.dmg-ad { color: #ffc2ad; background: rgba(255, 122, 92, .18); }
+.tag.preview { color: var(--blue-text); background: transparent; box-shadow: inset 0 0 0 1px currentColor; }
 
 .badge {
   font: 700 12px/1 var(--font-small);

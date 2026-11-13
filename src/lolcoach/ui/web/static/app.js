@@ -244,10 +244,14 @@ function render(state, boot = false) {
 }
 
 function renderIdle(state) {
-  const title = state.connected ? "Esperando a la selección de campeones" : "Esperando al cliente de LoL";
-  const hint = state.connected
-    ? "Cuando se haga el último pick verás aquí tus runas y tu build; durante la partida, qué comprar y quién va fuerte."
-    : "Abre el cliente de League of Legends: LoL Coach se conectará solo.";
+  const choosing = state.connected && state.phase === "ChampSelect";
+  const title = choosing ? "Selección de campeones"
+    : state.connected ? "Esperando a la selección de campeones" : "Esperando al cliente de LoL";
+  const hint = choosing
+    ? "Preselecciona o mira un campeón y verás aquí sus runas y hechizos. Se ponen solos al hacerse el último pick."
+    : state.connected
+      ? "En la selección verás las runas y hechizos del campeón que preselecciones; al último pick se ponen solos, con tu build. Durante la partida, qué comprar y quién va fuerte."
+      : "Abre el cliente de League of Legends: LoL Coach se conectará solo.";
   const stats = state.stats && !state.stats.problem ? el("div", { class: "small stats", text: state.stats.text }) : null;
   const emblem = el("span", { class: "emblem", "aria-hidden": "true" });
   if (seen.entering) {
@@ -288,6 +292,7 @@ function renderHero(state) {
       el("h2", { class: "name", text: champion.name }),
       el("div", { class: "meta" }, [
         champion.position ? el("span", { class: "tag", text: champion.position }) : null,
+        champion.preview ? el("span", { class: "tag preview", text: "Previsión" }) : null,
         archetype ? el("span", { text: archetype }) : null,
       ]),
     ]),
@@ -308,7 +313,10 @@ function renderLoadout(loadout) {
   }
   if (loadout.laneOpponent) rows.push(el("div", { class: "muted small", text: `Rival de línea probable: ${loadout.laneOpponent}` }));
   const extra = [...loadout.adjustments, ...loadout.notes];
-  return card("Runas y hechizos", [
+  return card(loadout.preview ? "Runas y hechizos (previsión)" : "Runas y hechizos", [
+    loadout.preview
+      ? el("div", { class: "muted small", text: "Aún no se aplican: se pondrán solas al hacerse el último pick y pueden ajustarse a los rivales." })
+      : null,
     originLine(loadout.source, "recomendación de Riot (aún sin datos suficientes de partidas reales)"),
     el("div", { class: "runes" }, rows),
     extra.length ? bulletList(extra) : null,

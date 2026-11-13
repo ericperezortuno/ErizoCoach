@@ -20,6 +20,7 @@ from ...events import (
     GameflowPhaseChanged,
     LiveGameEnded,
     LiveGameUpdated,
+    LoadoutPreview,
     LoadoutReady,
     PicksFinalized,
     StatsStatus,
@@ -48,6 +49,7 @@ class UiPresenter:
         self._gd = gamedata
         self._listeners: list[Listener] = []
         self._shown_plan: BuildPlan | None = None  # la build que enseña la tarjeta
+        self._loadout_final = False  # ya están las runas de verdad: fuera previsiones
         self._state: State = {
             "version": __version__,
             "connected": False,
@@ -64,6 +66,7 @@ class UiPresenter:
         bus.subscribe(GameflowPhaseChanged, self._on_phase)
         bus.subscribe(ChampSelectStarted, self._on_champ_select)
         bus.subscribe(PicksFinalized, self._on_finalized)
+        bus.subscribe(LoadoutPreview, self._on_preview)
         bus.subscribe(LoadoutReady, self._on_loadout)
         bus.subscribe(BuildReady, self._on_build)
         bus.subscribe(LiveGameUpdated, self._on_live)
@@ -103,6 +106,7 @@ class UiPresenter:
 
     async def _on_champ_select(self, _event: ChampSelectStarted) -> None:
         self._shown_plan = None
+        self._loadout_final = False
         await self._set(champion=None, loadout=None, build=None, game=None)
 
     async def _on_finalized(self, event: PicksFinalized) -> None:
@@ -115,7 +119,22 @@ class UiPresenter:
     async def _on_stats(self, event: StatsStatus) -> None:
         await self._set(stats={"text": event.text, "problem": event.problem})
 
+    async def _on_preview(self, event: LoadoutPreview) -> None:
+        if self._loadout_final:
+            return
+        loadout = event.loadout
+        if not event.champion_id:
+            await self._set(champion=None, loadout=None)
+            return
+        position = POSITION_LABELS.get(loadout.position, "") if loadout else ""
+        shown = loadout is not None and (loadout.runes is not None or loadout.spells is not None)
+        await self._set(
+            champion=self._champion(event.champion_id, position) | {"preview": True},
+            loadout=self._loadout(loadout) | {"preview": True} if shown and loadout else None,
+        )
+
     async def _on_loadout(self, event: LoadoutReady) -> None:
+        self._loadout_final = True
         await self._set(loadout=self._loadout(event.loadout))
 
     async def _on_build(self, event: BuildReady) -> None:

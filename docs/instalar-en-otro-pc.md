@@ -32,6 +32,7 @@ nada más.
 
 ### Qué hace sin configurar nada
 
+- Al preseleccionar un campeón, su ventana ya enseña las runas y hechizos que le pondrá.
 - Al hacerse el último pick de la selección de campeones, pone **runas y hechizos**
   (recomendación oficial de Riot ajustada a tus rivales) y una **build en la tienda**
   (conjunto de objetos «LoL Coach: campeón»).
