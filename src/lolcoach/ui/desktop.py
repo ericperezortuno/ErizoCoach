@@ -32,7 +32,7 @@ from ..config import Settings
 from .tray import TrayIcon, default_icon_path
 from .web.icons import KINDS, IconProvider
 from .web.presenter import State, UiPresenter
-from .web.window import DEFAULT_WIDTH, list_monitors, window_geometry
+from .web.window import DEFAULT_SIZE, list_monitors, window_geometry
 
 if TYPE_CHECKING:
     from ..app import Application
@@ -190,7 +190,7 @@ class DesktopWindow:
         geometry = window_geometry(
             list_monitors(), prefer_secondary=self._settings.window_on_secondary
         )
-        x, y, width, height = geometry or (None, None, DEFAULT_WIDTH, 900)
+        x, y, width, height = geometry or (None, None, *DEFAULT_SIZE)
         self._window = webview.create_window(
             TITLE,
             html=build_html(),

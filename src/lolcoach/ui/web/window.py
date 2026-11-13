@@ -24,7 +24,7 @@ EDGE_PATHS = (
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
     r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
 )
-DEFAULT_WIDTH = 460
+DEFAULT_SIZE = (1056, 700)  # tamaño con el que se abre (el que eligió el usuario)
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,20 +74,21 @@ def list_monitors() -> list[Monitor]:
 
 
 def window_geometry(
-    monitors: list[Monitor], *, prefer_secondary: bool = True, width: int = DEFAULT_WIDTH
+    monitors: list[Monitor],
+    *,
+    prefer_secondary: bool = True,
+    size: tuple[int, int] = DEFAULT_SIZE,
 ) -> tuple[int, int, int, int] | None:
-    """Posición y tamaño: a toda altura, en el borde del monitor más cercano al principal."""
+    """Posición y tamaño: centrada en el segundo monitor (o en el principal si no hay)."""
     if not monitors:
         return None
     primary = next((m for m in monitors if m.primary), monitors[0])
     secondary = next((m for m in monitors if not m.primary), None)
     target = secondary if prefer_secondary and secondary is not None else primary
-    width = min(width, target.width)
-    # Pegada al lado que toca con el monitor principal (si está a la izquierda, a su derecha)
-    x = target.x + target.width - width if target.x < primary.x else target.x
-    if target is primary:
-        x = target.x + target.width - width
-    return x, target.y, width, target.height
+    width, height = min(size[0], target.width), min(size[1], target.height)
+    x = target.x + (target.width - width) // 2
+    y = target.y + (target.height - height) // 2
+    return x, y, width, height
 
 
 def find_edge() -> Path | None:

@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.10.1 (previsión de runas al preseleccionar, builds de alto elo también sin clave)
+## Estado: v0.10.2 (previsión de runas al preseleccionar, builds de alto elo también sin clave)
 
 ### Lo que hace
 
@@ -124,7 +124,7 @@ los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
 ### La ventana del segundo monitor
 
 LoL Coach es una **aplicación de escritorio**: su ventana (con su nombre e icono) se abre
-**a toda altura en tu segundo monitor**, pegada al principal, y al cerrarla se cierra la app.
+**centrada en tu segundo monitor** (1056 × 700, o lo que quepa), y al cerrarla se cierra la app.
 Muestra:
 
 - **En la selección de campeones**: tu campeón, las runas y hechizos aplicados con sus

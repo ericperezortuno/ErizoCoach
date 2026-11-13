@@ -12,24 +12,29 @@ from lolcoach.ui.web.window import AppWindow, Monitor, window_geometry
 PRIMARY = Monitor(0, 0, 1920, 1032, True)
 
 
-def test_secondary_on_the_left_sticks_to_the_edge_next_to_the_primary() -> None:
+def test_opens_centered_on_the_secondary_with_the_chosen_size() -> None:
     # Tu configuración: el segundo monitor está a la izquierda del principal
     left = Monitor(-1920, 0, 1920, 1032, False)
-    assert window_geometry([PRIMARY, left]) == (-460, 0, 460, 1032)
+    assert window_geometry([PRIMARY, left]) == (-1488, 166, 1056, 700)
 
 
 def test_secondary_on_the_right() -> None:
     right = Monitor(1920, 0, 2560, 1400, False)
-    assert window_geometry([right, PRIMARY]) == (1920, 0, 460, 1400)
+    assert window_geometry([right, PRIMARY]) == (2672, 350, 1056, 700)
 
 
-def test_single_monitor_uses_the_right_edge_of_the_primary() -> None:
-    assert window_geometry([PRIMARY]) == (1460, 0, 460, 1032)
+def test_single_monitor_centers_on_the_primary() -> None:
+    assert window_geometry([PRIMARY]) == (432, 166, 1056, 700)
 
 
 def test_prefer_primary() -> None:
     left = Monitor(-1920, 0, 1920, 1032, False)
-    assert window_geometry([PRIMARY, left], prefer_secondary=False) == (1460, 0, 460, 1032)
+    assert window_geometry([PRIMARY, left], prefer_secondary=False) == (432, 166, 1056, 700)
+
+
+def test_small_screens_never_get_a_window_bigger_than_them() -> None:
+    small = Monitor(0, 0, 1024, 600, True)
+    assert window_geometry([small]) == (0, 0, 1024, 600)
 
 
 def test_no_monitor_information() -> None:
