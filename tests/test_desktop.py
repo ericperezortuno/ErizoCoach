@@ -99,9 +99,28 @@ def test_bridge_rejects_anything_else(
     assert icons.calls == []  # ni siquiera se intenta
 
 
-def test_bridge_exposes_only_two_methods() -> None:
+def test_bridge_exposes_only_three_methods() -> None:
     public = [name for name in dir(DesktopBridge) if not name.startswith("_")]
-    assert public == ["get_state", "icon"]
+    assert public == ["background", "get_state", "icon"]
+
+
+def test_bridge_background_calls_the_window_and_never_raises(
+    running_loop: asyncio.AbstractEventLoop,
+) -> None:
+    presenter = UiPresenter(EventBus(), loaded_gamedata())
+    calls: list[str] = []
+
+    def hide() -> bool:
+        calls.append("hide")
+        return True
+
+    def broken() -> bool:
+        raise RuntimeError("la ventana se está cerrando")
+
+    assert DesktopBridge(presenter, FakeIcons(), running_loop, hide).background() is True  # type: ignore[arg-type]
+    assert calls == ["hide"]
+    assert DesktopBridge(presenter, FakeIcons(), running_loop, broken).background() is False  # type: ignore[arg-type]
+    assert DesktopBridge(presenter, FakeIcons(), running_loop).background() is False  # type: ignore[arg-type]
 
 
 # --- Elección del modo ------------------------------------------------------------------

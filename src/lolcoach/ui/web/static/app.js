@@ -17,7 +17,27 @@ window.lolcoach = { render: (state) => render(state) };
 function startDesktop() {
   window.addEventListener("pywebviewready", async () => {
     setConnection(true);
+    setupBackground();
     render(await window.pywebview.api.get_state());
+  });
+}
+
+// Botón «Segundo plano»: la app esconde la ventana y sigue trabajando (solo escritorio;
+// en el navegador no hay icono en la bandeja con el que volver).
+function setupBackground() {
+  const button = document.getElementById("to-background");
+  if (!button || !window.pywebview.api.background) return;
+  button.hidden = false;
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    let ok = false;
+    try { ok = await window.pywebview.api.background(); } catch { ok = false; }
+    if (ok) {
+      button.disabled = false;
+      button.blur(); // al volver, que no se quede marcado
+    } else {
+      button.title = "No disponible: Windows no ha dejado poner el icono de LoL Coach junto al reloj.";
+    }
   });
 }
 
@@ -318,13 +338,13 @@ function renderBuild(build) {
 
 function renderGame(state) {
   const game = state.game;
+  const team = game.team || [game.me, ...game.allies].filter(Boolean);
   return [
     renderPurchase(game),
     game.buildProgress.length ? renderProgress(game) : null,
+    // Los dos equipos van por línea (superior → apoyo): cada fila frente a su rival.
     game.enemies.length ? card("Rivales", [renderPlayers(game.enemies, null, "enemy")]) : null,
-    game.allies.length || game.me
-      ? card("Tu equipo", [renderPlayers([game.me, ...game.allies].filter(Boolean), game.me, "ally")])
-      : null,
+    team.length ? card("Tu equipo", [renderPlayers(team, game.me, "ally")]) : null,
   ];
 }
 
@@ -442,7 +462,7 @@ function renderProgress(game) {
 function renderPlayers(players, me, side) {
   return el("ul", { class: "players" }, players.map((p) => {
     const tags = [
-      p === me ? el("span", { class: "tag", text: "Tú" }) : null,
+      p.me || p === me ? el("span", { class: "tag", text: "Tú" }) : null,
       p.lane ? el("span", { class: "tag lane", text: "Tu rival" }) : null,
       p.damage === "AP" ? el("span", { class: "tag dmg-ap", text: "AP" }) : null,
       p.damage === "AD" ? el("span", { class: "tag dmg-ad", text: "AD" }) : null,

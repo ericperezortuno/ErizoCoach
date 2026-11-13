@@ -127,6 +127,11 @@ def main(argv: list[str] | None = None) -> int:
 
     lock = SingleInstanceLock(settings.lock_path)
     if not lock.acquire():
+        from .ui.tray import signal_running
+
+        if signal_running():  # estaba en segundo plano (o detrás): se abre su ventana
+            log.info("LoL Coach ya estaba abierto: se muestra su ventana.")
+            return 0
         message = "LoL Coach ya está abierto."
         log.error(message)
         _show_message(message)

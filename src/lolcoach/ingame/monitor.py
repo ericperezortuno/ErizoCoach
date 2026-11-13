@@ -55,9 +55,11 @@ class LiveGameMonitor:
         self._current_plan = current_plan
         self._poll_interval = poll_interval
         self._client_factory = live_client_factory or (lambda: LiveClient(ssl_context))
+        self._source = source
         self._recommender = BuildRecommender(gamedata, source, position_hint)
         self._task: asyncio.Task[None] | None = None
         self._plan: BuildPlan | None = None
+        self._plan_revision = 0  # versión de las estadísticas con la que se calculó ``_plan``
         self._role_boots: RoleSlotBoots | None = None  # botas que la API no muestra
 
         bus.subscribe(GameflowPhaseChanged, self._on_phase)
@@ -140,12 +142,20 @@ class LiveGameMonitor:
         current = self._current_plan()
         if current is not None and current.champion_id == my_id:
             return current
-        if self._plan is not None and self._plan.champion_id == my_id:
+        # Se recalcula si cambian las estadísticas: al abrir la app a mitad de partida, la
+        # primera build sale antes de que terminen de leerse (y sería la de las reglas).
+        revision = getattr(self._source, "revision", 0)
+        if (
+            self._plan is not None
+            and self._plan.champion_id == my_id
+            and self._plan_revision == revision
+        ):
             return self._plan
         client = self._connector.client
         if client is None or my_id <= 0:
             return None
         position = game.me.position if game.me else Position.NONE
+        self._plan_revision = revision
         try:
             self._plan = await self._recommender.recommend_for(
                 client, my_id, position, [c for c in enemy_ids if c > 0], game.map_id or 11

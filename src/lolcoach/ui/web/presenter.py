@@ -6,7 +6,7 @@ La ventana no calcula nada: solo pinta este estado. Así, la lógica sigue en un
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable, Sequence
 from typing import Any
 
 from ... import __version__
@@ -27,8 +27,9 @@ from ...events import (
 from ...gamedata.catalog import DamageType, GameData
 from ...gamedata.runes import PRIMARY_INDEXES, SECONDARY_INDEXES, SHARD_INDEXES
 from ...ingame.analysis import STRENGTH_LABELS, PlayerReport
+from ...ingame.models import LivePlayer
 from ...loadout.models import LANE_CONFIDENCE, Loadout
-from ...models import GameflowPhase
+from ...models import LANE_POSITIONS, GameflowPhase
 from ..labels import GAMEFLOW_LABELS, POSITION_LABELS
 
 State = dict[str, Any]
@@ -169,8 +170,16 @@ class UiPresenter:
             "time": f"{minutes}:{seconds:02d}",
             "gold": int(game.current_gold),
             "me": self._player(report.me) if report.me else None,
-            "enemies": [self._player(r) for r in report.enemies],
+            # Por línea en los dos equipos: cada fila enfrenta a los rivales de esa línea.
+            "enemies": [self._player(r) for r in _by_lane(report.enemies, game.enemies)],
             "allies": [self._player(r) for r in report.allies],
+            "team": [
+                self._player(r) | {"me": r is report.me}
+                for r in _by_lane(
+                    (report.me, *report.allies) if report.me else report.allies,
+                    game.players,
+                )
+            ],
             "next": None,
             "message": "",
             "buildProgress": [],
@@ -232,7 +241,24 @@ class UiPresenter:
             "strengthLabel": STRENGTH_LABELS[report.strength],
             "damage": DAMAGE_LABELS[report.damage_type],
             "lane": report.is_lane_opponent,
+            "position": POSITION_LABELS.get(p.position, ""),
             "dead": p.is_dead,
             "respawn": round(p.respawn_timer),
             "items": [i.item_id for i in p.items],
         }
+
+
+_LANE_RANK = {position: rank for rank, position in enumerate(LANE_POSITIONS)}
+
+
+def _by_lane(reports: Iterable[PlayerReport], order: Sequence[LivePlayer]) -> list[PlayerReport]:
+    """Superior, jungla, medio, inferior y apoyo; sin línea conocida, al final y en el orden
+    en que los da el juego."""
+    seat = {id(player): index for index, player in enumerate(order)}
+    return sorted(
+        reports,
+        key=lambda r: (
+            _LANE_RANK.get(r.player.position, len(LANE_POSITIONS)),
+            seat.get(id(r.player), len(seat)),
+        ),
+    )

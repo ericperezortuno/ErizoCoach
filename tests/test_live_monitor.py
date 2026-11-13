@@ -12,6 +12,8 @@ from lolcoach.events import GameflowPhaseChanged, LiveGameEnded, LiveGameUpdated
 from lolcoach.ingame.client import LiveClientUnavailable
 from lolcoach.ingame.monitor import LiveGameMonitor
 from lolcoach.models import GameflowPhase, Position
+from lolcoach.stats.aggregate import ChampionStats
+from lolcoach.stats.source import StatsBuildSource
 
 from .gamedata_fixture import FixtureClient, loaded_gamedata
 from .harness import wait_until
@@ -103,6 +105,35 @@ async def test_monitor_remembers_boots_in_the_role_quest_slot() -> None:
     await bus.publish(GameflowPhaseChanged(GameflowPhase.UNKNOWN, GameflowPhase.IN_PROGRESS))
     await wait_until(lambda: bool(updates))
     assert not boots_owned(updates[0])
+    await monitor.stop()
+    await asyncio.sleep(0)
+
+
+async def test_monitor_switches_to_stats_once_they_load() -> None:
+    """App abierta a mitad de partida: la build se calcula antes de que se carguen las
+    estadísticas (con las reglas). Cuando llegan, la build pasa a ser la de alto elo."""
+    bus = EventBus()
+    gd = loaded_gamedata()
+    source = StatsBuildSource(min_games=20)  # vacía: las estadísticas aún se están leyendo
+    updates: list[LiveGameUpdated] = []
+    bus.subscribe(LiveGameUpdated, updates.append)
+    monitor = LiveGameMonitor(
+        bus, StubConnector(), gd, ssl.create_default_context(), lambda: None,  # type: ignore[arg-type]
+        poll_interval=0.01, live_client_factory=lambda: FakeLiveClient([standard_game()]),
+        source=source,
+    )  # fmt: skip
+    await bus.publish(GameflowPhaseChanged(GameflowPhase.UNKNOWN, GameflowPhase.IN_PROGRESS))
+    await wait_until(lambda: bool(updates))
+    first = updates[-1].plan
+    assert first is not None and "estadísticas" not in first.source  # reglas
+
+    stats_core = (6655, 4645, 3089)
+    entry = ChampionStats(103, "MIDDLE", 40, 20, (), 3020, 0.95, stats_core, ())
+    source.update("16.22", 500, {(103, "MIDDLE"): entry})
+    await wait_until(lambda: updates[-1].plan is not first)
+    plan = updates[-1].plan
+    assert plan is not None and plan.core == stats_core
+    assert "40 partidas" in plan.source
     await monitor.stop()
     await asyncio.sleep(0)
 

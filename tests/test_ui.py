@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 from collections.abc import AsyncIterator
 
 import aiohttp
@@ -18,7 +19,7 @@ from lolcoach.events import (
 )
 from lolcoach.ingame.advisor import advise
 from lolcoach.ingame.analysis import analyze
-from lolcoach.ingame.models import parse_all_game_data
+from lolcoach.ingame.models import LivePlayer, parse_all_game_data
 from lolcoach.models import GameflowPhase, Position
 from lolcoach.ui.web.presenter import UiPresenter
 from lolcoach.ui.web.server import UiServer
@@ -70,7 +71,7 @@ async def test_presenter_builds_the_game_state() -> None:
     assert presenter.state["phaseLabel"] == "En partida"
     assert game["time"] == "15:00" and game["gold"] == 500
     assert game["next"]["id"] == 3157 and "Zed" in game["next"]["reason"]
-    zed = game["enemies"][0]
+    zed = next(p for p in game["enemies"] if p["name"] == "Zed")
     assert zed["name"] == "Zed" and zed["strength"] == "very_strong" and zed["lane"]
     assert zed["damage"] == "AD" and zed["strengthLabel"] == "Muy fuerte"
     assert len(game["buildProgress"]) == 6 and game["buildProgress"][0]["owned"]
@@ -81,6 +82,42 @@ async def test_presenter_builds_the_game_state() -> None:
     assert presenter.state["game"] is None
     await bus.publish(ClientDisconnected())
     assert not presenter.state["connected"]
+
+
+async def test_players_are_listed_by_lane_on_both_teams() -> None:
+    """Fila a fila, cada uno frente a su rival de línea: superior, jungla, medio, inferior, apoyo
+    (aunque Zed sea el más peligroso, sigue en medio; tú vas en tu línea, no el primero)."""
+    presenter = UiPresenter(EventBus(), loaded_gamedata())
+    await presenter._on_live(await live_event())
+    game = presenter.state["game"]
+    lanes = ["Superior", "Jungla", "Medio", "Inferior", "Soporte"]
+    assert [p["name"] for p in game["enemies"]] == ["Darius", "Graves", "Zed", "Kai'Sa", "Soraka"]
+    assert [p["position"] for p in game["enemies"]] == lanes
+    team = game["team"]
+    assert [p["name"] for p in team] == ["Garen", "Lee Sin", "Ahri", "Jinx", "Thresh"]
+    assert [p["position"] for p in team] == lanes
+    assert [p["me"] for p in team] == [False, False, True, False, False]
+
+
+async def test_players_without_a_lane_go_last_in_game_order() -> None:
+    """Sin línea conocida (algunos modos): al final, en el orden en que los da el juego."""
+    event = await live_event()
+    unknown = {"Graves", "Darius"}
+
+    def without_lane(player: LivePlayer) -> LivePlayer:
+        if player.champion_alias in unknown:
+            return dataclasses.replace(player, position=Position.NONE)
+        return player
+
+    game = dataclasses.replace(event.game, enemies=tuple(map(without_lane, event.game.enemies)))
+    enemies = tuple(
+        dataclasses.replace(r, player=without_lane(r.player)) for r in event.report.enemies
+    )
+    report = dataclasses.replace(event.report, enemies=enemies)
+    presenter = UiPresenter(EventBus(), loaded_gamedata())
+    await presenter._on_live(dataclasses.replace(event, game=game, report=report))
+    names = [p["name"] for p in presenter.state["game"]["enemies"]]
+    assert names == ["Zed", "Kai'Sa", "Soraka", "Darius", "Graves"]
 
 
 async def test_presenter_champ_select_build() -> None:

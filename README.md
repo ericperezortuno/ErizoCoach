@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.7.0 (diseño liquid glass, con runas, hechizos y builds de alto elo)
+## Estado: v0.8.0 (segundo plano, equipos por línea, con runas, hechizos y builds de alto elo)
 
 ### Lo que hace
 
@@ -127,9 +127,18 @@ Muestra:
   - **Compra ahora**: el siguiente objeto, el porqué, cuánto oro te falta y qué
     componentes ya te puedes comprar (bajando por la receta si hace falta).
   - **Tu build**: lo que ya tienes marcado y lo siguiente resaltado.
-  - **Rivales**, de más a menos peligroso: KDA, súbditos, nivel, tipo de daño, «Tu rival»
-    y una etiqueta **Muy fuerte / Fuerte / Normal / Por detrás**.
+  - **Rivales**: KDA, súbditos, nivel, tipo de daño, «Tu rival» y una etiqueta
+    **Muy fuerte / Fuerte / Normal / Por detrás**.
   - **Tu equipo**, con la misma información.
+  - Los dos equipos van **por línea** (superior, jungla, medio, inferior, apoyo), así que
+    cada fila enfrenta a los dos jugadores de esa línea.
+
+**Segundo plano**: el botón **Segundo plano** de la cabecera esconde la ventana (tampoco sale
+en la barra de tareas) y LoL Coach **sigue funcionando igual**: runas, hechizos, build en la
+tienda y descarga de estadísticas. Mientras tanto la ventana no se repinta, así que no gasta.
+Para volver, haz clic en el **icono de LoL Coach junto al reloj** de Windows (puede estar dentro
+de la flechita ˄) o abre LoL Coach otra vez. Con clic derecho en ese icono también puedes
+cerrarlo. La primera vez que lo escondes, Windows te avisa de que sigue en marcha.
 
 **Quién va fuerte**: el oro de los rivales no se ve, pero sus objetos sí. Se combina el valor
 de sus objetos (60 %), su KDA (25 %) y su nivel (15 %) frente a la media de la partida. En los
@@ -152,7 +161,8 @@ y **solo información visible en el marcador**: está permitido por las normas d
 
 **Seguridad de la ventana**: es una ventana nativa (pywebview, con el motor WebView2 que
 Windows 11 trae de serie) que habla con la app **directamente, sin servidor ni puerto abierto**.
-La página solo puede pedir dos cosas (el estado y el icono de un objeto o campeón por su id) y
+La página solo puede pedir tres cosas (el estado, el icono de un objeto o campeón por su id y
+pasar a segundo plano) y
 se carga con una política estricta: solo su propio código (con un *nonce* nuevo en cada
 arranque), iconos incrustados y ninguna conexión de red.
 
@@ -162,7 +172,8 @@ Si faltara WebView2, LoL Coach usa como respaldo Edge en modo aplicación con un
 ## Cómo se usa
 
 **Con la aplicación instalada**: abre **LoL Coach** desde el menú Inicio o el acceso directo del
-escritorio. Para salir, cierra su ventana.
+escritorio. Para salir, cierra su ventana (o, si está en segundo plano, clic derecho en su
+icono junto al reloj → *Cerrar LoL Coach*).
 
 **Instalar o actualizar** (desde una terminal en esta carpeta; requiere [uv](https://docs.astral.sh/uv/)):
 
@@ -254,6 +265,7 @@ src/lolcoach/
                        y fuente de builds, runas y hechizos
   ui/console.py        Mensajes en consola
   ui/desktop.py        Ventana de escritorio (pywebview) y puente directo con la app
+  ui/tray.py           Icono en la bandeja de Windows para el segundo plano
   ui/web/              Interfaz (HTML/CSS/JS), presentador, iconos, servidor de respaldo y demo
 assets/                Icono de la aplicación (generado con scripts/make_icon.py)
 packaging/             Especificación de PyInstaller e información de versión del .exe
@@ -284,4 +296,5 @@ uv run ruff check .    # revisión de estilo y errores comunes
 5. **Builds afinadas con estadísticas reales de alto elo (API oficial de Riot)** ✅
 6. **Runas y hechizos de alto elo, descarga automática y guía de clave personal** ✅
 7. **Diseño liquid glass de la ventana** ✅
-8. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
+8. **Segundo plano con icono en la bandeja y equipos ordenados por línea** ✅
+9. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.

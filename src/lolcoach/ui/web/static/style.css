@@ -203,6 +203,42 @@ body {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10);
 }
 
+/* Botón «Segundo plano»: vidrio más claro que la fase, para que se lea como botón. */
+.ghost {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 12px 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  font: 600 12px/1.2 var(--font-small);
+  color: var(--gold-bright);
+  background: rgba(200, 170, 110, .14);
+  box-shadow: inset 0 0 0 1px rgba(200, 170, 110, .38);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color .16s ease-out, box-shadow .16s ease-out, transform .16s ease-out;
+}
+
+.ghost[hidden] { display: none; }
+.ghost:hover { background: rgba(200, 170, 110, .24); box-shadow: inset 0 0 0 1px rgba(242, 223, 174, .6); }
+.ghost:active { transform: scale(.96); }
+.ghost:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+.ghost:disabled { cursor: default; opacity: .5; transform: none; }
+
+.ghost .glyph {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* --- Distribución -------------------------------------------------------------------- */
 
 main {
@@ -788,6 +824,12 @@ main > .wide { grid-column: 1 / -1; }
   .brand-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 
+/* Estrecha: el botón se queda en su icono (su nombre se sigue leyendo en voz). */
+@media (max-width: 440px) {
+  .ghost { padding: 7px; }
+  .ghost .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
 @media (max-width: 420px) {
   .topbar { padding-left: 12px; }
   .card { padding: 12px 13px 14px; }
@@ -802,6 +844,7 @@ main > .wide { grid-column: 1 / -1; }
   .dot.on::after { animation: none; display: none; }
   .icon img { transition: none; }
   .icon:hover img { transform: none; }
+  .ghost, .ghost:active { transition: none; transform: none; }
 }
 
 /* Sin vidrio (Windows con «Efectos de transparencia» desactivado, o sin soporte). */
@@ -819,5 +862,6 @@ main > .wide { grid-column: 1 / -1; }
   .topbar, .card { border: 1px solid CanvasText; }
   .topbar::before, .card::before, .scene { display: none; }
   .badge, .tag, .chip, .pill { border: 1px solid CanvasText; }
+  .ghost { border: 1px solid ButtonText; color: ButtonText; background: ButtonFace; }
   .player::before { background: CanvasText; }
 }

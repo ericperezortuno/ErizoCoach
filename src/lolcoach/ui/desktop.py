@@ -4,11 +4,14 @@
   diseño que la versión web.
 * La ventana y la app se comunican directamente con el puente de pywebview: **no hay
   servidor ni puerto abierto** en tu PC.
-* La página solo puede pedir dos cosas a la app (``DesktopBridge``): el estado actual
-  y el icono de un objeto o campeón por su id numérico.
+* La página solo puede pedir tres cosas a la app (``DesktopBridge``): el estado actual,
+  el icono de un objeto o campeón por su id numérico y pasar a segundo plano.
 * Se carga con una política de seguridad estricta: solo su propio código (marcado con
   un *nonce* aleatorio en cada arranque), iconos incrustados y ninguna conexión de red.
 * Al cerrar la ventana se cierra LoL Coach.
+* **Segundo plano**: el botón de la cabecera esconde la ventana (y la quita de la barra
+  de tareas) y la app sigue trabajando igual. Se vuelve a abrir con el icono de LoL Coach
+  en la bandeja de Windows, junto al reloj, o abriendo LoL Coach otra vez.
 """
 
 from __future__ import annotations
@@ -20,10 +23,13 @@ import json
 import logging
 import secrets
 import sys
+import threading
+from collections.abc import Callable
 from importlib.resources import files
 from typing import TYPE_CHECKING, Any
 
 from ..config import Settings
+from .tray import TrayIcon, default_icon_path
 from .web.icons import KINDS, IconProvider
 from .web.presenter import State, UiPresenter
 from .web.window import DEFAULT_WIDTH, list_monitors, window_geometry
@@ -39,6 +45,11 @@ MIN_SIZE = (380, 480)
 ICON_TIMEOUT = 5.0
 WEBVIEW2_CLIENT_ID = "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
 APP_USER_MODEL_ID = "LoLCoach.Desktop"
+BACKGROUND_NOTICE = (
+    "LoL Coach sigue en marcha",
+    "Las runas, los hechizos y la build se siguen poniendo solos. "
+    "Haz clic en este icono para volver a abrir la ventana.",
+)
 
 
 def webview2_available() -> bool:
@@ -108,11 +119,16 @@ class DesktopBridge:
     """
 
     def __init__(
-        self, presenter: UiPresenter, icons: IconProvider, loop: asyncio.AbstractEventLoop
+        self,
+        presenter: UiPresenter,
+        icons: IconProvider,
+        loop: asyncio.AbstractEventLoop,
+        to_background: Callable[[], bool] | None = None,
     ) -> None:
         self._presenter = presenter
         self._icons = icons
         self._loop = loop
+        self._to_background = to_background
 
     def get_state(self) -> State:
         return self._presenter.state
@@ -134,6 +150,16 @@ class DesktopBridge:
             return None
         return "data:image/png;base64," + base64.b64encode(body).decode("ascii") if body else None
 
+    def background(self) -> bool:
+        """Esconde la ventana; la app sigue funcionando. False si no se puede (sin bandeja)."""
+        if self._to_background is None:
+            return False
+        try:
+            return bool(self._to_background())
+        except Exception:
+            log.exception("No se pudo pasar a segundo plano")
+            return False
+
 
 def render_script(state: State) -> str:
     """Código que la app ejecuta en la página para pintar un estado nuevo."""
@@ -147,6 +173,11 @@ class DesktopWindow:
         self._settings = settings
         self._window: Any = None
         self._loaded = False
+        self._hidden = False
+        self._minimized = False
+        self._noticed = False  # el aviso de «sigue en marcha» sale solo la primera vez
+        self._visibility = threading.Lock()
+        self._tray: TrayIcon | None = None
 
     def run(self) -> None:
         """Abre la ventana y espera a que la cierres (ocupa el hilo principal)."""
@@ -163,7 +194,9 @@ class DesktopWindow:
         self._window = webview.create_window(
             TITLE,
             html=build_html(),
-            js_api=DesktopBridge(self._app.presenter, self._app.icons, loop),
+            js_api=DesktopBridge(
+                self._app.presenter, self._app.icons, loop, to_background=self.to_background
+            ),
             x=x,
             y=y,
             width=width,
@@ -175,19 +208,71 @@ class DesktopWindow:
         )
         self._window.events.loaded += self._on_loaded
         self._window.events.closed += self._on_closed
+        self._window.events.minimized += self._on_minimized
+        self._window.events.restored += self._on_restored
+        self._window.events.maximized += self._on_restored
         self._app.presenter.add_listener(self._push)
-        webview.start(gui="edgechromium", private_mode=True)
+        tray = TrayIcon(on_open=self.bring_back, on_quit=self.quit, icon_path=default_icon_path())
+        self._tray = tray if tray.start() else None
+        try:
+            webview.start(gui="edgechromium", private_mode=True)
+        finally:
+            if self._tray is not None:
+                self._tray.stop()
+                self._tray = None
+
+    # --- Segundo plano ---------------------------------------------------------------
+
+    def to_background(self) -> bool:
+        """Esconde la ventana (y la quita de la barra de tareas). La app sigue igual."""
+        tray = self._tray
+        if tray is None or self._window is None:
+            return False  # sin icono en la bandeja no habría forma de volver
+        with self._visibility:
+            if not self._hidden:
+                self._window.hide()
+                self._hidden = True
+        log.info("LoL Coach en segundo plano: ábrelo desde el icono junto al reloj.")
+        if not self._noticed:
+            self._noticed = True
+            tray.notify(*BACKGROUND_NOTICE)
+        return True
+
+    def bring_back(self) -> None:
+        """Vuelve a mostrar la ventana, delante y al día (desde la bandeja o al reabrir)."""
+        window = self._window
+        if window is None:
+            return
+        with self._visibility:
+            was_hidden, self._hidden = self._hidden, False
+            if was_hidden:
+                # En segundo plano no se repinta: primero el estado actual, luego se enseña.
+                self._evaluate(render_script(self._app.presenter.state))
+            window.show()  # también la pone delante si ya estaba visible
+            if self._minimized:
+                window.restore()
+
+    def quit(self) -> None:
+        """«Cerrar LoL Coach» del menú de la bandeja: igual que cerrar la ventana."""
+        if self._window is not None:
+            self._window.destroy()
 
     def _on_loaded(self) -> None:
         self._loaded = True
         self._evaluate(render_script(self._app.presenter.state))
+
+    def _on_minimized(self) -> None:
+        self._minimized = True
+
+    def _on_restored(self) -> None:
+        self._minimized = False
 
     def _on_closed(self) -> None:
         self._loaded = False
         self._app.request_stop()
 
     async def _push(self, state: State) -> None:
-        if self._loaded:
+        if self._loaded and not self._hidden:  # escondida no se repinta (ahorra trabajo)
             await asyncio.get_running_loop().run_in_executor(
                 None, self._evaluate, render_script(state)
             )

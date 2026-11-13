@@ -29,9 +29,11 @@ class StatsBuildSource:
         self._stats: dict[tuple[int, str], ChampionStats] = {}
         self.patch = ""
         self.matches = 0
+        self.revision = 0  # sube con cada carga: quien guardó una build sabe si está anticuada
 
     def update(self, patch: str, matches: int, stats: dict[tuple[int, str], ChampionStats]) -> None:
         self.patch, self.matches, self._stats = patch, matches, stats
+        self.revision += 1
 
     @property
     def covered(self) -> int:
