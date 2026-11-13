@@ -79,6 +79,9 @@ class LoadoutService:
 
     def _on_end(self, _event: object) -> None:
         self._reset()
+        # Las precargas y comprobaciones pendientes ya no sirven: se cancelan.
+        for task in list(self._tasks):
+            task.cancel()
 
     def _on_locked(self, event: ChampionLocked) -> None:
         client = self._connector.client

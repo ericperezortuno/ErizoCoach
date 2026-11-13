@@ -6,6 +6,7 @@ selección y los datos reales del juego grabados del parche 16.22.
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import copy
 import json
@@ -124,6 +125,9 @@ class FakeLcu:
         await self.drop_connections()
         if self._runner is not None:
             await self._runner.cleanup()
+        # En Windows (Proactor) el cierre de las conexiones termina en la siguiente vuelta
+        # del bucle: se espera un instante para que no queden transportes sin cerrar.
+        await asyncio.sleep(0.05)
 
     @web.middleware
     async def _auth(self, request: web.Request, handler: Any) -> web.StreamResponse:

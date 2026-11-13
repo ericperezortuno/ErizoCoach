@@ -118,6 +118,23 @@ class LcuClient:
     async def get(self, path: str) -> Any:
         return await self.request("GET", path)
 
+    async def get_bytes(self, path: str) -> bytes:
+        """Descarga un recurso binario del cliente (iconos de ``/lol-game-data/assets/``)."""
+        if self._session is None:
+            raise RuntimeError("LcuClient no está abierto")
+        if not path.startswith("/lol-game-data/assets/"):
+            raise ValueError(f"Solo se permiten recursos del juego: {path!r}")
+        try:
+            async with self._session.get(path, timeout=REQUEST_TIMEOUT) as response:
+                body = await response.read()
+                if response.status >= 400:
+                    raise LcuHttpError("GET", path, response.status)
+                return body
+        except aiohttp.ClientSSLError as exc:
+            raise LcuTlsError(f"certificado no válido: {describe_error(exc)}") from exc
+        except (aiohttp.ClientError, TimeoutError) as exc:
+            raise LcuUnavailable(f"GET {path}: {describe_error(exc)}") from exc
+
     async def post(self, path: str, body: Any = None) -> Any:
         return await self.request("POST", path, body=body)
 

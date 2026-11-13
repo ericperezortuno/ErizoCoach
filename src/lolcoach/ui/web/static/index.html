@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LoL Coach</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo" aria-hidden="true"></span>LoL Coach</div>
+    <div class="status">
+      <span id="clock" class="clock"></span>
+      <span id="phase" class="pill">Conectando…</span>
+    </div>
+  </header>
+  <main id="app" aria-live="polite"></main>
+  <footer class="footer">
+    <span id="connection" class="dot off" aria-hidden="true"></span>
+    <span id="connection-text">Conectando con LoL Coach…</span>
+    <span id="version" class="version"></span>
+  </footer>
+  <script src="/static/app.js"></script>
+</body>
+</html>

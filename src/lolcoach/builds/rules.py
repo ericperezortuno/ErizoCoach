@@ -125,6 +125,25 @@ class BuildContext:
         return hard >= HARD_CC_CHAMPIONS or sum(p.crowd_control for p in profiles) >= HEAVY_CC_TOTAL
 
 
+# Objeto según el grupo de tu campeón (reutilizado por el consejero de la fase 4)
+MAGIC_DEFENSE: dict[str, int | None] = {
+    "ap": 3102, "marksman": 3139, "assassin": 3156, "fighter": 3065, "tank": 2504,
+}  # Velo del hada, Cimitarra mercurial, Fauces, Rostro espiritual, Rookern kaénico  # fmt: skip
+PHYSICAL_DEFENSE: dict[str, int | None] = {
+    "ap": 3157, "marksman": 3026, "ad_melee": 6333, "tank": 3143, "support_tank": 3110,
+}  # Zhonya, Ángel de la guarda, Baile de la muerte, Randuin, Corazón de hielo  # fmt: skip
+# Morellonomicón, Recordatorio letal, Mecanoespada punki, Malla de espinas
+ANTI_HEAL_ITEMS = frozenset({3165, 3033, 6609, 3075})
+ANTI_HEAL_COMPONENTS: dict[str, int | None] = {
+    "ap": OBLIVION_ORB, "marksman": EXECUTIONERS, "ad_melee": EXECUTIONERS, "tank": BRAMBLE_VEST,
+}  # fmt: skip
+
+
+def item_for(archetype: Archetype, table: dict[str, int | None]) -> int | None:
+    """El objeto de ``table`` que corresponde a tu tipo de campeón (None si no aplica)."""
+    return _group_item(archetype, table)
+
+
 def _group_item(archetype: Archetype, table: dict[str, int | None]) -> int | None:
     if archetype in AP_DAMAGE:
         key = "ap_fighter" if archetype == Archetype.AP_FIGHTER and "ap_fighter" in table else "ap"
@@ -176,9 +195,8 @@ def find_needs(ctx: BuildContext, names: Names) -> list[SituationalItem]:
         add(
             {"ap": 3165, "marksman": 3033, "ad_melee": 6609, "tank": tank_item},
             lambda item: f"{item}: {who(healers)} {verb(healers, 'se cura', 'se curan')} mucho",
-            {"ap": OBLIVION_ORB, "marksman": EXECUTIONERS, "ad_melee": EXECUTIONERS,
-             "tank": BRAMBLE_VEST},
-        )  # fmt: skip
+            ANTI_HEAL_COMPONENTS,
+        )
 
     # 2) Supresiones: hay que poder liberarse
     suppressors = ctx.named(SUPPRESSORS)
@@ -196,13 +214,11 @@ def find_needs(ctx: BuildContext, names: Names) -> list[SituationalItem]:
     defenses: list[tuple[float, Callable[[], None]]] = []
     if magic >= THREAT_COUNT:
         defenses.append((magic, lambda: add(
-            {"ap": 3102, "marksman": 3139, "assassin": 3156, "fighter": 3065, "tank": 2504},
-            lambda item: f"{item}: {magic:g} enemigos hacen daño mágico", {},
+            MAGIC_DEFENSE, lambda item: f"{item}: {magic:g} enemigos hacen daño mágico", {},
         )))  # fmt: skip
     if physical >= THREAT_COUNT and ctx.physical_carries >= 1:
         defenses.append((physical, lambda: add(
-            {"ap": 3157, "marksman": 3026, "ad_melee": 6333, "tank": 3143, "support_tank": 3110},
-            lambda item: f"{item}: {physical:g} enemigos hacen daño físico", {},
+            PHYSICAL_DEFENSE, lambda item: f"{item}: {physical:g} enemigos hacen daño físico", {},
         )))  # fmt: skip
     for _, apply in sorted(defenses, key=lambda d: -d[0]):
         apply()

@@ -17,6 +17,8 @@ from ..events import (
     ClientConnected,
     ClientDisconnected,
     GameflowPhaseChanged,
+    LiveGameEnded,
+    LiveGameUpdated,
     LoadoutApplied,
     LoadoutReady,
     MyChampionChanged,
@@ -24,6 +26,7 @@ from ..events import (
 )
 from ..gamedata.catalog import GameData
 from ..gamedata.runes import PRIMARY_INDEXES, SECONDARY_INDEXES, SHARD_INDEXES, RunePage
+from ..ingame.analysis import Strength
 from ..loadout.models import LANE_CONFIDENCE
 from .labels import GAMEFLOW_LABELS, POSITION_LABELS
 
@@ -46,6 +49,10 @@ class ConsoleReporter:
         bus.subscribe(BuildReady, self._on_build)
         bus.subscribe(BuildApplied, self._on_build_applied)
         bus.subscribe(ChampSelectEnded, self._on_ended)
+        bus.subscribe(LiveGameUpdated, self._on_live)
+        bus.subscribe(LiveGameEnded, self._on_live_ended)
+        self._last_purchase = 0
+        self._very_strong: set[int] = set()
 
     # --- Cliente y estado ---------------------------------------------------------
 
@@ -197,6 +204,32 @@ class ConsoleReporter:
             log.info("Aplicado: build en la tienda, conjunto «%s».", event.set_title)
         for problem in event.problems:
             log.warning(problem)
+
+    # --- Partida en vivo (solo cambios importantes; el detalle está en la ventana) --------
+
+    def _on_live(self, event: LiveGameUpdated) -> None:
+        gd = self._gamedata
+        for enemy in event.report.enemies:
+            key = enemy.champion_id or hash(enemy.player.champion_alias)
+            if enemy.strength == Strength.VERY_STRONG and key not in self._very_strong:
+                self._very_strong.add(key)
+                log.info(
+                    "En partida: %s va muy fuerte (%s, %+d de oro en objetos frente a la media)",
+                    gd.champion_name(enemy.champion_id) or enemy.player.champion_name,
+                    enemy.player.kda,
+                    enemy.gold_vs_average,
+                )
+        advice = event.advice
+        purchase = advice.next_purchase if advice else None
+        if purchase is not None and purchase.item_id != self._last_purchase:
+            self._last_purchase = purchase.item_id
+            log.info(
+                "En partida: compra ahora %s (%s)", gd.item_name(purchase.item_id), purchase.reason
+            )
+
+    def _on_live_ended(self, _event: LiveGameEnded) -> None:
+        self._last_purchase = 0
+        self._very_strong.clear()
 
     def _rune_lines(self, page: RunePage) -> list[str]:
         gd = self._gamedata

@@ -1,0 +1,150 @@
+:root {
+  --bg: #091428;
+  --panel: #0f1d33;
+  --panel-2: #13243d;
+  --border: #1f3350;
+  --gold: #c8aa6e;
+  --gold-soft: #785a28;
+  --text: #f0e6d2;
+  --muted: #8d9db5;
+  --red: #e84057;
+  --orange: #f0a330;
+  --green: #3fb68b;
+  --blue: #4a9ee8;
+  --radius: 8px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 "Segoe UI", system-ui, sans-serif;
+  min-height: 100%;
+}
+
+body { display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, #0c1a30, var(--bg));
+  border-bottom: 1px solid var(--gold-soft);
+  position: sticky; top: 0; z-index: 2;
+}
+.brand { font-weight: 700; letter-spacing: .04em; color: var(--gold); display: flex; align-items: center; gap: 8px; }
+.logo { width: 12px; height: 12px; transform: rotate(45deg); border: 2px solid var(--gold); display: inline-block; }
+.status { display: flex; align-items: center; gap: 10px; }
+.clock { font-variant-numeric: tabular-nums; color: var(--muted); }
+.pill {
+  font-size: 12px; padding: 3px 10px; border-radius: 999px;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+}
+
+main { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+.card h2 {
+  margin: 0 0 10px; font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--gold);
+}
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+
+/* Iconos */
+.icon { position: relative; display: inline-block; flex: none; }
+.icon img {
+  display: block; width: 36px; height: 36px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--panel-2);
+}
+.icon.big img { width: 56px; height: 56px; border-color: var(--gold-soft); }
+.icon.champ img { border-radius: 50%; width: 38px; height: 38px; }
+.icon.owned img { opacity: .35; }
+.icon.owned::after {
+  content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;
+  color: var(--green); font-weight: 900; font-size: 18px; text-shadow: 0 0 4px #000;
+}
+.icon.next img { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-soft); }
+.icon .count {
+  position: absolute; right: 2px; bottom: 0; font-size: 11px; font-weight: 700;
+  text-shadow: 0 0 3px #000, 0 0 3px #000;
+}
+.icons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.arrow { color: var(--muted); font-size: 12px; }
+
+/* Compra ahora */
+.buy { display: flex; gap: 12px; align-items: flex-start; }
+.buy .name { font-size: 17px; font-weight: 700; }
+.buy .reason { color: var(--muted); margin: 2px 0 6px; }
+.ok { color: var(--green); font-weight: 600; }
+.warn { color: var(--orange); font-weight: 600; }
+.components { display: flex; gap: 6px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+
+/* Jugadores */
+.players { display: flex; flex-direction: column; gap: 6px; }
+.player {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+  padding: 6px 8px; border-radius: 6px; background: var(--panel-2);
+  border-left: 3px solid transparent;
+}
+.player.very_strong { border-left-color: var(--red); }
+.player.strong { border-left-color: var(--orange); }
+.player.behind { border-left-color: var(--blue); }
+.player.dead { opacity: .5; }
+.player .title { display: flex; align-items: center; gap: 6px; font-weight: 600; flex-wrap: wrap; }
+.player .stats { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.player .right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.gold { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.gold.up { color: var(--orange); }
+.gold.down { color: var(--blue); }
+
+.tag {
+  font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: .04em; background: #1d2f4a; color: var(--muted);
+}
+.tag.lane { background: var(--gold-soft); color: var(--text); }
+.tag.dmg-ap { background: #2c2350; color: #b9a7ff; }
+.tag.dmg-ad { background: #3d2420; color: #ffb199; }
+
+.badge {
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  background: #22324b; color: var(--muted); white-space: nowrap;
+}
+.badge.very_strong { background: rgba(232, 64, 87, .18); color: var(--red); }
+.badge.strong { background: rgba(240, 163, 48, .18); color: var(--orange); }
+.badge.behind { background: rgba(74, 158, 232, .18); color: var(--blue); }
+
+/* Selección de campeones */
+.hero { display: flex; gap: 12px; align-items: center; }
+.hero .name { font-size: 18px; font-weight: 700; }
+.runes { display: grid; gap: 6px; }
+.runes .keystone { font-size: 16px; font-weight: 700; }
+.runes .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: baseline; }
+.runes .row b { color: var(--gold); font-weight: 600; min-width: 92px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { padding: 2px 8px; border-radius: 4px; background: var(--panel-2); border: 1px solid var(--border); font-size: 12px; }
+
+.list { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.list li::marker { color: var(--gold); }
+.situational { display: grid; gap: 8px; }
+.situational .entry { display: flex; gap: 8px; align-items: center; }
+
+.section-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 8px 0 4px; }
+
+.empty { text-align: center; padding: 40px 16px; color: var(--muted); }
+.empty .big { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+
+.footer {
+  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+  border-top: 1px solid var(--border); color: var(--muted); font-size: 12px;
+}
+.footer .version { margin-left: auto; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+.dot.on { background: var(--green); }

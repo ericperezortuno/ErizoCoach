@@ -9,6 +9,9 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     auto_runes = true    # poner las runas solas al hacerse el último pick
     auto_spells = true   # poner los hechizos de invocador solos
     auto_item_set = true # poner la build en la tienda (conjunto de objetos)
+    window = true              # ventana con consejos (segundo monitor)
+    window_on_secondary = true # false = abrirla en el monitor principal
+    live_poll_interval = 3     # segundos entre lecturas de la partida (1-10)
 """
 
 from __future__ import annotations
@@ -37,6 +40,13 @@ class Settings:
     auto_runes: bool = True
     auto_spells: bool = True
     auto_item_set: bool = True
+    window: bool = True  # ventana para el segundo monitor
+    window_on_secondary: bool = True  # False = en el monitor principal
+    live_poll_interval: float = 3.0  # segundos entre lecturas de la partida
+
+    @property
+    def window_profile_dir(self) -> Path:
+        return self.data_dir / "window"
 
     @property
     def log_dir(self) -> Path:
@@ -56,6 +66,7 @@ def load_settings(
     data_dir: Path | None = None,
     league_dir: Path | None = None,
     debug: bool | None = None,
+    window_flag: bool | None = None,
 ) -> tuple[Settings, list[str]]:
     """Combina valores por defecto, ``config.toml`` y opciones de la línea de comandos.
 
@@ -74,6 +85,12 @@ def load_settings(
     auto_runes = _bool(values, "auto_runes", True, warnings)
     auto_spells = _bool(values, "auto_spells", True, warnings)
     auto_item_set = _bool(values, "auto_item_set", True, warnings)
+    window = _bool(values, "window", True, warnings)
+    window_on_secondary = _bool(values, "window_on_secondary", True, warnings)
+    poll = values.get("live_poll_interval", 3.0)
+    if isinstance(poll, bool) or not isinstance(poll, int | float) or not 1 <= poll <= 10:
+        warnings.append("config.toml: 'live_poll_interval' debe estar entre 1 y 10; se usa 3.")
+        poll = 3.0
 
     interval = values.get("discovery_interval", 3.0)
     if (
@@ -93,6 +110,9 @@ def load_settings(
         auto_runes=auto_runes,
         auto_spells=auto_spells,
         auto_item_set=auto_item_set,
+        window=window if window_flag is None else window_flag,
+        window_on_secondary=window_on_secondary,
+        live_poll_interval=float(poll),
     )
     return settings, warnings
 

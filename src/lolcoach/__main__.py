@@ -30,13 +30,23 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--league-dir", type=Path, help="carpeta de LoL, si no se detecta automáticamente"
     )
+    parser.add_argument(
+        "--no-window", action="store_true", help="no abre la ventana del segundo monitor"
+    )
+    parser.add_argument(
+        "--demo", action="store_true", help="muestra la ventana con una partida de ejemplo"
+    )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    settings, warnings = load_settings(league_dir=args.league_dir, debug=args.debug or None)
+    settings, warnings = load_settings(
+        league_dir=args.league_dir,
+        debug=args.debug or None,
+        window_flag=False if args.no_window else None,
+    )
     setup_logging(settings.log_dir, debug=settings.debug)
     for warning in warnings:
         log.warning(warning)
@@ -50,7 +60,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     try:
         log.info("LoL Coach %s iniciado. Pulsa Ctrl+C para salir.", __version__)
-        asyncio.run(Application(settings).run())
+        asyncio.run(Application(settings, demo=args.demo).run())
     except KeyboardInterrupt:
         log.info("LoL Coach cerrado. ¡Hasta la próxima!")
     finally:

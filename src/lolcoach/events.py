@@ -15,6 +15,9 @@ from enum import StrEnum
 
 from .builds.models import BuildPlan
 from .champselect.models import ChampSelectSnapshot, PlayerSlot
+from .ingame.advisor import Advice
+from .ingame.analysis import GameReport
+from .ingame.models import LiveGame
 from .loadout.models import Loadout
 from .models import ClientInfo, GameflowPhase, QueueInfo
 
@@ -98,6 +101,21 @@ class BuildApplied:
     set_title: str | None  # conjunto de objetos de la tienda (None si no se escribió)
     applied: bool
     problems: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class LiveGameUpdated:
+    """Estado de la partida en curso (cada pocos segundos, solo si algo cambia)."""
+
+    game: LiveGame
+    report: GameReport
+    advice: Advice | None  # None si no hay build para tu campeón (modo sin build)
+    plan: BuildPlan | None
+
+
+@dataclass(frozen=True, slots=True)
+class LiveGameEnded:
+    pass
 
 
 @dataclass(frozen=True, slots=True)

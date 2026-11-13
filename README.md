@@ -1,9 +1,10 @@
 # LoL Coach
 
 Asistente local para League of Legends que te pone las runas, los hechizos de
-invocador y la build en la tienda, adaptados a cada partida.
+invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
+dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: Fase 3 (build inicial en la tienda)
+## Estado: Fase 4 (ventana en el segundo monitor durante la partida)
 
 ### Lo que hace
 
@@ -86,6 +87,39 @@ con estadísticas reales de partidas de alto elo (API oficial de Riot), sin camb
 entera, así que la app la lee, cambia solo el conjunto «LoL Coach» y comprueba después que
 los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
 
+### La ventana del segundo monitor
+
+Al arrancar, LoL Coach abre una ventana (Edge en modo aplicación, sin barras) **a toda
+altura en tu segundo monitor**, pegada al principal. Muestra:
+
+- **En la selección de campeones**: tu campeón, las runas y hechizos aplicados con sus
+  motivos, y la build (inicio, núcleo, completa y «contra este equipo»).
+- **Durante la partida** (se actualiza cada 3 segundos):
+  - **Compra ahora**: el siguiente objeto, el porqué, cuánto oro te falta y qué
+    componentes ya te puedes comprar (bajando por la receta si hace falta).
+  - **Tu build**: lo que ya tienes marcado y lo siguiente resaltado.
+  - **Rivales**, de más a menos peligroso: KDA, súbditos, nivel, tipo de daño, «Tu rival»
+    y una etiqueta **Muy fuerte / Fuerte / Normal / Por detrás**.
+  - **Tu equipo**, con la misma información.
+
+**Quién va fuerte**: el oro de los rivales no se ve, pero sus objetos sí. Se combina el valor
+de sus objetos (60 %), su KDA (25 %) y su nivel (15 %) frente a la media de la partida. En los
+primeros 3 minutos no se etiqueta a nadie.
+
+**Qué comprar**: tu build (primer objeto del núcleo, botas, resto) con dos excepciones:
+- Si un enemigo que **hace mucho daño** va muy fuerte (o tu rival de línea va fuerte) y no
+  tienes defensa contra su tipo de daño, el objeto defensivo de tu tipo de campeón va primero.
+- Si alguien que **se cura mucho** va fuerte, la antisanación (su componente barato) va primero.
+- Si se dan las dos, manda la que responde al enemigo más fuerte.
+
+Usa la API oficial de Riot de la partida (`127.0.0.1:2999`, verificada con su certificado)
+y **solo información visible en el marcador**: está permitido por las normas de Riot.
+
+**Seguridad de la ventana**: el servidor solo escucha en `127.0.0.1`, exige una clave aleatoria
+que cambia en cada arranque, comprueba `Host` y `Origin` (ninguna web de tu navegador puede
+leerla) y envía cabeceras estrictas sin recursos externos. La ventana usa un perfil de Edge
+propio: no se mezcla con tu navegación.
+
 ## Cómo se usa
 
 Requisitos: Windows y [uv](https://docs.astral.sh/uv/) (ya lo tienes instalado).
@@ -101,7 +135,13 @@ Otras opciones:
 ```bash
 uv run lolcoach --check     # comprueba la conexión con el cliente y sale
 uv run lolcoach --debug     # muestra también los mensajes técnicos
+uv run lolcoach --demo      # abre la ventana con una partida de ejemplo (para verla sin jugar)
+uv run lolcoach --no-window # sin ventana (solo consola)
 ```
+
+Si cierras la ventana, la consola muestra la dirección para volver a abrirla. Cierra LoL
+Coach con **Ctrl+C** (si la consola se cierra de golpe, la ventana antigua se cierra sola la
+próxima vez que lo abras).
 
 Los registros se guardan en `%LOCALAPPDATA%\LoLCoach\logs\lolcoach.log`
 (máximo 4 MB, rotativos). Configuración opcional en `%LOCALAPPDATA%\LoLCoach\config.toml`:
@@ -113,6 +153,9 @@ discovery_interval = 3  # segundos entre intentos de detectar el cliente
 auto_runes = true       # false = solo recomendar las runas, sin aplicarlas
 auto_spells = true      # false = solo recomendar los hechizos, sin aplicarlos
 auto_item_set = true    # false = solo mostrar la build, sin ponerla en la tienda
+window = true           # false = sin ventana del segundo monitor
+window_on_secondary = true  # false = abrir la ventana en el monitor principal
+live_poll_interval = 3  # segundos entre lecturas de la partida (1-10)
 ```
 
 ## Seguridad y normas de Riot
@@ -148,6 +191,8 @@ src/lolcoach/
   gamedata/            Datos del juego leídos del cliente: campeones, perfiles, runas, hechizos
   loadout/             Fase 2: posiciones, reglas, recomendación y aplicación de runas/hechizos
   builds/              Fase 3: tipos de campeón, builds base, adaptación y conjunto de objetos
+  ingame/              Fase 4: lectura de la partida en vivo, quién va fuerte y qué comprar
+  ui/web/              Fase 4: servidor local seguro, ventana (HTML/CSS/JS) y modo demostración
   ui/                  Presentación (consola; en la fase 4, ventana del segundo monitor)
 tests/                 Pruebas automáticas: cliente de LoL simulado y datos reales del parche
 ```
@@ -170,6 +215,6 @@ uv run ruff check .    # revisión de estilo y errores comunes
 1. **Conexión y lectura de la selección de campeones** ✅
 2. **Runas y hechizos automáticos al hacerse el último pick** ✅
 3. **Build inicial en la tienda, adaptada a la composición enemiga** ✅
-4. Ventana en el segundo monitor durante la partida: quién va fuerte y qué comprar.
+4. **Ventana en el segundo monitor durante la partida: quién va fuerte y qué comprar** ✅
 5. Mejoras: builds afinadas con estadísticas reales (API de Riot), IA opcional (de pago),
    historial propio, pulido visual.

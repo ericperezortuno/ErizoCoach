@@ -24,6 +24,7 @@ class Item:
     display_in_item_sets: bool
     required_champion: str
     required_ally: str
+    icon_path: str = ""  # ruta del icono en el cliente (/lol-game-data/assets/...)
 
     @classmethod
     def from_json(cls, data: Mapping[str, Any]) -> Item:
@@ -38,6 +39,7 @@ class Item:
             display_in_item_sets=bool(data.get("displayInItemSets")),
             required_champion=as_str(data.get("requiredChampion")),
             required_ally=as_str(data.get("requiredAlly")),
+            icon_path=as_str(data.get("iconPath")),
         )
 
     @property

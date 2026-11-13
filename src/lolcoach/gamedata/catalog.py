@@ -128,6 +128,7 @@ class GameData:
         self._spells: dict[int, SummonerSpell] = {}
         self._positions: dict[int, tuple[Position, ...]] = {}
         self._items: dict[int, Item] = {}
+        self._alias_index: dict[str, int] = {}
         self._profiles: dict[int, ChampionProfile] = {}
         self._recommended: dict[tuple[int, Position, int], tuple[RecommendedPage, ...]] = {}
 
@@ -162,6 +163,7 @@ class GameData:
                 log.warning("No se pudieron cargar los datos de %s: %s", name, result)
 
         self._champions = _parse_champions(summary)
+        self._alias_index = {}
         self._perks = {
             as_int(p.get("id")): as_str(p.get("name"))
             for p in as_list(perks)
@@ -191,6 +193,7 @@ class GameData:
     def load_static(self, data: Mapping[str, Any], version: str) -> None:
         """Carga desde un diccionario ya leído (pruebas y herramientas)."""
         self._champions = _parse_champions(data.get("championSummary"))
+        self._alias_index = {}
         self._perks = {as_int(p["id"]): as_str(p["name"]) for p in as_list(data.get("perks"))}
         self._styles = {
             s.id: s
@@ -252,7 +255,9 @@ class GameData:
 
     def champion_id_by_alias(self, alias: str) -> int:
         """Id a partir de la clave interna ("Kaisa", "DrMundo"...); 0 si no existe."""
-        return next((c.id for c in self._champions.values() if c.alias == alias), 0)
+        if len(self._alias_index) != len(self._champions):
+            self._alias_index = {c.alias.lower(): c.id for c in self._champions.values()}
+        return self._alias_index.get(alias.lower(), 0)
 
     # --- Consultas al cliente (con caché) ------------------------------------------
 

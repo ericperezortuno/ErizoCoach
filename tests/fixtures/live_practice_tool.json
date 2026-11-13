@@ -1,0 +1,357 @@
+{
+ "activePlayer": {
+  "abilities": {
+   "E": {
+    "abilityLevel": 1,
+    "displayName": "Voltereta shuriken",
+    "id": "AkaliE",
+    "rawDescription": "GeneratedTip_Spell_AkaliE_Description",
+    "rawDisplayName": "GeneratedTip_Spell_AkaliE_DisplayName"
+   },
+   "Passive": {
+    "displayName": "Marca del asesino",
+    "id": "AkaliP",
+    "rawDescription": "GeneratedTip_Passive_AkaliP_Description",
+    "rawDisplayName": "GeneratedTip_Passive_AkaliP_DisplayName"
+   },
+   "Q": {
+    "abilityLevel": 3,
+    "displayName": "Pleno de cinco puntas",
+    "id": "AkaliQ",
+    "rawDescription": "GeneratedTip_Spell_AkaliQ_Description",
+    "rawDisplayName": "GeneratedTip_Spell_AkaliQ_DisplayName"
+   },
+   "R": {
+    "abilityLevel": 1,
+    "displayName": "Ejecución perfecta",
+    "id": "AkaliR",
+    "rawDescription": "GeneratedTip_Spell_AkaliR_Description",
+    "rawDisplayName": "GeneratedTip_Spell_AkaliR_DisplayName"
+   },
+   "W": {
+    "abilityLevel": 1,
+    "displayName": "Velo del crepúsculo",
+    "id": "AkaliW",
+    "rawDescription": "GeneratedTip_Spell_AkaliW_Description",
+    "rawDisplayName": "GeneratedTip_Spell_AkaliW_DisplayName"
+   }
+  },
+  "championStats": {
+   "abilityHaste": 0.0,
+   "abilityPower": 36.0,
+   "armor": 41.56500244140625,
+   "armorPenetrationFlat": 0.0,
+   "armorPenetrationPercent": 1.0,
+   "attackDamage": 75.03500366210938,
+   "attackRange": 125.0,
+   "attackSpeed": 0.7039999961853027,
+   "bonusArmorPenetrationPercent": 1.0,
+   "bonusMagicPenetrationPercent": 1.0,
+   "critChance": 0.0,
+   "critDamage": 200.0,
+   "currentHealth": 1220.050048828125,
+   "healShieldPower": 0.0,
+   "healthRegenRate": 2.511000156402588,
+   "lifeSteal": 0.0,
+   "magicLethality": 0.0,
+   "magicPenetrationFlat": 0.0,
+   "magicPenetrationPercent": 1.0,
+   "magicResist": 45.09749984741211,
+   "maxHealth": 1220.050048828125,
+   "moveSpeed": 345.0,
+   "omnivamp": 0.0,
+   "physicalLethality": 0.0,
+   "physicalVamp": 0.0,
+   "resourceMax": 200.0,
+   "resourceRegenRate": 10.0,
+   "resourceType": "ENERGY",
+   "resourceValue": 200.0,
+   "spellVamp": 0.0,
+   "tenacity": 5.0
+  },
+  "currentGold": 50.20000457763672,
+  "fullRunes": {
+   "generalRunes": [
+    {
+     "displayName": "Electrocutar",
+     "id": 8112,
+     "rawDescription": "perk_tooltip_Electrocute",
+     "rawDisplayName": "perk_displayname_Electrocute"
+    },
+    {
+     "displayName": "Impacto repentino",
+     "id": 8143,
+     "rawDescription": "perk_tooltip_SuddenImpact",
+     "rawDisplayName": "perk_displayname_SuddenImpact"
+    },
+    {
+     "displayName": "Recuerdo macabro",
+     "id": 8140,
+     "rawDescription": "perk_tooltip_GrislyMementos",
+     "rawDisplayName": "perk_displayname_GrislyMementos"
+    },
+    {
+     "displayName": "Cazador definitivo",
+     "id": 8106,
+     "rawDescription": "perk_tooltip_UltimateHunter",
+     "rawDisplayName": "perk_displayname_UltimateHunter"
+    },
+    {
+     "displayName": "Sobrecrecimiento",
+     "id": 8451,
+     "rawDescription": "perk_tooltip_Overgrowth",
+     "rawDisplayName": "perk_displayname_Overgrowth"
+    },
+    {
+     "displayName": "Fuerzas renovadas",
+     "id": 8444,
+     "rawDescription": "perk_tooltip_SecondWind",
+     "rawDisplayName": "perk_displayname_SecondWind"
+    }
+   ],
+   "keystone": {
+    "displayName": "Electrocutar",
+    "id": 8112,
+    "rawDescription": "perk_tooltip_Electrocute",
+    "rawDisplayName": "perk_displayname_Electrocute"
+   },
+   "primaryRuneTree": {
+    "displayName": "Dominación",
+    "id": 8100,
+    "rawDescription": "perkstyle_tooltip_7200",
+    "rawDisplayName": "perkstyle_displayname_7200"
+   },
+   "secondaryRuneTree": {
+    "displayName": "Valor",
+    "id": 8400,
+    "rawDescription": "perkstyle_tooltip_7204",
+    "rawDisplayName": "perkstyle_displayname_7204"
+   },
+   "statRunes": [
+    {
+     "id": 5008,
+     "rawDescription": "perk_tooltip_StatModAdaptive"
+    },
+    {
+     "id": 5008,
+     "rawDescription": "perk_tooltip_StatModAdaptive"
+    },
+    {
+     "id": 5001,
+     "rawDescription": "perk_tooltip_StatModHealthScaling"
+    }
+   ]
+  },
+  "level": 6,
+  "riotId": "Jugador#EUW",
+  "riotIdGameName": "Jugador",
+  "riotIdTagLine": "EUW",
+  "summonerName": "Jugador#EUW",
+  "teamRelativeColors": true
+ },
+ "allPlayers": [
+  {
+   "championName": "Akali",
+   "isBot": false,
+   "isDead": false,
+   "items": [
+    {
+     "canUse": false,
+     "consumable": false,
+     "count": 1,
+     "displayName": "Anillo de Doran",
+     "itemID": 1056,
+     "price": 400,
+     "rawDescription": "GeneratedTip_Item_1056_Description",
+     "rawDisplayName": "Item_1056_Name",
+     "slot": 0
+    },
+    {
+     "canUse": true,
+     "consumable": true,
+     "count": 2,
+     "displayName": "Poción de vida",
+     "itemID": 2003,
+     "price": 50,
+     "rawDescription": "GeneratedTip_Item_2003_Description",
+     "rawDisplayName": "Item_2003_Name",
+     "slot": 1
+    },
+    {
+     "canUse": true,
+     "consumable": false,
+     "count": 1,
+     "displayName": "Guardián invisible",
+     "itemID": 3340,
+     "price": 0,
+     "rawDescription": "GeneratedTip_Item_3340_Description",
+     "rawDisplayName": "Item_3340_Name",
+     "slot": 6
+    }
+   ],
+   "level": 6,
+   "position": "NONE",
+   "rawChampionName": "game_character_displayname_Akali",
+   "rawSkinName": "game_character_skin_displayname_Akali_50",
+   "respawnTimer": 0.0,
+   "riotId": "Jugador#EUW",
+   "riotIdGameName": "Jugador",
+   "riotIdTagLine": "EUW",
+   "runes": {
+    "keystone": {
+     "displayName": "Electrocutar",
+     "id": 8112,
+     "rawDescription": "perk_tooltip_Electrocute",
+     "rawDisplayName": "perk_displayname_Electrocute"
+    },
+    "primaryRuneTree": {
+     "displayName": "Dominación",
+     "id": 8100,
+     "rawDescription": "perkstyle_tooltip_7200",
+     "rawDisplayName": "perkstyle_displayname_7200"
+    },
+    "secondaryRuneTree": {
+     "displayName": "Valor",
+     "id": 8400,
+     "rawDescription": "perkstyle_tooltip_7204",
+     "rawDisplayName": "perkstyle_displayname_7204"
+    }
+   },
+   "scores": {
+    "assists": 0,
+    "creepScore": 0,
+    "deaths": 0,
+    "kills": 0,
+    "wardScore": 0.0
+   },
+   "skinID": 50,
+   "skinName": "Akali Pesadilla en la Ciudad sin ley",
+   "summonerName": "Jugador#EUW",
+   "summonerSpells": {
+    "summonerSpellOne": {
+     "displayName": "Destello",
+     "rawDescription": "GeneratedTip_SummonerSpell_SummonerFlash_Description",
+     "rawDisplayName": "GeneratedTip_SummonerSpell_SummonerFlash_DisplayName"
+    },
+    "summonerSpellTwo": {
+     "displayName": "Prender",
+     "rawDescription": "GeneratedTip_SummonerSpell_SummonerDot_Description",
+     "rawDisplayName": "GeneratedTip_SummonerSpell_SummonerDot_DisplayName"
+    }
+   },
+   "team": "ORDER"
+  },
+  {
+   "championName": "Kennen",
+   "isBot": true,
+   "isDead": false,
+   "items": [
+    {
+     "canUse": false,
+     "consumable": false,
+     "count": 1,
+     "displayName": "Arco de Doran",
+     "itemID": 1086,
+     "price": 400,
+     "rawDescription": "GeneratedTip_Item_1086_Description",
+     "rawDisplayName": "Item_1086_Name",
+     "slot": 0
+    },
+    {
+     "canUse": true,
+     "consumable": true,
+     "count": 2,
+     "displayName": "Poción de vida",
+     "itemID": 2003,
+     "price": 50,
+     "rawDescription": "GeneratedTip_Item_2003_Description",
+     "rawDisplayName": "Item_2003_Name",
+     "slot": 1
+    },
+    {
+     "canUse": true,
+     "consumable": false,
+     "count": 1,
+     "displayName": "Guardián invisible",
+     "itemID": 3340,
+     "price": 0,
+     "rawDescription": "GeneratedTip_Item_3340_Description",
+     "rawDisplayName": "Item_3340_Name",
+     "slot": 6
+    }
+   ],
+   "level": 1,
+   "position": "MIDDLE",
+   "rawChampionName": "game_character_displayname_Kennen",
+   "rawSkinName": "game_character_displayname_Kennen",
+   "respawnTimer": 0.0,
+   "riotId": "Kennen Bot",
+   "riotIdGameName": "Kennen Bot",
+   "riotIdTagLine": "Kennen Bot",
+   "runes": {
+    "keystone": {
+     "displayName": "Cometa arcano",
+     "id": 8229,
+     "rawDescription": "perk_tooltip_ArcaneComet",
+     "rawDisplayName": "perk_displayname_ArcaneComet"
+    },
+    "primaryRuneTree": {
+     "displayName": "Brujería",
+     "id": 8200,
+     "rawDescription": "perkstyle_tooltip_7202",
+     "rawDisplayName": "perkstyle_displayname_7202"
+    },
+    "secondaryRuneTree": {
+     "displayName": "Dominación",
+     "id": 8100,
+     "rawDescription": "perkstyle_tooltip_7200",
+     "rawDisplayName": "perkstyle_displayname_7200"
+    }
+   },
+   "scores": {
+    "assists": 0,
+    "creepScore": 0,
+    "deaths": 0,
+    "kills": 0,
+    "wardScore": 0.0
+   },
+   "skinID": 0,
+   "skinName": "Kennen",
+   "summonerName": "Kennen Bot",
+   "summonerSpells": {
+    "summonerSpellOne": {
+     "displayName": "Destello",
+     "rawDescription": "GeneratedTip_SummonerSpell_SummonerFlash_Description",
+     "rawDisplayName": "GeneratedTip_SummonerSpell_SummonerFlash_DisplayName"
+    },
+    "summonerSpellTwo": {
+     "displayName": "Prender",
+     "rawDescription": "GeneratedTip_SummonerSpell_SummonerDot_Description",
+     "rawDisplayName": "GeneratedTip_SummonerSpell_SummonerDot_DisplayName"
+    }
+   },
+   "team": "CHAOS"
+  }
+ ],
+ "events": {
+  "Events": [
+   {
+    "EventID": 0,
+    "EventName": "GameStart",
+    "EventTime": 0.029698900878429413
+   },
+   {
+    "EventID": 1,
+    "EventName": "MinionsSpawning",
+    "EventTime": 30.049835205078125
+   }
+  ]
+ },
+ "gameData": {
+  "gameMode": "PRACTICETOOL",
+  "gameTime": 69.91011047363281,
+  "mapName": "Map11",
+  "mapNumber": 11,
+  "mapTerrain": "Default"
+ }
+}

@@ -9,7 +9,7 @@ from ..champselect.models import ChampSelectSnapshot
 from ..gamedata.catalog import GameData
 from ..lcu.client import LcuClient
 from ..loadout.positions import resolve_my_position
-from ..models import QueueInfo
+from ..models import Position, QueueInfo
 from .archetypes import HOWLING_ABYSS, SUMMONERS_RIFT, BuildSource, RuleBasedSource
 from .models import BaseBuild, BuildPlan, ItemCount
 from .rules import BuildContext, Enemy, adapt_build
@@ -30,21 +30,32 @@ class BuildRecommender:
         me = snapshot.me
         if me is None or not me.has_champion:
             return None
-        gd = self._gamedata
         map_id = queue.map_id if queue and queue.map_id else SUMMONERS_RIFT
-        if map_id not in SUPPORTED_MAPS:
-            return None  # Arena y otros modos no usan conjuntos de objetos normales
-        position = resolve_my_position(me.position, me.champion_id, map_id, gd.positions_for)
-
         enemy_ids = [slot.champion_id for slot in snapshot.known_enemies]
-        profiles = await gd.profiles(client, [me.champion_id, *enemy_ids])
-        champion = gd.champion(me.champion_id)
+        return await self.recommend_for(client, me.champion_id, me.position, enemy_ids, map_id)
+
+    async def recommend_for(
+        self,
+        client: LcuClient,
+        champion_id: int,
+        assigned_position: Position,
+        enemy_ids: list[int],
+        map_id: int,
+    ) -> BuildPlan | None:
+        """Build a partir de datos sueltos (también sirve si abres la app a mitad de partida)."""
+        if champion_id <= 0 or map_id not in SUPPORTED_MAPS:
+            return None  # Arena y otros modos no usan conjuntos de objetos normales
+        gd = self._gamedata
+        position = resolve_my_position(assigned_position, champion_id, map_id, gd.positions_for)
+        profiles = await gd.profiles(client, [champion_id, *enemy_ids])
         base = self._validated(
-            self._source.base_build(champion, profiles.get(me.champion_id), position, map_id)
+            self._source.base_build(
+                gd.champion(champion_id), profiles.get(champion_id), position, map_id
+            )
         )
         enemies = tuple(Enemy(c, _alias(gd, c), profiles.get(c)) for c in enemy_ids)
         ctx = BuildContext(base.archetype, position, map_id, enemies)
-        plan = adapt_build(base, ctx, me.champion_id, gd)
+        plan = adapt_build(base, ctx, champion_id, gd)
         return dataclasses.replace(plan, notes=_notes(ctx))
 
     def _validated(self, base: BaseBuild) -> BaseBuild:

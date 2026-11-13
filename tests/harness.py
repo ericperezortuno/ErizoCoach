@@ -106,6 +106,7 @@ class Harness:
         self._task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
             await self._task
+        await asyncio.sleep(0.01)  # deja terminar las tareas canceladas en segundo plano
 
 
 async def wait_until(predicate: Callable[[], bool], timeout: float = 5.0) -> None:
