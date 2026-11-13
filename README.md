@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.8.1 (segundo plano, equipos por línea, con runas, hechizos y builds de alto elo)
+## Estado: v0.9.0 (builds de alto elo también sin clave, segundo plano, equipos por línea)
 
 ### Lo que hace
 
@@ -107,6 +107,10 @@ quedan como respaldo para campeones con pocos datos y para ARAM.
    elegido de cada fila) y sus hechizos. Con 20 partidas o más sustituyen a las reglas y a la
    recomendación de Riot; los ajustes contra los enemigos se aplican encima. Si el parche es
    muy nuevo y aún hay pocas partidas, usa las del anterior.
+4. **Sin clave**: se descargan solas las **estadísticas compartidas** que publica quien sí
+   tiene clave (un archivo pequeño, sin datos de jugadores, validado antes de usarlo). Así
+   un amigo tiene las mismas builds sin configurar nada. Ver
+   [docs/estadisticas-compartidas.md](docs/estadisticas-compartidas.md).
 
 La consola y la ventana indican de dónde salen las runas y la build, por ejemplo
 «estadísticas de 143 partidas de alto elo (parche 16.22)».
@@ -207,6 +211,7 @@ uv run lolcoach stats clave          # guarda tu clave de la API de Riot (cifrad
 uv run lolcoach stats descargar      # descarga partidas de alto elo (--horas 2, --partidas N)
 uv run lolcoach stats estado         # cuántas partidas hay descargadas
 uv run lolcoach stats olvidar-clave  # borra la clave guardada
+uv run lolcoach stats publicar       # publica ya tus estadísticas para quien no tiene clave
 ```
 
 Con la ventana de escritorio, al cerrarla se cierra LoL Coach. En modo `--browser` o
@@ -231,6 +236,7 @@ riot_region = "euw1"    # región de las estadísticas: euw1, eun1, tr1, na1, kr
 stats_min_games = 20    # partidas mínimas para usar la build de estadísticas (5-500)
 stats_auto_download = true   # descargar estadísticas solo, con la app abierta
 stats_target_matches = 3000  # partidas por parche a partir de las que se para (200-50000)
+stats_shared = true          # sin clave (o con pocos datos): usar las estadísticas compartidas
 ```
 
 ## Seguridad y normas de Riot
@@ -277,7 +283,7 @@ assets/                Icono de la aplicación (generado con scripts/make_icon.p
 packaging/             PyInstaller, información de versión del .exe e instalador (installer.py)
 scripts/               Construir el .exe, instalarlo, crear el instalador y generar el icono
 tests/                 Pruebas automáticas: cliente de LoL simulado y datos reales del parche
-docs/                  Guías (clave personal de Riot, instalar en otro PC)
+docs/                  Guías (clave personal, estadísticas compartidas, instalar en otro PC)
 ```
 
 Cada fase nueva se engancha a los eventos existentes (`PicksFinalized`,
@@ -303,4 +309,5 @@ uv run ruff check .    # revisión de estilo y errores comunes
 6. **Runas y hechizos de alto elo, descarga automática y guía de clave personal** ✅
 7. **Diseño liquid glass de la ventana** ✅
 8. **Segundo plano con icono en la bandeja y equipos ordenados por línea** ✅
-9. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
+9. **Estadísticas compartidas: builds de alto elo también sin clave de Riot** ✅
+10. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.

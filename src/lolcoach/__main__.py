@@ -55,6 +55,9 @@ def build_parser() -> argparse.ArgumentParser:
     download.add_argument("--partidas", type=int, help="número máximo de partidas nuevas")
     stats_commands.add_parser("estado", help="muestra cuántas partidas hay descargadas")
     stats_commands.add_parser("olvidar-clave", help="borra tu clave de Riot guardada")
+    stats_commands.add_parser(
+        "publicar", help="publica ya tus estadísticas para quien no tiene clave"
+    )
     return parser
 
 
@@ -67,6 +70,8 @@ def run_stats(args: argparse.Namespace, settings: Settings) -> int:
         return cli.cmd_update(settings, args.horas, args.partidas)
     if args.stats_command == "olvidar-clave":
         return cli.cmd_forget_key()
+    if args.stats_command == "publicar":
+        return cli.cmd_publish(settings)
     return cli.cmd_status(settings)
 
 

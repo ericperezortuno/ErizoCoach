@@ -16,6 +16,7 @@ from ..lcu.tls import create_ssl_context
 from ..logs import REDACTOR
 from . import keystore
 from .crawler import Crawler, CrawlProgress
+from .publish import PublishError, from_settings
 from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
 from .service import prepare_stats
 from .store import DATABASE, MatchStore
@@ -200,6 +201,32 @@ def _warn_if_set_aside(store: MatchStore) -> None:
             "y se empieza una nueva; las partidas se vuelven a descargar.",
             store.quarantined.name,
         )
+
+
+def cmd_publish(settings: Settings) -> int:
+    """Publica ya tus estadísticas para quien no tiene clave (la app lo hace sola)."""
+    publisher = from_settings(settings)
+    if publisher is None:
+        ui.error(
+            "Para publicar, pon en config.toml «stats_publish_repo» y «stats_publish_key» "
+            "(docs/estadisticas-compartidas.md)."
+        )
+        return 1
+    patch, gamedata = asyncio.run(_client_patch_and_data(settings))
+    if patch is None or gamedata is None:
+        ui.error("Abre el cliente de LoL: hace falta para calcular las builds de este parche.")
+        return 1
+    result = prepare_stats(settings.stats_dir, patch, gamedata)
+    if result is None:
+        ui.error("Aún no hay estadísticas descargadas («stats descargar»).")
+        return 1
+    try:
+        publisher.publish(result)
+    except PublishError as exc:
+        ui.error("No se han podido publicar: %s", exc)
+        return 1
+    ui.info("Publicadas las estadísticas del parche %s (%d partidas).", result[0], result[1])
+    return 0
 
 
 def cmd_status(settings: Settings) -> int:

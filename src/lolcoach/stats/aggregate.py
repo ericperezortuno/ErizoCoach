@@ -21,7 +21,7 @@ from __future__ import annotations
 import json
 import time
 from collections import Counter
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -185,14 +185,14 @@ def _core_chain(sequences: list[list[int]]) -> list[int]:
 # --- Guardado ----------------------------------------------------------------------------
 
 
-def save_stats(
-    path: Path,
-    patch: str,
-    matches: int,
-    stats: dict[tuple[int, str], ChampionStats],
-    loadouts: int = 0,
-) -> None:
-    payload = {
+Stats = tuple[str, int, dict[tuple[int, str], ChampionStats]]  # (parche, partidas, builds)
+
+
+def stats_payload(
+    patch: str, matches: int, stats: dict[tuple[int, str], ChampionStats], loadouts: int = 0
+) -> dict[str, Any]:
+    """Las estadísticas en JSON (la caché local y el paquete compartido usan el mismo)."""
+    return {
         "format": FORMAT_VERSION,
         "patch": patch,
         "matches": matches,
@@ -203,9 +203,34 @@ def save_stats(
                 **asdict(entry),
                 "starting": [[s.item_id, s.count] for s in entry.starting],
             }
-            for (champion, position), entry in stats.items()
+            for (champion, position), entry in sorted(stats.items())
         },
     }
+
+
+def parse_payload(
+    payload: Any, accept: Callable[[ChampionStats], bool] = lambda _entry: True
+) -> Stats | None:
+    """Lee el JSON de :func:`stats_payload`; ``accept`` descarta entradas que no lo pasen."""
+    payload = as_dict(payload)
+    if payload.get("format") != FORMAT_VERSION:
+        return None
+    stats: dict[tuple[int, str], ChampionStats] = {}
+    for raw in as_dict(payload.get("builds")).values():
+        entry = _entry(as_dict(raw))
+        if accept(entry):
+            stats[(entry.champion_id, entry.position)] = entry
+    return as_str(payload.get("patch")), as_int(payload.get("matches")), stats
+
+
+def save_stats(
+    path: Path,
+    patch: str,
+    matches: int,
+    stats: dict[tuple[int, str], ChampionStats],
+    loadouts: int = 0,
+) -> None:
+    payload = stats_payload(patch, matches, stats, loadouts)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
@@ -225,30 +250,30 @@ def is_fresh(path: Path, matches: int, loadouts: int) -> bool:
     )
 
 
-def load_stats(path: Path) -> tuple[str, int, dict[tuple[int, str], ChampionStats]] | None:
+def load_stats(path: Path) -> Stats | None:
     try:
-        payload = as_dict(json.loads(path.read_text(encoding="utf-8")))
+        return parse_payload(json.loads(path.read_text(encoding="utf-8")))
     except (OSError, ValueError):
         return None
-    if payload.get("format") != FORMAT_VERSION:
-        return None
-    stats: dict[tuple[int, str], ChampionStats] = {}
-    for raw in as_dict(payload.get("builds")).values():
-        entry = _entry(as_dict(raw))
-        stats[(entry.champion_id, entry.position)] = entry
-    return as_str(payload.get("patch")), as_int(payload.get("matches")), stats
 
 
-def _entry(raw: dict[str, Any]) -> ChampionStats:
+def _entry(raw: Mapping[str, Any]) -> ChampionStats:
     boots = raw.get("boots")
+    rate = raw.get("boots_rate")
+    if isinstance(rate, bool) or not isinstance(rate, int | float):
+        rate = 0.0
     return ChampionStats(
         champion_id=as_int(raw.get("champion_id")),
         position=as_str(raw.get("position")),
         games=as_int(raw.get("games")),
         wins=as_int(raw.get("wins")),
-        starting=tuple(ItemCount(as_int(i), as_int(n, 1)) for i, n in as_list(raw.get("starting"))),
+        starting=tuple(
+            ItemCount(as_int(pair[0]), as_int(pair[1], 1))
+            for pair in as_list(raw.get("starting"))
+            if isinstance(pair, list) and len(pair) == 2
+        ),
         boots=as_int(boots) if boots is not None else None,
-        boots_rate=float(raw.get("boots_rate") or 0.0),
+        boots_rate=float(rate),
         core=tuple(as_int(i) for i in as_list(raw.get("core"))),
         extra=tuple(as_int(i) for i in as_list(raw.get("extra"))),
         loadout_games=as_int(raw.get("loadout_games")),

@@ -10,6 +10,8 @@ import trustme
 from keyring.backend import KeyringBackend
 
 from lolcoach.lcu.tls import create_ssl_context
+from lolcoach.stats import pack
+from lolcoach.stats.pack import PackError
 
 from .fake_lcu import FakeLcu
 
@@ -35,6 +37,16 @@ def no_real_keyring() -> Iterator[None]:
     keyring.set_keyring(_EmptyKeyring())
     yield
     keyring.set_keyring(previous)
+
+
+@pytest.fixture(autouse=True)
+def no_internet_pack(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Las pruebas nunca descargan el paquete de estadísticas real de internet."""
+
+    async def offline(_url: str) -> bytes:
+        raise PackError("sin internet en las pruebas")
+
+    monkeypatch.setattr(pack, "download_pack", offline)
 
 
 @pytest.fixture

@@ -3,6 +3,9 @@
 * Usa el parche de tu cliente. Si para ese parche aún hay pocas partidas (recién
   salido), usa el anterior si tiene más datos.
 * La agregación se guarda en caché y solo se recalcula si hay partidas nuevas.
+* Sin clave de Riot (o con pocos datos propios) se usan las estadísticas compartidas
+  (``pack.py``): de las dos, la que tenga datos suficientes del parche más reciente.
+* Quien lo tiene configurado publica sus estadísticas para los demás (``publish.py``).
 * Todo el trabajo pesado se hace en segundo plano, sin bloquear la app.
 """
 
@@ -17,8 +20,10 @@ from ..gamedata.catalog import GameData
 from ..lcu.client import LcuClient
 from ..lcu.connector import LcuConnector
 from ..models import ClientInfo
-from .aggregate import ChampionStats, aggregate, is_fresh, load_stats, save_stats
+from .aggregate import Stats, aggregate, is_fresh, load_stats, save_stats
 from .extract import patch_key
+from .pack import SharedStats
+from .publish import PackPublisher
 from .source import StatsBuildSource
 from .store import DATABASE, MatchStore, is_corrupt, set_aside
 
@@ -30,9 +35,6 @@ ENOUGH_MATCHES = 100  # por debajo, se prefiere el parche anterior si tiene más
 
 def stats_file(stats_dir: Path, patch: str) -> Path:
     return stats_dir / f"builds-{patch}.json"
-
-
-Stats = tuple[str, int, dict[tuple[int, str], ChampionStats]]
 
 
 def prepare_stats(stats_dir: Path, patch: str, gamedata: GameData) -> Stats | None:
@@ -80,6 +82,19 @@ def _prepare(database: Path, stats_dir: Path, patch: str, gamedata: GameData) ->
         store.close()
 
 
+def choose(client_patch: str, *options: Stats | None) -> Stats | None:
+    """La mejor fuente: con datos suficientes, del parche más reciente (sin pasarse del
+    cliente) y con más partidas. Ante un empate gana la primera (las propias)."""
+
+    def score(stats: Stats) -> tuple[bool, bool, tuple[int, ...], int]:
+        patch, matches, _ = stats
+        key = patch_key(patch)
+        return (key <= patch_key(client_patch), matches >= ENOUGH_MATCHES, key, matches)
+
+    present = [o for o in options if o is not None]
+    return max(present, key=score, default=None)
+
+
 class StatsService:
     def __init__(
         self,
@@ -87,30 +102,62 @@ class StatsService:
         gamedata: GameData,
         source: StatsBuildSource,
         stats_dir: Path,
+        *,
+        shared: SharedStats | None = None,
+        publisher: PackPublisher | None = None,
     ) -> None:
         self._gamedata = gamedata
         self._source = source
         self._stats_dir = stats_dir
+        self._shared = shared
+        self._publisher = publisher
+        self._applied: tuple[str, int, bool] | None = None
+        self._publishing: asyncio.Task[bool] | None = None
         connector.on_connect(self._on_connect)
 
     async def _on_connect(self, _client: LcuClient, info: ClientInfo) -> None:
         await self.refresh(info.patch)
 
     async def refresh(self, patch: str) -> None:
-        try:
-            result = await asyncio.to_thread(prepare_stats, self._stats_dir, patch, self._gamedata)
-        except (sqlite3.DatabaseError, OSError) as exc:  # p. ej., ocupada: se sigue igual
-            log.warning("No se han podido leer las estadísticas: %s", exc)
-            return
+        own = await self._own(patch)
+        if own is not None:
+            self._publish(own)
+        shared = await self._shared.get() if self._shared is not None else None
+        result = choose(patch, own, shared)
         if result is None:
-            log.debug("Sin estadísticas descargadas: se usan las builds por reglas")
+            log.debug("Sin estadísticas: se usan las builds por reglas")
             return
         chosen, matches, stats = result
+        is_shared = result is not own
+        if self._applied == (chosen, matches, is_shared):
+            return  # nada nuevo: que las builds guardadas no se recalculen sin motivo
+        self._applied = (chosen, matches, is_shared)
         self._source.update(chosen, matches, stats)
         ui.info(
-            "Builds con estadísticas reales: %d campeones/posiciones con datos (%d partidas, "
+            "Builds con estadísticas reales%s: %d campeones/posiciones con datos (%d partidas, "
             "parche %s)",
+            " compartidas" if is_shared else "",
             self._source.covered,
             matches,
             chosen,
         )
+
+    async def _own(self, patch: str) -> Stats | None:
+        try:
+            return await asyncio.to_thread(prepare_stats, self._stats_dir, patch, self._gamedata)
+        except (sqlite3.DatabaseError, OSError) as exc:  # p. ej., ocupada: se sigue igual
+            log.warning("No se han podido leer las estadísticas: %s", exc)
+            return None
+
+    def _publish(self, stats: Stats) -> None:
+        if self._publisher is None or (self._publishing and not self._publishing.done()):
+            return
+        self._publishing = asyncio.create_task(
+            asyncio.to_thread(self._publisher.maybe_publish, stats)
+        )
+        self._publishing.add_done_callback(_log_failure)
+
+
+def _log_failure(task: asyncio.Task[bool]) -> None:
+    if not task.cancelled() and (exc := task.exception()) is not None:
+        log.error("La publicación de estadísticas ha fallado", exc_info=exc)

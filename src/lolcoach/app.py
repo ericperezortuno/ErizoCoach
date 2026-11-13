@@ -23,6 +23,8 @@ from .loadout.service import LoadoutService
 from .logs import REDACTOR
 from .models import GameflowPhase
 from .monitor import ClientMonitor
+from .stats import publish
+from .stats.pack import DEFAULT_PACK_URL, SharedStats
 from .stats.service import StatsService
 from .stats.source import StatsBuildSource
 from .stats.updater import StatsUpdater
@@ -76,9 +78,14 @@ class Application:
             self.bus, self.connector, self.gamedata, settings,
             position_hint=hint, stats=self.build_source,
         )  # fmt: skip
+        # Sin clave de Riot, las estadísticas compartidas por quien sí la tiene.
+        shared = None
+        if settings.stats_shared:
+            shared = SharedStats(DEFAULT_PACK_URL, settings.stats_dir)
         self.stats = StatsService(
-            self.connector, self.gamedata, self.build_source, settings.stats_dir
-        )
+            self.connector, self.gamedata, self.build_source, settings.stats_dir,
+            shared=shared, publisher=publish.from_settings(settings),
+        )  # fmt: skip
         self.stats_updater = StatsUpdater(self.bus, self.connector, self.stats, settings)
         self.builds = BuildService(
             self.bus,

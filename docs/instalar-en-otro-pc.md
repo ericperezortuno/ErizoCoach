@@ -39,11 +39,16 @@ nada más.
 - Usa una sola página de runas propia, llamada «LoL Coach». Si no tienes hueco para
   páginas, renombra una a «LoL Coach» y la usará; nunca toca tus otras páginas.
 
-### Opcional: builds con estadísticas de alto elo
+### Builds con estadísticas de alto elo
 
-Sin clave de Riot, las builds salen de reglas por tipo de campeón. Para que salgan de
-partidas reales de jugadores de alto elo hace falta una clave **propia** (las claves son
-personales y no se pueden compartir):
+No hay que hacer nada: LoL Coach descarga solo las **estadísticas compartidas** (builds,
+runas y hechizos de partidas reales de alto elo de EUW, sin datos de ningún jugador) y las
+actualiza cada pocas horas. Si un día no hay internet, usa la última copia; si nunca llegó
+a descargarla, las builds salen de reglas por tipo de campeón.
+
+**Opcional, estadísticas propias:** si quieres descargarlas tú mismo (por ejemplo, de otra
+región), hace falta una clave de Riot **propia** (las claves son personales y no se pueden
+compartir):
 
 1. Entra en [developer.riotgames.com](https://developer.riotgames.com) con tu cuenta de
    Riot y copia tu clave (la de desarrollo caduca cada 24 h; para una que no caduque,

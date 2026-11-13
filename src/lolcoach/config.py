@@ -18,6 +18,12 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     stats_min_games = 20       # partidas mínimas para usar la build de estadísticas
     stats_auto_download = true # descargar estadísticas solo, con la app abierta
     stats_target_matches = 3000 # partidas por parche a partir de las que se para
+    stats_shared = true        # sin clave (o pocos datos): usar las estadísticas compartidas
+
+Para publicar tus estadísticas para los demás (ver ``stats/publish.py``)::
+
+    stats_publish_repo = "git@github.com:<usuario>/LoLCoach-datos.git"
+    stats_publish_key = "C:/Users/<usuario>/.ssh/lolcoach_datos_ed25519"
 """
 
 from __future__ import annotations
@@ -57,6 +63,9 @@ class Settings:
     stats_min_games: int = 20  # partidas mínimas para usar la build de estadísticas
     stats_auto_download: bool = True  # descargar en segundo plano (pausa al jugar)
     stats_target_matches: int = 3000  # partidas por parche a partir de las que se para
+    stats_shared: bool = True  # usar las estadísticas compartidas si faltan las propias
+    stats_publish_repo: str = ""  # publicar las propias (vacío = no se publica)
+    stats_publish_key: Path | None = None  # clave SSH con escritura en ese repositorio
 
     @property
     def window_profile_dir(self) -> Path:
@@ -117,6 +126,18 @@ def load_settings(
         warnings.append("config.toml: 'stats_min_games' debe estar entre 5 y 500; se usa 20.")
         min_games = 20
     auto_download = _bool(values, "stats_auto_download", True, warnings)
+    shared = _bool(values, "stats_shared", True, warnings)
+    publish_repo = values.get("stats_publish_repo", "")
+    publish_key = values.get("stats_publish_key", "")
+    if not isinstance(publish_repo, str) or not isinstance(publish_key, str):
+        warnings.append("config.toml: 'stats_publish_repo' y 'stats_publish_key' son texto.")
+        publish_repo, publish_key = "", ""
+    if bool(publish_repo) != bool(publish_key):
+        warnings.append(
+            "config.toml: para publicar estadísticas hacen falta 'stats_publish_repo' y "
+            "'stats_publish_key'; no se publican."
+        )
+        publish_repo, publish_key = "", ""
     target = values.get("stats_target_matches", 3000)
     if isinstance(target, bool) or not isinstance(target, int) or not 200 <= target <= 50_000:
         warnings.append(
@@ -155,6 +176,9 @@ def load_settings(
         stats_min_games=min_games,
         stats_auto_download=auto_download,
         stats_target_matches=target,
+        stats_shared=shared,
+        stats_publish_repo=publish_repo,
+        stats_publish_key=Path(publish_key) if publish_key else None,
     )
     return settings, warnings
 
