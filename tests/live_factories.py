@@ -62,6 +62,31 @@ def all_game_data(
     }  # fmt: skip
 
 
+def bot_game(
+    my_items: tuple[int, ...],
+    *,
+    gold: float = 500,
+    game_time: float = 900,
+    position: str = "BOTTOM",
+) -> dict[str, Any]:
+    """Kai'Sa (tú, línea inferior) contra Darius, Graves, Zed, Jhin y Soraka."""
+    me = live_player("Kaisa", position=position, items=my_items, riot_id=ME_RIOT_ID)
+    allies = [
+        live_player("Garen", position="TOP", items=(1054, 3047)),
+        live_player("LeeSin", position="JUNGLE", items=(1101, 3158)),
+        live_player("Ahri", position="MIDDLE", items=(1056, 3020)),
+        live_player("Thresh", position="UTILITY", items=(3865,)),
+    ]
+    enemies = [
+        live_player("Darius", team="CHAOS", position="TOP", items=(1055, 3047)),
+        live_player("Graves", team="CHAOS", position="JUNGLE", items=(1101, 3158)),
+        live_player("Zed", team="CHAOS", position="MIDDLE", items=(1055, 3158)),
+        live_player("Jhin", team="CHAOS", position="BOTTOM", items=(1055,)),
+        live_player("Soraka", team="CHAOS", position="UTILITY", items=(3865,)),
+    ]
+    return all_game_data(me, allies + enemies, game_time=game_time, gold=gold)
+
+
 def standard_game(
     *,
     zed_kda: tuple[int, int, int] = (2, 2, 1),

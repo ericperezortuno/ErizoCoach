@@ -27,6 +27,7 @@ from .advisor import advise
 from .analysis import analyze
 from .client import LiveClient, LiveClientUnavailable
 from .models import LiveGame, parse_all_game_data
+from .role_slot import RoleSlotBoots
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +58,7 @@ class LiveGameMonitor:
         self._recommender = BuildRecommender(gamedata, source, position_hint)
         self._task: asyncio.Task[None] | None = None
         self._plan: BuildPlan | None = None
+        self._role_boots: RoleSlotBoots | None = None  # botas que la API no muestra
 
         bus.subscribe(GameflowPhaseChanged, self._on_phase)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -69,6 +71,7 @@ class LiveGameMonitor:
         if event.current in IN_GAME:
             if not self.running:
                 self._plan = None
+                self._role_boots = None  # partida nueva: se empieza de cero
                 self._task = asyncio.create_task(self._run())
         elif self.running:
             await self.stop()
@@ -119,11 +122,17 @@ class LiveGameMonitor:
             positions_for=gd.positions_for,
             my_position=plan.position if plan else Position.NONE,
         )
+        hidden_boots = False
+        if game.me is not None:
+            if self._role_boots is None:
+                self._role_boots = RoleSlotBoots(gd.item)
+            hidden_boots = self._role_boots.update(game.me, game.current_gold)
         advice = None
         if plan is not None and game.me is not None:
             advice = advise(
-                plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name
-            )
+                plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
+                boots_out_of_sight=hidden_boots,
+            )  # fmt: skip
         return LiveGameUpdated(game, report, advice, plan)
 
     async def _plan_for(self, my_id: int, game: LiveGame, enemy_ids: list[int]) -> BuildPlan | None:

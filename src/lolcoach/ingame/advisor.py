@@ -71,9 +71,12 @@ def advise(
     gold: float,
     item: ItemLookup,
     champion_name: Callable[[int], str],
+    *,
+    boots_out_of_sight: bool = False,
 ) -> Advice:
+    """``boots_out_of_sight``: tienes botas que la API no muestra (espacio de la misión de rol)."""
     owned = set(owned_ids)
-    has_boots = any(_is_upgraded_boots(item(i)) for i in owned)
+    has_boots = boots_out_of_sight or any(_is_upgraded_boots(item(i)) for i in owned)
 
     def is_owned(item_id: int) -> bool:
         if item_id in owned:
