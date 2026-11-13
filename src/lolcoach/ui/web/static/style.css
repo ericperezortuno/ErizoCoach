@@ -109,9 +109,19 @@ body {
   height: 640px;
   right: -330px;
   top: 70px;
-  background: repeating-conic-gradient(rgba(242, 223, 174, .38) 0 .8deg, transparent .8deg 7.5deg);
+  /* Marcas finas cada 7,5° y una más brillante cada 45°: así se nota que gira. */
+  background:
+    repeating-conic-gradient(rgba(242, 223, 174, .78) 0 1.2deg, transparent 1.2deg 45deg),
+    repeating-conic-gradient(rgba(242, 223, 174, .38) 0 .8deg, transparent .8deg 7.5deg);
   -webkit-mask: radial-gradient(circle closest-side, transparent 0 83%, #000 83.3% 88%, transparent 88.3%);
   mask: radial-gradient(circle closest-side, transparent 0 83%, #000 83.3% 88%, transparent 88.3%);
+  /* Gira despacio, como una rueda (solo transform: lo mueve la GPU, sin repintar). */
+  animation: wheel 120s linear infinite;
+  will-change: transform;
+}
+
+@keyframes wheel {
+  to { transform: rotate(1turn); }
 }
 
 /* --- Vidrio --------------------------------------------------------------------------- */
@@ -843,6 +853,7 @@ main > .wide { grid-column: 1 / -1; }
 @media (prefers-reduced-motion: reduce) {
   .card.lens.fresh::after,
   .dot.on::after { animation: none; display: none; }
+  .scene::after { animation: none; }
   .icon img { transition: none; }
   .icon:hover img { transform: none; }
   .ghost, .ghost:active { transition: none; transform: none; }
