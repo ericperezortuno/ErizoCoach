@@ -156,7 +156,12 @@ class FakeRiotApi:
         return web.json_response({"tier": "CHALLENGER", "entries": entries})
 
     async def _ids(self, request: web.Request) -> web.Response:
-        return web.json_response(self.player_matches.get(request.match_info["puuid"], []))
+        puuid = request.match_info["puuid"]
+        if puuid not in self.player_matches:  # PUUID cifrado para otra clave (como hace Riot)
+            message = f"Bad Request - Exception decrypting {puuid}"
+            body = {"status": {"message": message, "status_code": 400}}
+            return web.json_response(body, status=400)
+        return web.json_response(self.player_matches[puuid])
 
     async def _match(self, request: web.Request) -> web.Response:
         if self.unavailable:

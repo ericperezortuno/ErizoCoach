@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import sqlite3
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -12,11 +13,13 @@ from lolcoach.bus import EventBus
 from lolcoach.config import Settings
 from lolcoach.events import GameflowPhaseChanged, StatsStatus
 from lolcoach.models import ClientInfo, GameflowPhase
+from lolcoach.stats.crawler import Crawler, CrawlProgress
 from lolcoach.stats.riot_api import RiotApiClient
 from lolcoach.stats.store import MatchStore
 from lolcoach.stats.updater import StatsUpdater, download_lock
 
 from .fake_riot_api import API_KEY, FakeRiotApi
+from .stats_helpers import corrupt_database, corruption_error, fill_store
 
 INFO = ClientInfo("16.22.834.8910", "EUW1", "es_ES")
 
@@ -138,6 +141,68 @@ async def test_disabled_in_settings(riot: FakeRiotApi, tmp_path: Path) -> None:
     updater, _bus, _refresher, _statuses = make_updater(riot, tmp_path, stats_auto_download=False)
     await updater._on_connect(None, INFO)
     assert updater.task is None and riot.requests == []
+
+
+async def test_corrupt_database_is_replaced_and_the_window_warns(
+    riot: FakeRiotApi, tmp_path: Path
+) -> None:
+    database = tmp_path / "stats" / "matches.sqlite3"
+    fill_store(database)
+    corrupt_database(database)
+    updater, _bus, refresher, statuses = make_updater(riot, tmp_path)
+    await updater._on_connect(None, INFO)
+    await finish(updater)  # sin excepciones: la descarga sigue con una base nueva
+    moved = list(database.parent.glob("matches.corrupt-*.sqlite3"))
+    assert len(moved) == 1
+    warnings = [s for s in statuses if s.problem]
+    assert warnings and "dañada" in warnings[0].text and moved[0].name in warnings[0].text
+    assert "al día" in statuses[-1].text and refresher.patches == ["16.22"]
+    store = MatchStore(database)
+    assert store.match_count("16.22") >= 5
+    store.close()
+
+
+async def test_damage_found_during_a_batch_does_not_stop_the_updater(
+    riot: FakeRiotApi, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Como a las 10:06 del incidente: la base se daña con la tanda en marcha."""
+    error = corruption_error(tmp_path / "otra")
+    original = Crawler.run
+    calls: list[int] = []
+
+    async def damaged_once(self: Crawler) -> CrawlProgress:
+        calls.append(1)
+        if len(calls) == 1:
+            raise error
+        return await original(self)
+
+    monkeypatch.setattr(Crawler, "run", damaged_once)
+    updater, _bus, _refresher, statuses = make_updater(riot, tmp_path)
+    await updater._on_connect(None, INFO)
+    await finish(updater)
+    assert len(list((tmp_path / "stats").glob("matches.corrupt-*.sqlite3"))) == 1
+    assert any(s.problem and "dañada" in s.text for s in statuses)
+    assert "al día" in statuses[-1].text
+
+
+async def test_a_busy_database_is_retried_without_setting_it_aside(
+    riot: FakeRiotApi, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original = Crawler.run
+    calls: list[int] = []
+
+    async def locked_once(self: Crawler) -> CrawlProgress:
+        calls.append(1)
+        if len(calls) == 1:
+            raise sqlite3.OperationalError("database is locked")
+        return await original(self)
+
+    monkeypatch.setattr(Crawler, "run", locked_once)
+    updater, _bus, _refresher, statuses = make_updater(riot, tmp_path)
+    await updater._on_connect(None, INFO)
+    await finish(updater)
+    assert not list((tmp_path / "stats").glob("matches.corrupt-*"))
+    assert "al día" in statuses[-1].text and not any(s.problem for s in statuses)
 
 
 async def test_waits_while_another_download_runs(riot: FakeRiotApi, tmp_path: Path) -> None:

@@ -53,6 +53,14 @@ class RiotApiKeyError(RiotApiError):
         self.riot_message = riot_message  # explicación de Riot ("Unknown apikey", "Forbidden"...)
 
 
+class RiotApiStaleIdError(RiotApiError):
+    """El PUUID se cifró para otra clave: Riot cifra los identificadores para cada clave.
+
+    Pasa al cambiar de clave (p. ej., de la de desarrollo a la personal): los jugadores
+    guardados con la anterior dan «400 Bad Request - Exception decrypting ...».
+    """
+
+
 class RateLimiter:
     """Ventanas deslizantes: nunca se supera ninguno de los límites."""
 
@@ -229,6 +237,8 @@ class RiotApiClient:
                 )
             if status == 404:
                 raise RiotApiError("no encontrado", status)
+            if status == 400 and "decrypt" in error_text.lower():  # sin copiar el PUUID
+                raise RiotApiStaleIdError("identificador cifrado para otra clave (HTTP 400)", 400)
             if status == 429 or status >= 500:
                 wait = float(retry_after) if retry_after and retry_after.isdigit() else 2**attempt
                 log.debug(

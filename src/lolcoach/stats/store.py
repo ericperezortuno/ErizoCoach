@@ -4,11 +4,17 @@ Permite reanudar la descarga donde se dejó (las claves de desarrollo caducan ca
 24 h) y no descargar dos veces la misma partida. Los identificadores de jugadores
 de alto elo (PUUID, públicos en la API) solo se guardan aquí, para saber a quién
 pedir partidas; nunca salen de tu PC.
+
+Si la base se daña, no se arrastra el error en cada tanda: al abrirla se comprueba
+(``PRAGMA quick_check``) y, si está dañada, se aparta sin borrarla
+(``matches.corrupt-<fecha>.sqlite3``) y se empieza una nueva; las partidas se vuelven
+a descargar solas.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 import time
 from collections.abc import Iterator
@@ -16,9 +22,63 @@ from pathlib import Path
 
 from .extract import PlayerBuild, patch_key
 
+log = logging.getLogger(__name__)
+
+DATABASE = "matches.sqlite3"  # en la carpeta de estadísticas
 DETAIL_ITEMS = 1  # partidas guardadas antes de recoger runas y hechizos
 DETAIL_LOADOUT = 2  # con runas y hechizos
 BUSY_TIMEOUT = 30  # segundos: la app y la consola pueden usar la base de datos a la vez
+SQLITE_CORRUPT, SQLITE_NOTADB = 11, 26  # códigos de SQLite: base dañada / no es una base
+SIDE_FILES = ("-journal", "-wal", "-shm")  # archivos que acompañan a la base
+QUARANTINE_NOTICE = "quarantined"  # meta: base dañada apartada, aún sin avisar en la ventana
+
+
+class CorruptDatabaseError(sqlite3.DatabaseError):
+    """La comprobación de la base (``PRAGMA quick_check``) encuentra daños."""
+
+
+def is_corrupt(exc: BaseException) -> bool:
+    """¿Es un daño de la base? (no un bloqueo pasajero ni un error de la consulta)."""
+    if isinstance(exc, CorruptDatabaseError):
+        return True
+    code = getattr(exc, "sqlite_errorcode", None)
+    return (
+        isinstance(exc, sqlite3.DatabaseError)
+        and isinstance(code, int)
+        and code & 0xFF in (SQLITE_CORRUPT, SQLITE_NOTADB)
+    )
+
+
+def quarantine(path: Path) -> Path:
+    """Aparta la base dañada sin borrarla y devuelve dónde ha quedado.
+
+    Sus archivos acompañantes se mueven antes que la base: una base nueva nunca debe
+    encontrarse el diario de la anterior. Si algo sigue abierto en otro programa, Windows
+    no deja moverlo (``OSError``) y la base se queda donde está.
+    """
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    target = path.with_name(f"{path.stem}.corrupt-{stamp}{path.suffix}")
+    n = 1
+    while target.exists():
+        target = path.with_name(f"{path.stem}.corrupt-{stamp}-{n}{path.suffix}")
+        n += 1
+    for suffix in SIDE_FILES:
+        side = Path(f"{path}{suffix}")
+        if side.exists():
+            side.rename(Path(f"{target}{suffix}"))
+    path.rename(target)
+    return target
+
+
+def set_aside(path: Path) -> Path:
+    """Aparta la base dañada y deja una nueva, vacía, con el aviso pendiente para la ventana."""
+    moved = quarantine(path)
+    store = MatchStore(path)
+    store.set_meta(QUARANTINE_NOTICE, moved.name)
+    store.close()
+    log.warning("Base de estadísticas dañada: apartada como %s; se empieza una nueva", moved.name)
+    return moved
+
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS matches (
@@ -38,23 +98,74 @@ CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 """
 
 
+def _connect(path: Path) -> sqlite3.Connection:
+    """Conexión comprobada: lanza ``CorruptDatabaseError`` si la base está dañada."""
+    db = sqlite3.connect(path, timeout=BUSY_TIMEOUT)
+    try:
+        _use_rollback_journal(db)
+        problems = [str(row[0]) for row in db.execute("PRAGMA quick_check(5)")]
+        if problems != ["ok"]:
+            raise CorruptDatabaseError("; ".join(problems)[:300])
+        db.executescript(SCHEMA)
+        columns = {row[1] for row in db.execute("PRAGMA table_info(matches)")}
+        if "detail" not in columns:  # bases de datos de la v0.5.0
+            with db:
+                db.execute("ALTER TABLE matches ADD COLUMN detail INTEGER NOT NULL DEFAULT 1")
+    except BaseException:
+        db.close()
+        raise
+    return db
+
+
+def _use_rollback_journal(db: sqlite3.Connection) -> None:
+    """Diario clásico en vez de WAL (las versiones 0.5–0.7 usaban WAL).
+
+    Con WAL, los archivos ``-wal`` y ``-shm`` siguen abiertos durante toda una tanda de
+    descarga. Un programa con el disco virtualizado (p. ej., uno lanzado desde el
+    contenedor de Claude) ve su propia copia de la base pero esos dos archivos reales, y lo
+    que escribe acaba mezclado en la base real. Con el diario clásico solo existe un
+    ``-journal`` durante los milisegundos de cada escritura, y ningún archivo compartido.
+    El coste: una escritura espera a que acabe una lectura larga (hay margen de sobra).
+    """
+    mode = str(db.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+    if mode == "delete":
+        return
+    db.execute("PRAGMA busy_timeout = 2000")  # el cambio necesita la base para sí sola
+    try:
+        db.execute("PRAGMA journal_mode=DELETE")
+    except sqlite3.OperationalError as exc:  # la tiene abierta otro programa: se cambia luego
+        log.debug("Diario de la base sin cambiar todavía: %s", exc)
+    finally:
+        db.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT * 1000}")
+
+
 class MatchStore:
     def __init__(self, path: Path) -> None:
+        """Abre (o crea) la base. Si está dañada, la aparta y empieza otra: ``quarantined``."""
         path.parent.mkdir(parents=True, exist_ok=True)
         self.path = path
-        self._db = sqlite3.connect(path, timeout=BUSY_TIMEOUT)
-        self._db.execute("PRAGMA journal_mode=WAL")  # lecturas sin bloquear la descarga
-        self._db.executescript(SCHEMA)
-        self._migrate()
-
-    def _migrate(self) -> None:
-        columns = {row[1] for row in self._db.execute("PRAGMA table_info(matches)")}
-        if "detail" not in columns:  # bases de datos de la v0.5.0
-            with self._db:
-                self._db.execute("ALTER TABLE matches ADD COLUMN detail INTEGER NOT NULL DEFAULT 1")
+        self.quarantined: Path | None = None
+        try:
+            self._db = _connect(path)
+        except sqlite3.DatabaseError as exc:
+            if not is_corrupt(exc):
+                raise
+            log.warning("La base de estadísticas está dañada (%s)", exc)
+            self.quarantined = quarantine(path)
+            self._db = _connect(path)
+            self.set_meta(QUARANTINE_NOTICE, self.quarantined.name)
+            log.warning("Apartada como %s; se empieza una nueva", self.quarantined.name)
 
     def close(self) -> None:
         self._db.close()
+
+    def take_quarantine_notice(self) -> str | None:
+        """Nombre de la base dañada que se apartó, si aún no se ha avisado (solo una vez)."""
+        name = self.get_meta(QUARANTINE_NOTICE)
+        if name is not None:
+            with self._db:
+                self._db.execute("DELETE FROM meta WHERE key = ?", (QUARANTINE_NOTICE,))
+        return name
 
     # --- Partidas ------------------------------------------------------------------
 
@@ -146,6 +257,13 @@ class MatchStore:
 
     def player_count(self) -> int:
         return int(self._db.execute("SELECT COUNT(*) FROM players").fetchone()[0])
+
+    def forget_players(self) -> int:
+        """Olvida los jugadores (p. ej., sus PUUID son de otra clave) para releer las ligas."""
+        with self._db:
+            cursor = self._db.execute("DELETE FROM players")
+            self._db.execute("DELETE FROM meta WHERE key = 'players_refreshed'")
+        return cursor.rowcount
 
     def players_to_crawl(self, limit: int = 100_000) -> list[str]:
         """Primero los nunca consultados (en orden aleatorio), luego los más antiguos."""

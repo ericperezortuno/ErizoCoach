@@ -5,6 +5,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import sqlite3
+import time
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -25,14 +26,16 @@ from lolcoach.stats.riot_api import (
     RiotApiClient,
     RiotApiError,
     RiotApiKeyError,
+    RiotApiStaleIdError,
     parse_limits,
 )
 from lolcoach.stats.service import prepare_stats
 from lolcoach.stats.source import StatsBuildSource
-from lolcoach.stats.store import MatchStore
+from lolcoach.stats.store import MatchStore, is_corrupt
 
 from .fake_riot_api import AHRI_RUNES, API_KEY, FakeRiotApi, build_match
 from .gamedata_fixture import FixtureClient, loaded_gamedata
+from .stats_helpers import corrupt_database, corruption_error, fill_store
 
 AHRI, ZED = 103, 238
 
@@ -305,6 +308,110 @@ async def test_crawler_stops_when_the_key_expires(riot: FakeRiotApi, tmp_path: P
     async with client(riot) as api:
         with pytest.raises(RiotApiKeyError):
             await Crawler(api, store, patch="16.22", tiers=("CHALLENGER",)).run()
+    store.close()
+
+
+async def test_ids_encrypted_for_another_key_are_recognised(riot: FakeRiotApi) -> None:
+    """Riot cifra los PUUID para cada clave: los de otra clave dan «Exception decrypting»."""
+    async with client(riot) as api:
+        with pytest.raises(RiotApiStaleIdError):
+            await api.match_ids("puuid-de-otra-clave")
+        assert await api.match_ids(riot.players[0])  # los de esta clave, bien
+
+
+async def test_players_saved_with_another_key_are_read_again(
+    riot: FakeRiotApi, tmp_path: Path
+) -> None:
+    """Al cambiar de clave, los jugadores guardados ya no sirven: se vuelven a leer las ligas
+    (antes se gastaba una petición por jugador, todas con HTTP 400, sin bajar nada)."""
+    store = MatchStore(tmp_path / "matches.sqlite3")
+    store.add_players([(f"puuid-de-otra-clave-{n}", "CHALLENGER") for n in range(50)])
+    store.set_meta("players_refreshed", str(time.time()))  # lista reciente: no tocaba releerla
+    async with client(riot) as api:
+        progress = await Crawler(api, store, patch="16.22", tiers=("CHALLENGER",)).run()
+    assert progress.new_matches == 11
+    assert sorted(store.players_to_crawl()) == sorted(riot.players)
+    assert sum("otra-clave" in r for r in riot.requests) == 1  # una sola petición perdida
+    store.close()
+
+
+# --- Almacén: diario y bases dañadas -----------------------------------------------------
+
+
+def test_store_uses_a_rollback_journal_not_wal(tmp_path: Path) -> None:
+    """Sin WAL: sus archivos -wal/-shm quedaban abiertos durante toda la tanda y un proceso del
+    contenedor de Claude (que ve su copia privada de la base, pero los -wal/-shm reales) escribió
+    en ellos y mezcló sus páginas con las de la base real."""
+    path = tmp_path / "matches.sqlite3"
+    with sqlite3.connect(path) as old:  # base de la v0.6.0/v0.7.0, en modo WAL
+        assert old.execute("PRAGMA journal_mode=WAL").fetchone()[0] == "wal"
+    old.close()
+    store = MatchStore(path)
+    assert store._db.execute("PRAGMA journal_mode").fetchone()[0] == "delete"
+    store.add_players([("p1", "MASTER")])
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["matches.sqlite3"]  # ni -wal ni -shm
+    store.close()
+
+
+def test_corrupt_database_is_set_aside_and_a_new_one_started(tmp_path: Path) -> None:
+    path = tmp_path / "matches.sqlite3"
+    fill_store(path)
+    damaged = corrupt_database(path)
+    store = MatchStore(path)
+    moved = store.quarantined
+    assert moved is not None and moved.parent == tmp_path
+    assert moved.name.startswith("matches.corrupt-") and moved.suffix == ".sqlite3"
+    assert moved.read_bytes() == damaged  # se guarda tal cual, sin borrarla
+    assert store.match_count("16.22") == 0 and store.patches() == []
+    fill = build_match("EUW1_9999", "16.22.1.1")
+    store.add_match("EUW1_9999", "16.22", extract_builds(*fill))  # la nueva funciona
+    assert store.take_quarantine_notice() == moved.name  # para avisar en la ventana, una vez
+    assert store.take_quarantine_notice() is None
+    store.close()
+    reopened = MatchStore(path)
+    assert reopened.quarantined is None and reopened.match_count("16.22") == 1
+    reopened.close()
+
+
+def test_a_file_that_is_not_a_database_is_set_aside(tmp_path: Path) -> None:
+    path = tmp_path / "matches.sqlite3"
+    path.write_bytes(b"esto no es una base de datos " * 200)
+    store = MatchStore(path)
+    assert store.quarantined is not None and store.quarantined.exists()
+    assert store.player_count() == 0
+    store.close()
+
+
+def test_only_real_damage_counts_as_corruption(tmp_path: Path) -> None:
+    assert is_corrupt(corruption_error(tmp_path))
+    assert not is_corrupt(sqlite3.OperationalError("database is locked"))
+    assert not is_corrupt(ValueError("malformed"))
+
+
+def test_prepare_stats_survives_a_corrupt_database(tmp_path: Path) -> None:
+    fill_store(tmp_path / "matches.sqlite3")
+    corrupt_database(tmp_path / "matches.sqlite3")
+    assert prepare_stats(tmp_path, "16.22", loaded_gamedata()) is None  # reglas, sin fallar
+    assert len(list(tmp_path.glob("matches.corrupt-*.sqlite3"))) == 1
+
+
+def test_prepare_stats_sets_aside_damage_found_while_reading(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Daño que aparece con la base ya abierta (como a las 10:06 del incidente)."""
+    fill_store(tmp_path / "matches.sqlite3")
+    error = corruption_error(tmp_path / "otra")
+
+    def broken(_store: MatchStore) -> list[tuple[str, int]]:
+        raise error
+
+    monkeypatch.setattr(MatchStore, "patches", broken)
+    assert prepare_stats(tmp_path, "16.22", loaded_gamedata()) is None
+    moved = list(tmp_path.glob("matches.corrupt-*.sqlite3"))
+    assert len(moved) == 1
+    monkeypatch.undo()
+    store = MatchStore(tmp_path / "matches.sqlite3")
+    assert store.take_quarantine_notice() == moved[0].name and store.patches() == []
     store.close()
 
 

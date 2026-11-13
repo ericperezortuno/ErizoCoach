@@ -9,6 +9,7 @@
   runas). Con un parche nuevo vuelve a empezar y borra los parches viejos.
 * Si la clave caduca, se detiene y lo avisa en la consola y en la ventana.
 * Si ya hay una descarga en marcha desde la consola (``stats descargar``), espera.
+* Si la base se daña, se aparta sin borrarla, se empieza otra y se avisa en la ventana.
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
+import sqlite3
 from collections.abc import Callable
 from pathlib import Path
 from typing import Protocol
@@ -32,7 +34,7 @@ from . import keystore
 from .crawler import Crawler
 from .extract import patch_key
 from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
-from .store import MatchStore
+from .store import DATABASE, MatchStore, is_corrupt, set_aside
 
 log = logging.getLogger(__name__)
 ui = logging.getLogger("lolcoach.ui")
@@ -85,6 +87,7 @@ class StatsUpdater:
         self._playing = False
         self._finished_patch = ""  # parche ya completo (o sin clave): no se repite
         self._announced = ""  # parche cuyo inicio de descarga ya se ha mostrado
+        self._warning = ""  # aviso que acompaña a cada estado (base dañada apartada)
         self.task: asyncio.Task[None] | None = None
 
         if connector is not None:
@@ -161,13 +164,54 @@ class StatsUpdater:
                     return
 
     async def _batch(self, api: RiotApiClient, patch: str) -> bool:
-        """Una tanda de descarga. Devuelve True si ya no hay que seguir con este parche."""
-        target = self._settings.stats_target_matches
-        store = MatchStore(self._settings.stats_dir / "matches.sqlite3")
+        """Una tanda de descarga. Devuelve True si ya no hay que seguir con este parche.
+
+        Un problema con la base no detiene la descarga: si está dañada se aparta (sin
+        borrarla) y la siguiente tanda empieza con una nueva; si está ocupada, se reintenta.
+        """
         try:
+            return await self._download(api, patch)
+        except sqlite3.DatabaseError as exc:
+            if not is_corrupt(exc):
+                log.warning("Base de estadísticas ocupada o no disponible: %s", exc)
+                await asyncio.sleep(self._retry_seconds)
+                return False
+            log.warning("La base de estadísticas se ha dañado durante la descarga: %s", exc)
+            try:
+                await asyncio.to_thread(set_aside, self._database)
+            except (OSError, sqlite3.DatabaseError) as err:
+                await self._cannot_open(err)
+            return False  # la siguiente tanda abre la base nueva y lo avisa en la ventana
+        except OSError as exc:  # p. ej., la base dañada sigue abierta en otro programa
+            await self._cannot_open(exc)
+            return False
+
+    async def _cannot_open(self, exc: Exception) -> None:
+        await self._status(
+            f"No se puede usar la base de estadísticas ({exc}): se reintentará en unos "
+            "minutos. Si sigue igual, cierra la consola de LoL Coach si la tienes abierta.",
+            problem=True,
+        )
+        await asyncio.sleep(self._retry_seconds)
+
+    @property
+    def _database(self) -> Path:
+        return self._settings.stats_dir / DATABASE
+
+    async def _download(self, api: RiotApiClient, patch: str) -> bool:
+        target = self._settings.stats_target_matches
+        store = MatchStore(self._database)  # si está dañada, la aparta y empieza otra
+        try:
+            if (moved := store.take_quarantine_notice()) is not None:
+                self._warning = (
+                    f"La base anterior estaba dañada: se ha apartado (sin borrarla) como "
+                    f"«{moved}» y las partidas se vuelven a descargar."
+                )
+                self._announced = ""  # que el aviso se vea ya, sin esperar a la tanda
             _prune(store, patch)
             before = store.match_count(patch)
             if before >= target and not store.matches_without_loadout(patch, limit=1):
+                self._warning = ""
                 await self._status(_summary(store, patch, "al día"))
                 return True
             if self._announced != patch:  # que se vea desde el principio, no tras la tanda
@@ -199,12 +243,16 @@ class StatsUpdater:
         finally:
             store.close()
         await self._stats.refresh(patch)  # las siguientes partidas ya usan los datos nuevos
+        if finished:
+            self._warning = ""  # base rehecha: ya no hace falta el aviso
         await self._status(summary)
         if not finished and not (progress.new_matches or progress.completed or progress.players):
             await asyncio.sleep(self._retry_seconds)  # tanda sin avances: no insistir en bucle
         return finished
 
     async def _status(self, text: str, *, problem: bool = False) -> None:
+        if self._warning:  # base dañada apartada: se avisa hasta que vuelva a estar al día
+            text, problem = f"{text} {self._warning}", True
         (ui.warning if problem else ui.info)("%s", text)
         await self._bus.publish(StatsStatus(text, problem))
 

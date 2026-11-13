@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import sqlite3
 from pathlib import Path
 
 from ..gamedata.catalog import GameData
@@ -19,7 +20,7 @@ from ..models import ClientInfo
 from .aggregate import ChampionStats, aggregate, is_fresh, load_stats, save_stats
 from .extract import patch_key
 from .source import StatsBuildSource
-from .store import MatchStore
+from .store import DATABASE, MatchStore, is_corrupt, set_aside
 
 log = logging.getLogger(__name__)
 ui = logging.getLogger("lolcoach.ui")
@@ -31,14 +32,32 @@ def stats_file(stats_dir: Path, patch: str) -> Path:
     return stats_dir / f"builds-{patch}.json"
 
 
-def prepare_stats(
-    stats_dir: Path, patch: str, gamedata: GameData
-) -> tuple[str, int, dict[tuple[int, str], ChampionStats]] | None:
-    """Elige el parche, agrega (o lee la caché) y devuelve las estadísticas. Bloqueante."""
-    database = stats_dir / "matches.sqlite3"
+Stats = tuple[str, int, dict[tuple[int, str], ChampionStats]]
+
+
+def prepare_stats(stats_dir: Path, patch: str, gamedata: GameData) -> Stats | None:
+    """Elige el parche, agrega (o lee la caché) y devuelve las estadísticas. Bloqueante.
+
+    Con la base dañada no falla: la aparta (sin borrarla) y devuelve None (reglas).
+    """
+    database = stats_dir / DATABASE
     if not database.exists():
         return None
-    store = MatchStore(database)
+    try:
+        return _prepare(database, stats_dir, patch, gamedata)
+    except sqlite3.DatabaseError as exc:
+        if not is_corrupt(exc):
+            raise
+        log.warning("La base de estadísticas se ha dañado: %s", exc)
+        try:
+            set_aside(database)
+        except (OSError, sqlite3.DatabaseError) as err:  # abierta en otro programa: luego
+            log.warning("No se ha podido apartar la base dañada todavía: %s", err)
+        return None
+
+
+def _prepare(database: Path, stats_dir: Path, patch: str, gamedata: GameData) -> Stats | None:
+    store = MatchStore(database)  # si está dañada al abrirla, la aparta y empieza otra
     try:
         counts = dict(store.patches())
         chosen = patch
@@ -78,7 +97,11 @@ class StatsService:
         await self.refresh(info.patch)
 
     async def refresh(self, patch: str) -> None:
-        result = await asyncio.to_thread(prepare_stats, self._stats_dir, patch, self._gamedata)
+        try:
+            result = await asyncio.to_thread(prepare_stats, self._stats_dir, patch, self._gamedata)
+        except (sqlite3.DatabaseError, OSError) as exc:  # p. ej., ocupada: se sigue igual
+            log.warning("No se han podido leer las estadísticas: %s", exc)
+            return
         if result is None:
             log.debug("Sin estadísticas descargadas: se usan las builds por reglas")
             return

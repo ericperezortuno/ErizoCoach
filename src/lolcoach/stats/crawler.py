@@ -23,7 +23,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from .extract import attach_loadouts, extract_builds, match_patch, patch_key
-from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
+from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError, RiotApiStaleIdError
 from .store import MatchStore
 
 log = logging.getLogger(__name__)
@@ -78,16 +78,29 @@ class Crawler:
     async def run(self) -> CrawlProgress:
         await self._refresh_players()
         await self._complete_loadouts()
+        try:
+            await self._crawl_players()
+        except RiotApiStaleIdError:
+            # Jugadores guardados con otra clave: sus PUUID ya no valen. Se releen las ligas
+            # (los identificadores llegan cifrados para la clave actual) y se sigue.
+            forgotten = self._store.forget_players()
+            log.info(
+                "Los %d jugadores guardados eran de otra clave de Riot: se vuelven a leer "
+                "las ligas", forgotten,
+            )  # fmt: skip
+            await self._refresh_players()
+            await self._crawl_players()
+        return self.progress
+
+    async def _crawl_players(self) -> None:
         for player_id in self._store.players_to_crawl():
             if self._should_stop():
-                break
+                return
             await self._crawl_player(player_id)
             self.progress.players += 1
             self.progress.requests = self._api.requests
             self._on_progress(self.progress)
-        else:
-            self.progress.stopped_reason = "no quedan jugadores por consultar"
-        return self.progress
+        self.progress.stopped_reason = "no quedan jugadores por consultar"
 
     def _should_stop(self) -> bool:
         if self._max_matches is not None and self.progress.new_matches >= self._max_matches:
@@ -161,7 +174,7 @@ class Crawler:
                     self._store.mark_crawled(player_id)
                     return
             match_ids = await self._api.match_ids(puuid, count=MATCHES_PER_PLAYER)
-        except RiotApiKeyError:
+        except (RiotApiKeyError, RiotApiStaleIdError):
             raise
         except RiotApiError as exc:
             log.debug("Jugador omitido: %s", exc)

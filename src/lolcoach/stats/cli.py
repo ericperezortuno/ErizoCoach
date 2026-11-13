@@ -18,7 +18,7 @@ from . import keystore
 from .crawler import Crawler, CrawlProgress
 from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
 from .service import prepare_stats
-from .store import MatchStore
+from .store import DATABASE, MatchStore
 from .updater import download_lock
 
 ui = logging.getLogger("lolcoach.ui")
@@ -127,7 +127,8 @@ async def _update(settings: Settings, key: str, hours: float, max_matches: int |
         f" del parche {patch}" if patch else "",
         f"hasta {max_matches} partidas o {hours:g} h" if max_matches else f"{hours:g} h",
     )
-    store = MatchStore(settings.stats_dir / "matches.sqlite3")
+    store = MatchStore(settings.stats_dir / DATABASE)
+    _warn_if_set_aside(store)
     last_report = [time.monotonic()]
 
     def report(progress: CrawlProgress) -> None:
@@ -192,13 +193,23 @@ async def _client_patch_and_data(settings: Settings) -> tuple[str | None, GameDa
         return None, None
 
 
+def _warn_if_set_aside(store: MatchStore) -> None:
+    if store.quarantined is not None:  # la ventana también lo avisará (queda pendiente)
+        ui.warning(
+            "La base de estadísticas estaba dañada: se ha apartado (sin borrarla) como «%s» "
+            "y se empieza una nueva; las partidas se vuelven a descargar.",
+            store.quarantined.name,
+        )
+
+
 def cmd_status(settings: Settings) -> int:
     ui.info("Clave de Riot guardada: %s", "sí" if keystore.load_key() else "no")
-    database = settings.stats_dir / "matches.sqlite3"
+    database = settings.stats_dir / DATABASE
     if not database.exists():
         ui.info("Aún no hay partidas descargadas («uv run lolcoach stats descargar»).")
         return 0
     store = MatchStore(database)
+    _warn_if_set_aside(store)
     try:
         ui.info("Jugadores de alto elo conocidos: %d", store.player_count())
         for patch, count in store.patches()[:3]:
