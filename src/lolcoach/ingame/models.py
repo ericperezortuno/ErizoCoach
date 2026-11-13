@@ -6,6 +6,7 @@ se guarda en el modelo, no se muestra y no se escribe en los registros.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
@@ -13,7 +14,12 @@ from typing import Any
 from ..models import Position
 from ..util import as_dict, as_int, as_list, as_str
 
-RAW_CHAMPION_PREFIX = "game_character_displayname_"
+# Riot usa varios formatos para la clave interna del campeón según el campeón y el parche:
+# "game_character_displayname_Ahri" (lo habitual) o "Character_Aatrox_Name".
+RAW_NAME_PATTERNS = (
+    re.compile(r"^game_character_displayname_(\w+)$"),
+    re.compile(r"^Character_(\w+?)_Name$"),
+)
 ORDER, CHAOS = "ORDER", "CHAOS"
 
 
@@ -99,14 +105,24 @@ def parse_all_game_data(data: Any) -> LiveGame:
     )
 
 
+def champion_alias(raw: Mapping[str, Any]) -> str:
+    """Clave interna del campeón ("Aatrox", "Kaisa"); si no se reconoce, su nombre visible.
+
+    Se prueba con ``rawChampionName`` y ``rawSkinName`` (con aspecto por defecto tiene el
+    mismo formato). El nombre visible es el último recurso: el catálogo también busca por
+    nombre, así que "Kai'Sa" o "Aatrox" se siguen reconociendo.
+    """
+    for key in ("rawChampionName", "rawSkinName"):
+        value = as_str(raw.get(key))
+        for pattern in RAW_NAME_PATTERNS:
+            if match := pattern.match(value):
+                return match.group(1)
+    return as_str(raw.get("championName"))
+
+
 def _parse_player(raw: Mapping[str, Any]) -> LivePlayer:
     scores = as_dict(raw.get("scores"))
-    raw_name = as_str(raw.get("rawChampionName"))
-    alias = (
-        raw_name.removeprefix(RAW_CHAMPION_PREFIX)
-        if raw_name.startswith(RAW_CHAMPION_PREFIX)
-        else ""
-    )
+    alias = champion_alias(raw)
     items = tuple(
         LiveItem(
             item_id=as_int(item.get("itemID")),

@@ -16,6 +16,18 @@ ZED_MID = [(5, 1055), (6, 2003), (500, 3158), (800, 3142), (1200, 6697), (1600, 
            (1900, 3814)]  # fmt: skip
 FILLER = [(5, 1055), (6, 2003), (700, 3047), (1000, 3078)]
 
+# Runas de Ahri en formato match-v5: Electrocutar (Dominación) + Brujería
+AHRI_PERKS = {
+    "statPerks": {"defense": 5001, "flex": 5008, "offense": 5005},
+    "styles": [
+        {"description": "primaryStyle", "style": 8100,
+         "selections": [{"perk": p, "var1": 0} for p in (8112, 8139, 8140, 8106)]},
+        {"description": "subStyle", "style": 8200,
+         "selections": [{"perk": p, "var1": 0} for p in (8226, 8210)]},
+    ],
+}  # fmt: skip
+AHRI_RUNES = (8100, 8200, 8112, 8139, 8140, 8106, 8226, 8210, 5005, 5008, 5001)
+
 
 def participant(pid: int, champion: int, position: str, win: bool, items: list[int]) -> dict:
     data = {
@@ -29,6 +41,9 @@ def participant(pid: int, champion: int, position: str, win: bool, items: list[i
         "teamPosition": position,
         "win": win,
         "gameEndedInEarlySurrender": False,
+        "summoner1Id": 4,
+        "summoner2Id": 14,
+        "perks": AHRI_PERKS,
     }
     for slot in range(7):
         data[f"item{slot}"] = items[slot] if slot < len(items) else 0
@@ -77,6 +92,7 @@ class FakeRiotApi:
         self.headers_seen: list[dict[str, str]] = []
         self.rate_limited_once = False  # si True, la primera petición de partida devuelve 429
         self.expired = False
+        self.unavailable = False  # si True, las partidas responden 503 (Riot caído)
         self._runner: web.AppRunner | None = None
         self.url = ""
 
@@ -143,6 +159,8 @@ class FakeRiotApi:
         return web.json_response(self.player_matches.get(request.match_info["puuid"], []))
 
     async def _match(self, request: web.Request) -> web.Response:
+        if self.unavailable:
+            return web.json_response({}, status=503)
         if self.rate_limited_once:
             self.rate_limited_once = False
             return web.json_response({}, status=429, headers={"Retry-After": "1"})

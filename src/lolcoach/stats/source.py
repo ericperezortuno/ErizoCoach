@@ -12,8 +12,11 @@ from __future__ import annotations
 from ..builds.archetypes import SUMMONERS_RIFT, BuildSource, RuleBasedSource
 from ..builds.models import BaseBuild
 from ..gamedata.catalog import Champion, ChampionProfile
+from ..gamedata.runes import RunePage
+from ..loadout.models import StatsLoadout
 from ..models import Position
 from .aggregate import ChampionStats
+from .extract import RUNE_FIELDS
 
 DEFAULT_MIN_GAMES = 20
 MIN_BOOTS_RATE = 0.3  # si casi nadie compra botas (Cassiopeia...), no se recomiendan
@@ -52,6 +55,20 @@ class StatsBuildSource:
             options = [e for (c, _), e in self._stats.items() if c == champion_id]
             entry = max(options, key=lambda e: e.games, default=None)
         return entry if entry is not None and entry.games >= self._min_games else None
+
+    def loadout_for(self, champion_id: int, position: Position) -> StatsLoadout | None:
+        """Runas y hechizos más jugados (solo si hay partidas suficientes con esos datos)."""
+        entry = self.entry_for(champion_id, position)
+        if (
+            entry is None
+            or entry.loadout_games < self._min_games
+            or len(entry.runes) != RUNE_FIELDS
+            or len(entry.spells) != 2
+        ):
+            return None
+        page = RunePage(entry.runes[0], entry.runes[1], tuple(entry.runes[2:]))
+        spells = (entry.spells[0], entry.spells[1])
+        return StatsLoadout(page, spells, entry.loadout_games, self.patch)
 
     def base_build(
         self,

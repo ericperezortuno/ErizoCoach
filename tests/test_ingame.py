@@ -64,6 +64,24 @@ def test_parse_identifies_you_and_the_teams() -> None:
     assert ME_RIOT_ID not in repr(game) and "Jugador" not in repr(game)  # sin Riot ID
 
 
+def test_champion_is_recognised_in_every_raw_name_format() -> None:
+    """Riot da a Aatrox «Character_Aatrox_Name» en vez de «game_character_displayname_Aatrox»."""
+    gd = loaded_gamedata()
+    formats = [
+        {"rawChampionName": "game_character_displayname_Ahri"},
+        {"rawChampionName": "Character_Aatrox_Name"},
+        {"rawChampionName": "algo_nuevo", "rawSkinName": "game_character_displayname_Kaisa"},
+        {"rawChampionName": "", "championName": "Kai'Sa"},  # último recurso: nombre visible
+        {"rawChampionName": "", "championName": "Dr. Mundo"},
+    ]
+    expected = [103, 266, 145, 145, 36]
+    for raw, champion_id in zip(formats, expected, strict=True):
+        game = parse_all_game_data(all_game_data(live_player("X") | raw, []))
+        assert game.me is not None
+        assert gd.champion_id_by_alias(game.me.champion_alias) == champion_id, raw
+    assert gd.champion_id_by_alias("NoExiste") == 0
+
+
 def test_parse_tolerates_missing_data() -> None:
     data = all_game_data(live_player("Ahri"), [live_player("Zed", team="CHAOS")])
     del data["activePlayer"]

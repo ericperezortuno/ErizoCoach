@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Protocol
 
 from ..gamedata.catalog import ChampionProfile
 from ..gamedata.runes import RecommendedPage, RunePage
@@ -70,5 +71,20 @@ class Loadout:
     runes: RunePage | None  # None = este modo no usa runas recomendadas
     spells: tuple[int, int] | None
     lane_guess: LaneGuess | None = None
-    adjustments: tuple[str, ...] = ()  # cambios sobre la base de Riot y su motivo
+    adjustments: tuple[str, ...] = ()  # cambios sobre la base y su motivo
     notes: tuple[str, ...] = ()  # avisos (enemigos desconocidos, rival dudoso...)
+    source: str = ""  # de dónde sale la base: estadísticas o recomendación de Riot
+
+
+@dataclass(frozen=True, slots=True)
+class StatsLoadout:
+    """Runas y hechizos más jugados en alto elo para un campeón y posición."""
+
+    page: RunePage
+    spells: tuple[int, int]
+    games: int
+    patch: str
+
+
+class LoadoutStats(Protocol):
+    def loadout_for(self, champion_id: int, position: Position) -> StatsLoadout | None: ...

@@ -19,6 +19,7 @@ from .crawler import Crawler, CrawlProgress
 from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
 from .service import prepare_stats
 from .store import MatchStore
+from .updater import download_lock
 
 ui = logging.getLogger("lolcoach.ui")
 PROGRESS_EVERY_SECONDS = 30
@@ -61,7 +62,7 @@ def cmd_key(settings: Settings) -> int:
             ui.error("No se pudo guardar la clave: %s", exc)
             return 1
         ui.info("Clave comprobada y guardada en el Administrador de credenciales de Windows.")
-        ui.info("Siguiente paso: «uv run lolcoach stats descargar» para bajar partidas.")
+        ui.info("LoL Coach la usará en su próxima descarga automática (no hace falta nada más).")
         return 0
     ui.error("No se ha guardado ninguna clave.")
     return 1
@@ -73,7 +74,8 @@ def _key_hint(exc: RiotApiKeyError) -> str:
         return (
             "Riot no reconoce esa clave. Casi siempre es porque ha caducado (duran 24 h) o es "
             "una antigua: en developer.riotgames.com pulsa «REGENERATE API KEY», recarga la "
-            "página y copia la clave nueva con el botón de copiar que hay a su lado."
+            "página y copia la clave nueva con el botón de copiar que hay a su lado. Para no "
+            "renovarla cada día, pide una clave personal (docs/clave-personal-riot.md)."
         )
     if exc.status == 403:
         return (
@@ -101,11 +103,20 @@ def cmd_update(settings: Settings, hours: float, max_matches: int | None) -> int
     if not key:
         ui.error("No hay clave de Riot guardada. Primero: «uv run lolcoach stats clave».")
         return 1
+    lock = download_lock(settings.stats_dir)
+    if not lock.acquire():
+        ui.error(
+            "LoL Coach ya está descargando estadísticas en segundo plano (se pausa solo al "
+            "jugar). No hace falta lanzarlo a mano; si aun así quieres, cierra LoL Coach antes."
+        )
+        return 1
     try:
         return asyncio.run(_update(settings, key, hours, max_matches))
     except KeyboardInterrupt:
         ui.info("Descarga detenida. Lo descargado está guardado; puedes continuar cuando quieras.")
         return 0
+    finally:
+        lock.release()
 
 
 async def _update(settings: Settings, key: str, hours: float, max_matches: int | None) -> int:
@@ -123,10 +134,11 @@ async def _update(settings: Settings, key: str, hours: float, max_matches: int |
         if time.monotonic() - last_report[0] < PROGRESS_EVERY_SECONDS:
             return
         last_report[0] = time.monotonic()
+        completed = f" · {progress.completed} completadas con runas" if progress.completed else ""
         ui.info(
-            "  %d partidas nuevas del parche %s · %d jugadores · %d peticiones · %d min",
-            progress.new_matches, progress.patch or "?", progress.players, progress.requests,
-            progress.elapsed // 60,
+            "  %d partidas nuevas del parche %s%s · %d jugadores · %d peticiones · %d min",
+            progress.new_matches, progress.patch or "?", completed, progress.players,
+            progress.requests, progress.elapsed // 60,
         )  # fmt: skip
 
     progress = CrawlProgress()
@@ -142,6 +154,10 @@ async def _update(settings: Settings, key: str, hours: float, max_matches: int |
                 ui.error("%s", exc)
                 progress = crawler.progress
                 progress.stopped_reason = "clave caducada"
+            except RiotApiError as exc:
+                ui.error("Sin conexión con Riot: %s. Lo descargado está guardado.", exc)
+                progress = crawler.progress
+                progress.stopped_reason = "sin conexión"
         total = store.match_count(progress.patch) if progress.patch else 0
     finally:
         store.close()
@@ -187,8 +203,9 @@ def cmd_status(settings: Settings) -> int:
         ui.info("Jugadores de alto elo conocidos: %d", store.player_count())
         for patch, count in store.patches()[:3]:
             ui.info(
-                "Parche %s: %d partidas (unas %d builds de jugadores)", patch, count, count * 10
-            )
+                "Parche %s: %d partidas (unas %d builds de jugadores), %d con runas y hechizos",
+                patch, count, count * 10, store.loadout_count(patch),
+            )  # fmt: skip
     finally:
         store.close()
     return 0

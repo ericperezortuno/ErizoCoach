@@ -133,8 +133,8 @@ class ConsoleReporter:
         position = POSITION_LABELS.get(loadout.position, "")
         champion = gd.champion_name(loadout.champion_id)
         log.info("Recomendación para %s%s:", champion, f" ({position})" if position else "")
-        if loadout.base is not None and loadout.base.descriptor:
-            log.info("  Base: recomendación de Riot «%s»", loadout.base.descriptor)
+        if loadout.source:
+            log.info("  Base: %s", loadout.source)
         if loadout.runes is not None:
             for line in self._rune_lines(loadout.runes):
                 log.info("  %s", line)

@@ -73,8 +73,11 @@ class RateLimiter:
         return self._limits
 
     def set_limits(self, limits: tuple[tuple[int, float], ...]) -> None:
+        """Cambia los límites sin olvidar las peticiones ya hechas (Riot también las cuenta)."""
+        previous: list[deque[float]] = getattr(self, "_windows", [])
+        history = max(previous, key=len, default=deque[float]())
         self._limits = tuple(limits)
-        self._windows = [deque[float]() for _ in self._limits]
+        self._windows = [deque(history) for _ in self._limits]
 
     async def acquire(self) -> None:
         async with self._lock:
@@ -202,6 +205,8 @@ class RiotApiClient:
                     status = response.status
                     limits = parse_limits(response.headers.get("X-App-Rate-Limit"))
                     retry_after = response.headers.get("Retry-After")
+                    rate_type = response.headers.get("X-Rate-Limit-Type")
+                    rate_count = response.headers.get("X-App-Rate-Limit-Count")
                     body = await response.json(content_type=None) if status == 200 else None
                     error_text = "" if status == 200 else _riot_message(await response.text())
             except (aiohttp.ClientError, TimeoutError, ValueError) as exc:
@@ -210,6 +215,7 @@ class RiotApiClient:
                 await self._sleep(2**attempt)
                 continue
             if limits and limits != limiter.limits:
+                log.debug("Límites de la clave según Riot: %s", limits)
                 limiter.set_limits(limits)
             if status == 200:
                 return body
@@ -225,7 +231,10 @@ class RiotApiClient:
                 raise RiotApiError("no encontrado", status)
             if status == 429 or status >= 500:
                 wait = float(retry_after) if retry_after and retry_after.isdigit() else 2**attempt
-                log.debug("Riot pide esperar %.0f s (HTTP %s)", wait, status)
+                log.debug(
+                    "Riot pide esperar %.0f s (HTTP %s, tipo %s, cuenta %s)", wait, status,
+                    rate_type or "?", rate_count or "?",
+                )  # fmt: skip
                 await self._sleep(wait)
                 continue
             raise RiotApiError(f"HTTP {status}", status)

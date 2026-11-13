@@ -14,14 +14,19 @@ import time
 from collections.abc import Iterator
 from pathlib import Path
 
-from .extract import PlayerBuild
+from .extract import PlayerBuild, patch_key
+
+DETAIL_ITEMS = 1  # partidas guardadas antes de recoger runas y hechizos
+DETAIL_LOADOUT = 2  # con runas y hechizos
+BUSY_TIMEOUT = 30  # segundos: la app y la consola pueden usar la base de datos a la vez
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS matches (
     match_id TEXT PRIMARY KEY,
     patch TEXT NOT NULL,
     collected_at INTEGER NOT NULL,
-    builds TEXT  -- NULL: partida descartada (otro parche, demasiado corta...)
+    builds TEXT,  -- NULL: partida descartada (otro parche, demasiado corta...)
+    detail INTEGER NOT NULL DEFAULT 1  -- 1: solo objetos; 2: también runas y hechizos
 );
 CREATE INDEX IF NOT EXISTS matches_patch ON matches(patch);
 CREATE TABLE IF NOT EXISTS players (
@@ -37,8 +42,16 @@ class MatchStore:
     def __init__(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.path = path
-        self._db = sqlite3.connect(path)
+        self._db = sqlite3.connect(path, timeout=BUSY_TIMEOUT)
+        self._db.execute("PRAGMA journal_mode=WAL")  # lecturas sin bloquear la descarga
         self._db.executescript(SCHEMA)
+        self._migrate()
+
+    def _migrate(self) -> None:
+        columns = {row[1] for row in self._db.execute("PRAGMA table_info(matches)")}
+        if "detail" not in columns:  # bases de datos de la v0.5.0
+            with self._db:
+                self._db.execute("ALTER TABLE matches ADD COLUMN detail INTEGER NOT NULL DEFAULT 1")
 
     def close(self) -> None:
         self._db.close()
@@ -53,9 +66,50 @@ class MatchStore:
         payload = json.dumps([b.to_json() for b in builds]) if builds else None
         with self._db:
             self._db.execute(
-                "INSERT OR REPLACE INTO matches VALUES (?, ?, ?, ?)",
-                (match_id, patch, int(time.time()), payload),
+                "INSERT OR REPLACE INTO matches VALUES (?, ?, ?, ?, ?)",
+                (match_id, patch, int(time.time()), payload, DETAIL_LOADOUT),
             )
+
+    def matches_without_loadout(self, patch: str, limit: int = 100) -> list[str]:
+        """Partidas del parche guardadas sin runas ni hechizos (descargadas con la v0.5.0)."""
+        query = (
+            "SELECT match_id FROM matches WHERE patch = ? AND builds IS NOT NULL "
+            "AND detail < ? LIMIT ?"
+        )
+        return [row[0] for row in self._db.execute(query, (patch, DETAIL_LOADOUT, limit))]
+
+    def match_builds(self, match_id: str) -> list[PlayerBuild]:
+        row = self._db.execute(
+            "SELECT builds FROM matches WHERE match_id = ?", (match_id,)
+        ).fetchone()
+        if row is None or row[0] is None:
+            return []
+        return [PlayerBuild.from_json(entry) for entry in json.loads(row[0])]
+
+    def complete_loadout(self, match_id: str, builds: list[PlayerBuild] | None) -> None:
+        """Guarda las builds completadas con runas y hechizos (o marca que no se pudo)."""
+        with self._db:
+            if builds:
+                self._db.execute(
+                    "UPDATE matches SET builds = ?, detail = ? WHERE match_id = ?",
+                    (json.dumps([b.to_json() for b in builds]), DETAIL_LOADOUT, match_id),
+                )
+            else:  # la partida ya no está disponible: se deja con solo los objetos
+                self._db.execute(
+                    "UPDATE matches SET detail = ? WHERE match_id = ?", (DETAIL_LOADOUT, match_id)
+                )
+
+    def prune(self, keep_from: str) -> int:
+        """Borra las partidas de parches anteriores a ``keep_from``. Devuelve cuántas."""
+        old = [p for (p,) in self._db.execute("SELECT DISTINCT patch FROM matches")
+               if patch_key(p) < patch_key(keep_from)]  # fmt: skip
+        if not old:
+            return 0
+        with self._db:
+            cursor = self._db.executemany(
+                "DELETE FROM matches WHERE patch = ?", [(p,) for p in old]
+            )
+        return cursor.rowcount
 
     def builds(self, patch: str) -> Iterator[PlayerBuild]:
         query = "SELECT builds FROM matches WHERE patch = ? AND builds IS NOT NULL"
@@ -66,6 +120,13 @@ class MatchStore:
     def match_count(self, patch: str) -> int:
         query = "SELECT COUNT(*) FROM matches WHERE patch = ? AND builds IS NOT NULL"
         return int(self._db.execute(query, (patch,)).fetchone()[0])
+
+    def loadout_count(self, patch: str) -> int:
+        """Partidas del parche con runas y hechizos."""
+        query = (
+            "SELECT COUNT(*) FROM matches WHERE patch = ? AND builds IS NOT NULL AND detail >= ?"
+        )
+        return int(self._db.execute(query, (patch, DETAIL_LOADOUT)).fetchone()[0])
 
     def patches(self) -> list[tuple[str, int]]:
         query = (

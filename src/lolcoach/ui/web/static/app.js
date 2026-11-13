@@ -122,6 +122,9 @@ function render(state) {
   if (state.game) sections = renderGame(state);
   else if (state.champion || state.loadout || state.build) sections = renderChampSelect(state);
   else sections = [renderIdle(state)];
+  if (state.stats && state.stats.problem) {
+    sections.unshift(el("section", { class: "card notice" }, [el("h2", { text: "Aviso" }), el("div", { text: state.stats.text })]));
+  }
   app.replaceChildren(...sections.filter(Boolean));
 }
 
@@ -130,7 +133,8 @@ function renderIdle(state) {
   const hint = state.connected
     ? "Cuando se haga el último pick verás aquí tus runas y tu build; durante la partida, qué comprar y quién va fuerte."
     : "Abre el cliente de League of Legends: LoL Coach se conectará solo.";
-  return el("div", { class: "empty" }, [el("div", { class: "big", text: title }), el("div", { text: hint })]);
+  const stats = state.stats && !state.stats.problem ? el("div", { class: "muted small stats", text: state.stats.text }) : null;
+  return el("div", { class: "empty" }, [el("div", { class: "big", text: title }), el("div", { text: hint }), stats]);
 }
 
 function renderChampSelect(state) {
@@ -164,7 +168,14 @@ function renderLoadout(loadout) {
   }
   if (loadout.laneOpponent) rows.push(el("div", { class: "muted small", text: `Rival de línea probable: ${loadout.laneOpponent}` }));
   const extra = [...loadout.adjustments, ...loadout.notes];
-  return card("Runas y hechizos", [el("div", { class: "runes" }, rows), extra.length ? bulletList(extra) : null]);
+  const origin = loadout.source && loadout.source.startsWith("estadísticas")
+    ? `Base: ${loadout.source}`
+    : "Base: recomendación de Riot (aún sin datos suficientes de partidas reales)";
+  return card("Runas y hechizos", [
+    el("div", { class: "muted small origin", text: origin }),
+    el("div", { class: "runes" }, rows),
+    extra.length ? bulletList(extra) : null,
+  ]);
 }
 
 function renderBuild(build) {

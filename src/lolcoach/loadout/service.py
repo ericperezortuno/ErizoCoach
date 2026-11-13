@@ -32,7 +32,7 @@ from ..lcu.client import LcuClient, LcuError
 from ..lcu.connector import LcuConnector
 from ..models import QueueInfo
 from .applier import LoadoutApplier, NoRunePageSlot, page_title
-from .models import Loadout
+from .models import Loadout, LoadoutStats
 from .positions import PositionHint
 from .recommender import LoadoutRecommender
 
@@ -52,13 +52,14 @@ class LoadoutService:
         *,
         page_check_delay: float = PAGE_CHECK_DELAY,
         position_hint: PositionHint | None = None,
+        stats: LoadoutStats | None = None,
     ) -> None:
         self._bus = bus
         self._connector = connector
         self._gamedata = gamedata
         self._settings = settings
         self._page_check_delay = page_check_delay
-        self._recommender = LoadoutRecommender(gamedata, position_hint)
+        self._recommender = LoadoutRecommender(gamedata, position_hint, stats)
         self._applier = LoadoutApplier()
         self._tasks: set[asyncio.Task[Any]] = set()
         self._generation = 0

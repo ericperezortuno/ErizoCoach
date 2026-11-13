@@ -16,6 +16,8 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     live_poll_interval = 3     # segundos entre lecturas de la partida (1-10)
     riot_region = "euw1"       # región de las estadísticas (euw1, eun1, tr1, na1, kr)
     stats_min_games = 20       # partidas mínimas para usar la build de estadísticas
+    stats_auto_download = true # descargar estadísticas solo, con la app abierta
+    stats_target_matches = 3000 # partidas por parche a partir de las que se para
 """
 
 from __future__ import annotations
@@ -53,6 +55,8 @@ class Settings:
     live_poll_interval: float = 3.0  # segundos entre lecturas de la partida
     riot_region: str = "euw1"  # región para descargar estadísticas (API de Riot)
     stats_min_games: int = 20  # partidas mínimas para usar la build de estadísticas
+    stats_auto_download: bool = True  # descargar en segundo plano (pausa al jugar)
+    stats_target_matches: int = 3000  # partidas por parche a partir de las que se para
 
     @property
     def window_profile_dir(self) -> Path:
@@ -116,6 +120,13 @@ def load_settings(
     if isinstance(min_games, bool) or not isinstance(min_games, int) or not 5 <= min_games <= 500:
         warnings.append("config.toml: 'stats_min_games' debe estar entre 5 y 500; se usa 20.")
         min_games = 20
+    auto_download = _bool(values, "stats_auto_download", True, warnings)
+    target = values.get("stats_target_matches", 3000)
+    if isinstance(target, bool) or not isinstance(target, int) or not 200 <= target <= 50_000:
+        warnings.append(
+            "config.toml: 'stats_target_matches' debe estar entre 200 y 50000; se usa 3000."
+        )
+        target = 3000
     poll = values.get("live_poll_interval", 3.0)
     if isinstance(poll, bool) or not isinstance(poll, int | float) or not 1 <= poll <= 10:
         warnings.append("config.toml: 'live_poll_interval' debe estar entre 1 y 10; se usa 3.")
@@ -146,6 +157,8 @@ def load_settings(
         live_poll_interval=float(poll),
         riot_region=region,
         stats_min_games=min_games,
+        stats_auto_download=auto_download,
+        stats_target_matches=target,
     )
     return settings, warnings
 

@@ -9,6 +9,11 @@ Para cada (campeón, posición):
   1.º; y el 3.º igual. Si hay pocos datos para la cadena, se usa el más habitual en
   esa posición.
 * **Siguientes**: los legendarios más comprados después del núcleo.
+* **Runas**: la piedra angular (con su árbol) más elegida; entre quienes la llevan,
+  la runa más elegida de cada fila, el árbol secundario y la pareja de runas
+  secundarias más repetidos, y el fragmento más elegido de cada fila. Así la página
+  sale siempre de combinaciones que juega la gente.
+* **Hechizos**: la pareja más repetida (en el orden de teclas más habitual).
 """
 
 from __future__ import annotations
@@ -30,7 +35,7 @@ STARTING_SECONDS = 60
 TRINKETS = frozenset({3340, 3363, 3364})  # guardianes/lentes: no forman parte de la build
 LEGENDARY_MIN_PRICE = 2200
 CHAIN_MIN_SUPPORT = 5  # partidas mínimas para fiarse de la cadena del núcleo
-FORMAT_VERSION = 1
+FORMAT_VERSION = 2  # 2: con runas y hechizos
 
 ItemLookup = Callable[[int], Item | None]
 
@@ -46,6 +51,9 @@ class ChampionStats:
     boots_rate: float
     core: tuple[int, ...]
     extra: tuple[int, ...]
+    loadout_games: int = 0  # partidas con runas y hechizos (las antiguas no los tienen)
+    runes: tuple[int, ...] = ()  # (árbol principal, secundario, 9 runas); () = sin datos
+    spells: tuple[int, ...] = ()  # (hechizo D, hechizo F)
 
     @property
     def win_rate(self) -> float:
@@ -107,6 +115,7 @@ def _summarize(key: tuple[int, str], games: list[PlayerBuild], item: ItemLookup)
     start_items = starts.most_common(1)[0][0] if starts else ()
     counted = Counter(start_items)
     boots_item = boots.most_common(1)[0][0] if boots else None
+    with_loadout = [g for g in games if g.has_loadout]
     return ChampionStats(
         champion_id=key[0],
         position=key[1],
@@ -120,7 +129,38 @@ def _summarize(key: tuple[int, str], games: list[PlayerBuild], item: ItemLookup)
         boots_rate=round(sum(boots.values()) / len(games), 3) if games else 0.0,
         core=tuple(core),
         extra=tuple(extra),
+        loadout_games=len(with_loadout),
+        runes=_rune_page(with_loadout),
+        spells=_spell_pair(with_loadout),
     )
+
+
+def _most_common(values: Iterable[Any]) -> Any:
+    counts = Counter(values)
+    return counts.most_common(1)[0][0] if counts else None
+
+
+def _rune_page(games: list[PlayerBuild]) -> tuple[int, ...]:
+    """(árbol principal, secundario, 9 runas) partiendo de la piedra angular más elegida."""
+    if not games:
+        return ()
+    # runes = (principal, secundario, angular, fila 1, fila 2, fila 3, sec. 1, sec. 2, 3 fragmentos)
+    keystone = _most_common((g.runes[0], g.runes[2]) for g in games)
+    same = [g for g in games if (g.runes[0], g.runes[2]) == keystone]
+    rows = [_most_common(g.runes[i] for g in same) for i in (3, 4, 5)]
+    sub = _most_common(g.runes[1] for g in same)
+    with_sub = [g for g in same if g.runes[1] == sub]
+    pair_key = _most_common(tuple(sorted(g.runes[6:8])) for g in with_sub)
+    pair = _most_common(g.runes[6:8] for g in with_sub if tuple(sorted(g.runes[6:8])) == pair_key)
+    shards = [_most_common(g.runes[i] for g in same) for i in (8, 9, 10)]
+    return (keystone[0], sub, keystone[1], *rows, *pair, *shards)
+
+
+def _spell_pair(games: list[PlayerBuild]) -> tuple[int, ...]:
+    if not games:
+        return ()
+    pair = _most_common(tuple(sorted(g.spells)) for g in games)
+    return tuple(_most_common(g.spells for g in games if tuple(sorted(g.spells)) == pair))
 
 
 def item_price(item: ItemLookup, item_id: int) -> int:
@@ -150,12 +190,17 @@ def _core_chain(sequences: list[list[int]]) -> list[int]:
 
 
 def save_stats(
-    path: Path, patch: str, matches: int, stats: dict[tuple[int, str], ChampionStats]
+    path: Path,
+    patch: str,
+    matches: int,
+    stats: dict[tuple[int, str], ChampionStats],
+    loadouts: int = 0,
 ) -> None:
     payload = {
         "format": FORMAT_VERSION,
         "patch": patch,
         "matches": matches,
+        "loadouts": loadouts,  # partidas con runas y hechizos (para saber si hay que recalcular)
         "generated": int(time.time()),
         "builds": {
             f"{champion}:{position}": {
@@ -169,6 +214,19 @@ def save_stats(
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     temporary.replace(path)  # escritura atómica: nunca queda un archivo a medias
+
+
+def is_fresh(path: Path, matches: int, loadouts: int) -> bool:
+    """La caché se calculó con estas mismas partidas (y runas)."""
+    try:
+        payload = as_dict(json.loads(path.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        return False
+    return (
+        payload.get("format") == FORMAT_VERSION
+        and as_int(payload.get("matches")) == matches
+        and as_int(payload.get("loadouts")) == loadouts
+    )
 
 
 def load_stats(path: Path) -> tuple[str, int, dict[tuple[int, str], ChampionStats]] | None:
@@ -197,4 +255,7 @@ def _entry(raw: dict[str, Any]) -> ChampionStats:
         boots_rate=float(raw.get("boots_rate") or 0.0),
         core=tuple(as_int(i) for i in as_list(raw.get("core"))),
         extra=tuple(as_int(i) for i in as_list(raw.get("extra"))),
+        loadout_games=as_int(raw.get("loadout_games")),
+        runes=tuple(as_int(r) for r in as_list(raw.get("runes"))),
+        spells=tuple(as_int(s) for s in as_list(raw.get("spells"))),
     )

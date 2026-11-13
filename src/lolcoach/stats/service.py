@@ -16,7 +16,7 @@ from ..gamedata.catalog import GameData
 from ..lcu.client import LcuClient
 from ..lcu.connector import LcuConnector
 from ..models import ClientInfo
-from .aggregate import ChampionStats, aggregate, load_stats, save_stats
+from .aggregate import ChampionStats, aggregate, is_fresh, load_stats, save_stats
 from .extract import patch_key
 from .source import StatsBuildSource
 from .store import MatchStore
@@ -51,11 +51,11 @@ def prepare_stats(
         if not matches:
             return None
         path = stats_file(stats_dir, chosen)
-        cached = load_stats(path)
-        if cached is not None and cached[1] == matches:
+        loadouts = store.loadout_count(chosen)
+        if is_fresh(path, matches, loadouts) and (cached := load_stats(path)) is not None:
             return cached
         stats = aggregate(store.builds(chosen), gamedata.item)
-        save_stats(path, chosen, matches, stats)
+        save_stats(path, chosen, matches, stats, loadouts)
         return chosen, matches, stats
     finally:
         store.close()

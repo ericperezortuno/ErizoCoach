@@ -9,7 +9,7 @@ from lolcoach.champselect.parser import parse_session
 from lolcoach.gamedata.catalog import ChampionProfile, SummonerSpell
 from lolcoach.gamedata.runes import RecommendedPage, RunePage, validate_page
 from lolcoach.loadout import recommender as recommender_module
-from lolcoach.loadout.models import Loadout, MatchContext
+from lolcoach.loadout.models import Loadout, MatchContext, StatsLoadout
 from lolcoach.loadout.positions import infer_positions, lane_opponent, resolve_my_position
 from lolcoach.loadout.recommender import LoadoutRecommender
 from lolcoach.loadout.rules import (
@@ -249,6 +249,54 @@ async def test_runes_follow_the_position_hint() -> None:
     recommender = LoadoutRecommender(loaded_gamedata(), position_hint=lambda _c: Position.TOP)
     loadout = await recommender.recommend(FixtureClient(), game(LEBLANC, "", []), SR)
     assert loadout is not None and loadout.position == Position.TOP
+
+
+class FakeStats:
+    """Runas de alto elo para Ahri: Cometa (Brujería + Dominación) con Destello + Teleportar."""
+
+    def __init__(self) -> None:
+        self.asked: list[tuple[int, Position]] = []
+
+    def loadout_for(self, champion_id: int, position: Position) -> StatsLoadout | None:
+        self.asked.append((champion_id, position))
+        if champion_id != AHRI:
+            return None
+        # Secundarias al revés de como las ordena el cliente: se deben reordenar por fila
+        page = RunePage(8200, 8100, (8992, 8226, 8210, 8237, 8106, 8139, 5005, 5008, 5001))
+        return StatsLoadout(page, (4, 12), 80, "16.22")
+
+
+async def test_stats_runes_and_spells_are_the_base_when_available() -> None:
+    stats = FakeStats()
+    recommender = LoadoutRecommender(loaded_gamedata(), stats=stats)
+    loadout = await recommender.recommend(FixtureClient(), game(AHRI, "middle", []), SR)
+    assert loadout is not None and stats.asked == [(AHRI, Position.MIDDLE)]
+    assert loadout.runes is not None
+    assert loadout.runes.perk_ids == (8992, 8226, 8210, 8237, 8139, 8106, 5005, 5008, 5001)
+    assert loadout.spells == (4, 12)  # Destello sigue en tu tecla (D)
+    assert loadout.source == "estadísticas de 80 partidas de alto elo (parche 16.22)"
+
+
+async def test_riot_page_is_used_without_stats_or_with_invalid_stats() -> None:
+    no_data = await recommend(game(LUX, "middle", []))
+    assert no_data.source.startswith("recomendación de Riot")
+
+    class BrokenStats:
+        def loadout_for(self, _champion: int, _position: Position) -> StatsLoadout:
+            page = RunePage(8200, 8200, (8992,) * 9)  # runas que ya no existen
+            return StatsLoadout(page, (4, 12), 80, "16.21")
+
+    recommender = LoadoutRecommender(loaded_gamedata(), stats=BrokenStats())
+    loadout = await recommender.recommend(FixtureClient(), game(AHRI, "middle", []), SR)
+    assert loadout is not None and loadout.source.startswith("recomendación de Riot")
+    assert loadout.base is not None and loadout.runes == loadout.base.page
+
+
+async def test_aram_ignores_stats() -> None:
+    stats = FakeStats()
+    recommender = LoadoutRecommender(loaded_gamedata(), stats=stats)
+    await recommender.recommend(FixtureClient(), game(AHRI, "", []), ARAM)
+    assert stats.asked == []  # las estadísticas son de clasificatorias en la Grieta
 
 
 async def test_aram_uses_aram_recommendation() -> None:

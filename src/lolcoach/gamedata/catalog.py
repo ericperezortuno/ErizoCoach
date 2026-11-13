@@ -254,10 +254,16 @@ class GameData:
         return item is not None and item.buyable
 
     def champion_id_by_alias(self, alias: str) -> int:
-        """Id a partir de la clave interna ("Kaisa", "DrMundo"...); 0 si no existe."""
-        if len(self._alias_index) != len(self._champions):
-            self._alias_index = {c.alias.lower(): c.id for c in self._champions.values()}
-        return self._alias_index.get(alias.lower(), 0)
+        """Id a partir de la clave interna ("Kaisa", "DrMundo"...) o del nombre visible
+        ("Kai'Sa", "Dr. Mundo"); 0 si no existe."""
+        if not self._alias_index and self._champions:
+            index: dict[str, int] = {}
+            for champion in self._champions.values():
+                index.setdefault(_normalized(champion.name), champion.id)
+            for champion in self._champions.values():  # la clave interna manda
+                index[_normalized(champion.alias)] = champion.id
+            self._alias_index = index
+        return self._alias_index.get(_normalized(alias), 0)
 
     # --- Consultas al cliente (con caché) ------------------------------------------
 
@@ -361,3 +367,8 @@ def _parse_positions(raw: Any) -> dict[int, tuple[Position, ...]]:
         if parsed:
             positions[as_int(key)] = parsed
     return positions
+
+
+def _normalized(name: str) -> str:
+    """ "Kai'Sa" -> "kaisa", "Dr. Mundo" -> "drmundo": para comparar claves y nombres."""
+    return "".join(ch for ch in name.casefold() if ch.isalnum())

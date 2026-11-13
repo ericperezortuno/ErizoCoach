@@ -148,3 +148,7 @@ main { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 12px;
 .footer .version { margin-left: auto; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
 .dot.on { background: var(--green); }
+
+.card.notice { border-color: var(--red); }
+.card.notice h2 { color: var(--red); }
+.empty .stats { margin-top: 14px; }

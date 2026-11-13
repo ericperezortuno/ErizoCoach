@@ -119,6 +119,14 @@ class LiveGameEnded:
 
 
 @dataclass(frozen=True, slots=True)
+class StatsStatus:
+    """Estado de la descarga automática de estadísticas (para la consola y la ventana)."""
+
+    text: str
+    problem: bool = False  # algo que tienes que resolver tú (p. ej., la clave ha caducado)
+
+
+@dataclass(frozen=True, slots=True)
 class LoadoutApplied:
     loadout: Loadout
     page_name: str | None  # página de runas usada (None si no se aplicaron runas)

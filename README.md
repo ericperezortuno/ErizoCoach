@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: Fase 5 (builds con estadísticas reales de alto elo)
+## Estado: v0.6.0 (runas, hechizos y builds con estadísticas reales de alto elo)
 
 ### Lo que hace
 
@@ -13,8 +13,9 @@ dice en tu segundo monitor qué comprar y quién va fuerte.
 - **Sigue la selección de campeones en tiempo real**: tu posición, quién bloquea qué campeón,
   baneos, intercambios, dodges y el momento en que **se hace el último pick**.
 - **Al hacerse el último pick, te pone las runas y los hechizos** (en el mismo segundo):
-  1. **Base**: la recomendación oficial de Riot para tu campeón, posición y mapa (se
-     actualiza sola con cada parche).
+  1. **Base**: las runas y hechizos que más usan los jugadores de alto elo con tu campeón
+     y posición (si hay estadísticas suficientes, ver abajo); si no, la recomendación
+     oficial de Riot para tu campeón, posición y mapa (se actualiza sola con cada parche).
   2. **Rival de línea por probabilidad**: se prueban todos los repartos posibles de los
      enemigos en las líneas según las posiciones habituales de cada campeón.
   3. **Ajustes explicados**, solo cuando hay un motivo claro:
@@ -87,20 +88,27 @@ quedan como respaldo para campeones con pocos datos y para ARAM.
 ### Builds con estadísticas reales (API oficial de Riot)
 
 1. **Clave**: consigue tu clave gratuita en [developer.riotgames.com](https://developer.riotgames.com)
-   (*Development API Key*; caduca cada 24 h, o pide una *Personal API Key* que no caduca) y
-   guárdala con `uv run lolcoach stats clave`. Se pide sin mostrarse y se guarda **cifrada en el
-   Administrador de credenciales de Windows**. Nunca aparece en pantalla ni en los registros.
-2. **Descarga**: `uv run lolcoach stats descargar` (2 horas por defecto, unas 1.500 partidas por
-   hora). Recorre jugadores Challenger, Gran Maestro y Maestro de tu región, toma sus partidas
-   clasificatorias del parche actual y guarda de cada jugador solo campeón, posición, resultado y
-   compras en orden (**sin nombres, Riot ID ni identificadores**). Respeta los límites de Riot,
-   no repite partidas y se puede parar con Ctrl+C y continuar otro día.
-3. **Uso**: al abrir LoL Coach con el cliente, se prepara la build más habitual de cada campeón y
-   posición (inicio, botas, los 3 primeros objetos **en su orden real** y los siguientes). Con
-   20 partidas o más sustituye a la de reglas; la adaptación a los enemigos se aplica encima.
-   Si el parche es muy nuevo y aún hay pocas partidas, usa las del anterior.
+   y guárdala con `uv run lolcoach stats clave`. Se pide sin mostrarse y se guarda **cifrada en
+   el Administrador de credenciales de Windows**. Nunca aparece en pantalla ni en los registros.
+   La de desarrollo caduca cada 24 h; para no renovarla, pide una clave personal siguiendo
+   [docs/clave-personal-riot.md](docs/clave-personal-riot.md).
+2. **Descarga automática**: con la app abierta, descarga sola en segundo plano (unas 1.500
+   partidas por hora) hasta tener 3.000 partidas del parche. **Se pausa en la selección de
+   campeones y durante la partida** y sigue al volver al menú. Recorre jugadores Challenger,
+   Gran Maestro y Maestro de tu región, toma sus partidas clasificatorias del parche actual y
+   guarda de cada jugador solo campeón, posición, resultado, compras en orden, runas y hechizos
+   (**sin nombres, Riot ID ni identificadores**). Respeta los límites de Riot y no repite
+   partidas. Con un parche nuevo vuelve a empezar y borra los parches viejos. Si la clave
+   caduca, te avisa en la ventana. También se puede lanzar a mano con
+   `uv run lolcoach stats descargar` (con la app cerrada).
+3. **Uso**: tras cada tanda de descarga se recalcula, sin reiniciar, la build más habitual de
+   cada campeón y posición (inicio, botas, los 3 primeros objetos **en su orden real** y los
+   siguientes), sus runas (la piedra angular más elegida y, entre quienes la llevan, lo más
+   elegido de cada fila) y sus hechizos. Con 20 partidas o más sustituyen a las reglas y a la
+   recomendación de Riot; los ajustes contra los enemigos se aplican encima. Si el parche es
+   muy nuevo y aún hay pocas partidas, usa las del anterior.
 
-La consola y la ventana indican de dónde sale cada build, por ejemplo
+La consola y la ventana indican de dónde salen las runas y la build, por ejemplo
 «estadísticas de 143 partidas de alto elo (parche 16.22)».
 
 **Tus conjuntos de objetos están a salvo**: el cliente solo permite reemplazar la lista
@@ -198,6 +206,8 @@ window_on_top = false       # true = ventana siempre encima
 live_poll_interval = 3  # segundos entre lecturas de la partida (1-10)
 riot_region = "euw1"    # región de las estadísticas: euw1, eun1, tr1, na1, kr
 stats_min_games = 20    # partidas mínimas para usar la build de estadísticas (5-500)
+stats_auto_download = true   # descargar estadísticas solo, con la app abierta
+stats_target_matches = 3000  # partidas por parche a partir de las que se para (200-50000)
 ```
 
 ## Seguridad y normas de Riot
@@ -234,7 +244,8 @@ src/lolcoach/
   loadout/             Fase 2: posiciones, reglas, recomendación y aplicación de runas/hechizos
   builds/              Fase 3: tipos de campeón, builds base, adaptación y conjunto de objetos
   ingame/              Fase 4: lectura de la partida en vivo, quién va fuerte y qué comprar
-  stats/               Fase 5: clave, API de Riot, descarga, agregación y fuente de builds
+  stats/               Fase 5: clave, API de Riot, descarga (también automática), agregación
+                       y fuente de builds, runas y hechizos
   ui/console.py        Mensajes en consola
   ui/desktop.py        Ventana de escritorio (pywebview) y puente directo con la app
   ui/web/              Interfaz (HTML/CSS/JS), presentador, iconos, servidor de respaldo y demo
@@ -242,6 +253,7 @@ assets/                Icono de la aplicación (generado con scripts/make_icon.p
 packaging/             Especificación de PyInstaller e información de versión del .exe
 scripts/               Construir el .exe, instalarlo con accesos directos y generar el icono
 tests/                 Pruebas automáticas: cliente de LoL simulado y datos reales del parche
+docs/                  Guías (p. ej., cómo pedir la clave personal de Riot)
 ```
 
 Cada fase nueva se engancha a los eventos existentes (`PicksFinalized`,
@@ -264,4 +276,5 @@ uv run ruff check .    # revisión de estilo y errores comunes
 3. **Build inicial en la tienda, adaptada a la composición enemiga** ✅
 4. **Ventana en el segundo monitor durante la partida: quién va fuerte y qué comprar** ✅
 5. **Builds afinadas con estadísticas reales de alto elo (API oficial de Riot)** ✅
-6. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas, pulido visual.
+6. **Runas y hechizos de alto elo, descarga automática y guía de clave personal** ✅
+7. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas, pulido visual.

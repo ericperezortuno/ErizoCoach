@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import dataclasses
+import json
+import sqlite3
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -16,7 +19,7 @@ from lolcoach.models import Position
 from lolcoach.stats import keystore
 from lolcoach.stats.aggregate import ChampionStats, aggregate, load_stats, save_stats
 from lolcoach.stats.crawler import Crawler
-from lolcoach.stats.extract import extract_builds, patch_of
+from lolcoach.stats.extract import PlayerBuild, extract_builds, extract_loadout, patch_of
 from lolcoach.stats.riot_api import (
     RateLimiter,
     RiotApiClient,
@@ -28,7 +31,7 @@ from lolcoach.stats.service import prepare_stats
 from lolcoach.stats.source import StatsBuildSource
 from lolcoach.stats.store import MatchStore
 
-from .fake_riot_api import API_KEY, FakeRiotApi, build_match
+from .fake_riot_api import AHRI_RUNES, API_KEY, FakeRiotApi, build_match
 from .gamedata_fixture import FixtureClient, loaded_gamedata
 
 AHRI, ZED = 103, 238
@@ -116,6 +119,23 @@ async def test_rate_limiter_never_exceeds_the_limits() -> None:
 # --- Cliente de la API ----------------------------------------------------------------------
 
 
+async def test_rate_limiter_remembers_requests_when_limits_change() -> None:
+    now = [0.0]
+    waits: list[float] = []
+
+    async def fake_sleep(seconds: float) -> None:
+        waits.append(seconds)
+        now[0] += seconds
+
+    limiter = RateLimiter(((100, 120.0), (20, 1.0)), clock=lambda: now[0], sleep=fake_sleep)
+    for _ in range(100):
+        await limiter.acquire()
+        now[0] += 0.06
+    limiter.set_limits(((20, 1.0), (100, 120.0)))  # Riot los da en otro orden
+    await limiter.acquire()
+    assert waits and sum(waits) > 100  # la petición 101 espera a que pasen los 2 minutos
+
+
 async def test_key_goes_in_a_header_never_in_the_url(riot: FakeRiotApi) -> None:
     async with client(riot) as api:
         await api.platform_status()
@@ -165,6 +185,21 @@ def test_extract_builds_keeps_order_and_undoes_cancelled_purchases() -> None:
     assert patch_of("16.22.834.8910") == "16.22"
 
 
+def test_runes_and_spells_are_extracted_in_client_order() -> None:
+    match, timeline = build_match("EUW1_1", "16.22.834.8910")
+    ahri = next(b for b in extract_builds(match, timeline) if b.champion_id == AHRI)
+    assert ahri.runes == AHRI_RUNES and ahri.spells == (4, 14) and ahri.has_loadout
+    assert PlayerBuild.from_json(ahri.to_json()) == ahri
+
+
+def test_broken_runes_are_ignored() -> None:
+    participant = build_match("EUW1_1", "16.22.834.8910")[0]["info"]["participants"][2]
+    broken = participant | {"perks": {"styles": [], "statPerks": {}}, "summoner2Id": 0}
+    assert extract_loadout(broken) == ((), ())
+    old = PlayerBuild(AHRI, "MIDDLE", True, ((5, 1056),))  # guardada con la v0.5.0
+    assert "r" not in old.to_json() and not PlayerBuild.from_json(old.to_json()).has_loadout
+
+
 def test_short_games_are_ignored() -> None:
     match, timeline = build_match("EUW1_X", "16.22.834.8910", duration=300)
     assert extract_builds(match, timeline) == []
@@ -198,6 +233,58 @@ async def test_crawler_downloads_current_patch_once(riot: FakeRiotApi, tmp_path:
 
     database = (tmp_path / "matches.sqlite3").read_bytes()
     assert b"puuid-secreto" not in database and b"Jugador" not in database
+    store.close()
+
+
+async def test_old_matches_are_completed_with_runes(riot: FakeRiotApi, tmp_path: Path) -> None:
+    """Partidas descargadas con la v0.5.0 (sin runas): se completan pidiendo solo el detalle."""
+    path = tmp_path / "matches.sqlite3"
+    match, timeline = build_match("EUW1_0000", "16.22.834.8910")
+    old_builds = [PlayerBuild(b.champion_id, b.position, b.win, b.purchases, b.final_items)
+                  for b in extract_builds(match, timeline)]  # fmt: skip
+    with sqlite3.connect(path) as db:  # base de datos con el formato de la v0.5.0
+        db.execute("CREATE TABLE matches (match_id TEXT PRIMARY KEY, patch TEXT NOT NULL, "
+                   "collected_at INTEGER NOT NULL, builds TEXT)")  # fmt: skip
+        payload = json.dumps([b.to_json() for b in old_builds])
+        db.execute("INSERT INTO matches VALUES ('EUW1_0000', '16.22', 0, ?)", (payload,))
+    db.close()
+
+    store = MatchStore(path)
+    assert store.matches_without_loadout("16.22") == ["EUW1_0000"]
+    assert store.loadout_count("16.22") == 0
+    async with client(riot) as api:
+        progress = await Crawler(api, store, patch="16.22", max_matches=0).run()
+    assert progress.completed == 1
+    assert not any("EUW1_0000/timeline" in r for r in riot.requests)  # sin gastar de más
+    assert store.matches_without_loadout("16.22") == [] and store.loadout_count("16.22") == 1
+    ahri = next(b for b in store.match_builds("EUW1_0000") if b.champion_id == AHRI)
+    assert ahri.runes == AHRI_RUNES and ahri.purchases == old_builds[2].purchases
+    store.close()
+
+
+async def test_backfill_keeps_matches_pending_without_connection(
+    riot: FakeRiotApi, tmp_path: Path
+) -> None:
+    store = MatchStore(tmp_path / "matches.sqlite3")
+    match, timeline = build_match("EUW1_0000", "16.22.834.8910")
+    store.add_match("EUW1_0000", "16.22", extract_builds(match, timeline))
+    store._db.execute("UPDATE matches SET detail = 1")  # como si fuera de la v0.5.0
+    store._db.commit()
+    riot.unavailable = True  # Riot caído
+    async with client(riot) as api:
+        with pytest.raises(RiotApiError):
+            await Crawler(api, store, patch="16.22", max_matches=0).run()
+    assert store.matches_without_loadout("16.22") == ["EUW1_0000"]  # se reintentará
+    store.close()
+
+
+def test_prune_keeps_recent_patches(tmp_path: Path) -> None:
+    store = MatchStore(tmp_path / "matches.sqlite3")
+    for patch in ("16.20", "16.21", "16.22"):
+        match, timeline = build_match(f"EUW1_{patch}", f"{patch}.1.1")
+        store.add_match(f"EUW1_{patch}", patch, extract_builds(match, timeline))
+    assert store.prune(keep_from="16.21") == 1
+    assert [p for p, _ in store.patches()] == ["16.22", "16.21"]
     store.close()
 
 
@@ -243,6 +330,27 @@ def test_aggregate_finds_the_real_build() -> None:
     assert 3135 in ahri.extra and 3157 not in ahri.extra and 3802 not in ahri.core
     zed = stats[(ZED, "MIDDLE")]
     assert zed.core == (3142, 6697, 6694) and zed.boots == 3158
+
+
+def test_aggregate_finds_the_real_runes_and_spells() -> None:
+    stats = aggregate(sample_builds(), loaded_gamedata().item)
+    ahri = stats[(AHRI, "MIDDLE")]
+    assert ahri.loadout_games == 6 and ahri.runes == AHRI_RUNES and ahri.spells == (4, 14)
+
+
+def test_rune_page_follows_the_most_played_keystone() -> None:
+    def game(runes: tuple[int, ...], spells: tuple[int, int]) -> PlayerBuild:
+        return PlayerBuild(AHRI, "MIDDLE", True, (), (), runes, spells)
+
+    comet = (8200, 8100, 8229, 8226, 8210, 8237, 8139, 8106, 5008, 5008, 5001)
+    electrocute = AHRI_RUNES
+    variant = (*AHRI_RUNES[:3], 8126, 8140, 8106, 8226, 8210, 5005, 5008, 5011)
+    games = [game(electrocute, (4, 14))] * 3 + [game(variant, (14, 4))] * 2
+    games += [game(comet, (4, 12))] * 4  # Cometa es la página más repetida, pero no la angular
+    stats = aggregate(games, loaded_gamedata().item)[(AHRI, "MIDDLE")]
+    # Electrocutar (5 de 9); en cada fila, lo más elegido entre quienes llevan Electrocutar
+    assert stats.runes == (8100, 8200, 8112, 8139, 8140, 8106, 8226, 8210, 5005, 5008, 5001)
+    assert stats.spells == (4, 14)  # Destello + Prender, en el orden de teclas más habitual
 
 
 def test_stats_file_round_trip(tmp_path: Path) -> None:
@@ -311,6 +419,19 @@ async def test_without_assigned_position_the_build_uses_the_stats_position() -> 
     assigned = await recommender.recommend_for(FixtureClient(), AHRI, Position.MIDDLE, [], 11)
     assert assigned is not None and assigned.position == Position.MIDDLE  # la asignada manda
     assert assigned.source == "reglas"  # sin datos de Ahri en medio
+
+
+def test_stats_loadout_needs_enough_games_with_runes() -> None:
+    entry = stats_entry(AHRI, "MIDDLE", 40)
+    with_runes = dataclasses.replace(entry, loadout_games=25, runes=AHRI_RUNES, spells=(4, 14))
+    source = StatsBuildSource(min_games=20)
+    source.update("16.22", 500, {(AHRI, "MIDDLE"): with_runes})
+    found = source.loadout_for(AHRI, Position.MIDDLE)
+    assert found is not None and found.games == 25 and found.patch == "16.22"
+    assert found.page.perk_ids == AHRI_RUNES[2:] and found.spells == (4, 14)
+    few = dataclasses.replace(with_runes, loadout_games=5)  # partidas antiguas sin runas
+    source.update("16.22", 500, {(AHRI, "MIDDLE"): few})
+    assert source.loadout_for(AHRI, Position.MIDDLE) is None
 
 
 def test_rules_are_used_without_enough_data_or_outside_the_rift() -> None:

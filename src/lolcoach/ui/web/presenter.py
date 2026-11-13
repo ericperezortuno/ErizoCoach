@@ -22,6 +22,7 @@ from ...events import (
     LiveGameUpdated,
     LoadoutReady,
     PicksFinalized,
+    StatsStatus,
 )
 from ...gamedata.catalog import DamageType, GameData
 from ...gamedata.runes import PRIMARY_INDEXES, SECONDARY_INDEXES, SHARD_INDEXES
@@ -54,6 +55,7 @@ class UiPresenter:
             "loadout": None,
             "build": None,
             "game": None,
+            "stats": None,  # estado de la descarga automática de estadísticas
         }
         bus.subscribe(ClientConnected, self._on_connected)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -64,6 +66,7 @@ class UiPresenter:
         bus.subscribe(BuildReady, self._on_build)
         bus.subscribe(LiveGameUpdated, self._on_live)
         bus.subscribe(LiveGameEnded, self._on_live_ended)
+        bus.subscribe(StatsStatus, self._on_stats)
 
     @property
     def state(self) -> State:
@@ -106,6 +109,9 @@ class UiPresenter:
 
     # --- Runas y build ----------------------------------------------------------------
 
+    async def _on_stats(self, event: StatsStatus) -> None:
+        await self._set(stats={"text": event.text, "problem": event.problem})
+
     async def _on_loadout(self, event: LoadoutReady) -> None:
         await self._set(loadout=self._loadout(event.loadout))
 
@@ -137,6 +143,7 @@ class UiPresenter:
             ),
             "adjustments": list(loadout.adjustments),
             "notes": list(loadout.notes),
+            "source": loadout.source,
         }
 
     def _build(self, plan: BuildPlan) -> State:

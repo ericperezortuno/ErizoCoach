@@ -3,9 +3,12 @@
 Recorrido:
 
 1. Ligas Challenger, Gran Maestro y Maestro de tu región -> jugadores.
-2. Para cada jugador, sus últimas partidas clasificatorias en solitario.
-3. Para cada partida nueva del parche actual: detalle + línea temporal
-   (2 peticiones) -> builds de sus 10 jugadores, guardadas al momento.
+2. Partidas del parche guardadas sin runas ni hechizos (versión 0.5.0): se
+   vuelve a pedir su detalle (1 petición) para completarlas.
+3. Para cada jugador, sus últimas partidas clasificatorias en solitario.
+4. Para cada partida nueva del parche actual: detalle + línea temporal
+   (2 peticiones) -> builds, runas y hechizos de sus 10 jugadores, guardados al
+   momento.
 
 Las partidas ya descargadas no se vuelven a pedir, y al llegar a partidas de un
 parche anterior se pasa al siguiente jugador. Con una clave de desarrollo
@@ -19,7 +22,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from .extract import extract_builds, match_patch, patch_key
+from .extract import attach_loadouts, extract_builds, match_patch, patch_key
 from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
 from .store import MatchStore
 
@@ -34,6 +37,7 @@ MATCHES_PER_PLAYER = 20
 class CrawlProgress:
     patch: str = ""
     new_matches: int = 0  # partidas del parche guardadas en esta sesión
+    completed: int = 0  # partidas antiguas completadas con runas y hechizos
     skipped: int = 0  # de otros parches o demasiado cortas
     players: int = 0
     requests: int = 0
@@ -43,6 +47,11 @@ class CrawlProgress:
     @property
     def elapsed(self) -> float:
         return time.monotonic() - self.started
+
+
+def is_temporary(exc: RiotApiError) -> bool:
+    """Errores que se arreglan solos (sin conexión, demasiadas peticiones, Riot caído)."""
+    return exc.status == 0 or exc.status == 429 or exc.status >= 500
 
 
 class Crawler:
@@ -68,6 +77,7 @@ class Crawler:
 
     async def run(self) -> CrawlProgress:
         await self._refresh_players()
+        await self._complete_loadouts()
         for player_id in self._store.players_to_crawl():
             if self._should_stop():
                 break
@@ -83,10 +93,39 @@ class Crawler:
         if self._max_matches is not None and self.progress.new_matches >= self._max_matches:
             self.progress.stopped_reason = f"alcanzadas {self._max_matches} partidas"
             return True
+        return self._out_of_time()
+
+    def _out_of_time(self) -> bool:
         if self._max_seconds is not None and self.progress.elapsed >= self._max_seconds:
             self.progress.stopped_reason = "tiempo agotado"
             return True
         return False
+
+    async def _complete_loadouts(self) -> None:
+        """Añade runas y hechizos a las partidas que se guardaron sin ellos."""
+        patch = self._patch or max((p for p, _ in self._store.patches()), key=patch_key, default="")
+        if not patch:
+            return
+        self.progress.patch = patch
+        while pending := self._store.matches_without_loadout(patch):
+            for match_id in pending:
+                if self._out_of_time():  # el límite de partidas es para las nuevas
+                    return
+                try:
+                    match = await self._api.match(match_id)
+                except RiotApiKeyError:
+                    raise
+                except RiotApiError as exc:
+                    if is_temporary(exc):
+                        raise  # sin conexión o Riot saturado: se reintenta más tarde
+                    log.debug("No se pudo completar la partida %s: %s", match_id, exc)
+                    self._store.complete_loadout(match_id, None)  # ya no existe: se deja así
+                    continue
+                builds = attach_loadouts(self._store.match_builds(match_id), match)
+                self._store.complete_loadout(match_id, builds)
+                self.progress.completed += 1
+                self.progress.requests = self._api.requests
+                self._on_progress(self.progress)
 
     async def _refresh_players(self) -> None:
         last = float(self._store.get_meta("players_refreshed") or 0)

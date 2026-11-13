@@ -25,6 +25,7 @@ from .models import GameflowPhase
 from .monitor import ClientMonitor
 from .stats.service import StatsService
 from .stats.source import StatsBuildSource
+from .stats.updater import StatsUpdater
 from .ui.console import ConsoleReporter
 from .ui.labels import GAMEFLOW_LABELS
 from .ui.web.demo import publish_demo
@@ -72,11 +73,13 @@ class Application:
         self.build_source = StatsBuildSource(min_games=settings.stats_min_games)
         hint = self.build_source.best_position
         self.loadout = LoadoutService(
-            self.bus, self.connector, self.gamedata, settings, position_hint=hint
-        )
+            self.bus, self.connector, self.gamedata, settings,
+            position_hint=hint, stats=self.build_source,
+        )  # fmt: skip
         self.stats = StatsService(
             self.connector, self.gamedata, self.build_source, settings.stats_dir
         )
+        self.stats_updater = StatsUpdater(self.bus, self.connector, self.stats, settings)
         self.builds = BuildService(
             self.bus,
             self.connector,
