@@ -1,154 +1,823 @@
+/* LoL Coach · vidrio líquido sobre el azul hextech de League.
+ *
+ * Rendimiento: el fondo es estático (sin animaciones continuas) para que el desenfoque
+ * del vidrio solo se recalcule al desplazar la ventana o al cambiar el contenido.
+ * Solo hay vidrio real (backdrop-filter) en la cabecera y en las tarjetas; nunca anidado.
+ */
+
 :root {
-  --bg: #091428;
-  --panel: #0f1d33;
-  --panel-2: #13243d;
-  --border: #1f3350;
-  --gold: #c8aa6e;
-  --gold-soft: #785a28;
-  --text: #f0e6d2;
-  --muted: #8d9db5;
-  --red: #e84057;
-  --orange: #f0a330;
-  --green: #3fb68b;
-  --blue: #4a9ee8;
-  --radius: 8px;
   color-scheme: dark;
+
+  /* Paleta */
+  --abyss: #060d1c;        /* fondo de la ventana (igual que BACKGROUND en desktop.py) */
+  --navy: #0c1b35;         /* tinte del vidrio */
+  --gold: #c8aa6e;         /* dorado de League */
+  --gold-bright: #f2dfae;  /* brillo especular, cifras de oro */
+  --gold-deep: #7a5b26;
+  --text: #f0e6d2;         /* pergamino */
+  --muted: #a9b7cc;        /* texto secundario (AA sobre el vidrio) */
+  --muted-strong: #c5d0e0; /* secundario sobre etiquetas translúcidas */
+  --red: #ff5d6e;          /* va muy fuerte */
+  --orange: #ffad42;       /* va fuerte */
+  --blue: #62afff;         /* va por detrás */
+  --blue-text: #9cceff;
+  --green: #4fd6a2;        /* comprado / te llega el oro */
+
+  /* Vidrio */
+  --glass-tint: rgba(13, 28, 54, .58);
+  --glass-sheen: linear-gradient(155deg, rgba(255, 255, 255, .085), rgba(255, 255, 255, .02) 42%, rgba(255, 255, 255, 0) 70%);
+  --glass-edge: linear-gradient(160deg, rgba(255, 255, 255, .34), rgba(255, 255, 255, .07) 32%, rgba(255, 255, 255, .03) 62%, rgba(200, 170, 110, .26));
+  --glass-blur: blur(12px) saturate(170%);
+  --glass-shadow: 0 12px 32px -10px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .22);
+  --glass-inner: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 -1px 0 rgba(0, 0, 0, .28);
+
+  /* Radios encajados: cada nivel = el de fuera menos su relleno */
+  --r-lens: 26px;
+  --r-card: 20px;
+  --r-row: 12px;
+  --r-icon: 9px;
+
+  /* Tipografía del sistema (Segoe UI Variable con su tamaño óptico) */
+  --font-text: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --font-small: "Segoe UI Variable Small", "Segoe UI", system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
 
-html, body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font: 14px/1.4 "Segoe UI", system-ui, sans-serif;
+html {
+  background: var(--abyss);
   min-height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200, 170, 110, .35) transparent;
 }
 
-body { display: flex; flex-direction: column; min-height: 100vh; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--abyss);
+  color: var(--text);
+  font: 400 14px/1.45 var(--font-text);
+  -webkit-font-smoothing: antialiased;
+  isolation: isolate;
+}
+
+/* --- Escena: luces y anillo hextech que el vidrio refracta (estática) ------------ */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+  background:
+    radial-gradient(circle at 10% 6%, rgba(214, 178, 110, .40) 0, rgba(214, 178, 110, .14) 150px, transparent 320px),
+    radial-gradient(circle at 98% 48%, rgba(40, 120, 235, .40) 0, rgba(40, 120, 235, .13) 190px, transparent 380px),
+    radial-gradient(circle at 6% 94%, rgba(12, 160, 180, .24) 0, transparent 340px),
+    linear-gradient(180deg, #0a1832 0%, var(--abyss) 65%);
+}
+
+/* Anillo con marcas, como los círculos rúnicos del cliente. */
+.scene::before,
+.scene::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+
+.scene::before {
+  width: 640px;
+  height: 640px;
+  right: -330px;
+  top: 70px;
+  background: radial-gradient(circle closest-side,
+    transparent 0 59%,
+    rgba(200, 170, 110, .10) 59.3% 63.8%,
+    rgba(242, 223, 174, .70) 64% 64.7%,
+    transparent 65% 73.5%,
+    rgba(200, 170, 110, .40) 73.8% 78%,
+    transparent 78.3% 92%,
+    rgba(242, 223, 174, .50) 92.3% 93.1%,
+    transparent 93.4%);
+}
+
+.scene::after {
+  width: 640px;
+  height: 640px;
+  right: -330px;
+  top: 70px;
+  background: repeating-conic-gradient(rgba(242, 223, 174, .38) 0 .8deg, transparent .8deg 7.5deg);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 0 83%, #000 83.3% 88%, transparent 88.3%);
+  mask: radial-gradient(circle closest-side, transparent 0 83%, #000 83.3% 88%, transparent 88.3%);
+}
+
+/* --- Vidrio --------------------------------------------------------------------------- */
+
+.topbar,
+.card {
+  position: relative;
+  background: var(--glass-sheen), var(--glass-tint);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+}
+
+/* Borde especular: más brillante arriba a la izquierda, un toque dorado abajo. */
+.topbar::before,
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--glass-edge);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* --- Cabecera flotante -------------------------------------------------------------- */
 
 .topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px;
-  background: linear-gradient(180deg, #0c1a30, var(--bg));
-  border-bottom: 1px solid var(--gold-soft);
-  position: sticky; top: 0; z-index: 2;
-}
-.brand { font-weight: 700; letter-spacing: .04em; color: var(--gold); display: flex; align-items: center; gap: 8px; }
-.logo { width: 12px; height: 12px; transform: rotate(45deg); border: 2px solid var(--gold); display: inline-block; }
-.status { display: flex; align-items: center; gap: 10px; }
-.clock { font-variant-numeric: tabular-nums; color: var(--muted); }
-.pill {
-  font-size: 12px; padding: 3px 10px; border-radius: 999px;
-  background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+  margin: 8px 10px 0;
+  padding: 7px 8px 7px 14px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-main { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.brand {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font: 600 15px/1 var(--font-display);
+  color: var(--gold-bright);
+  white-space: nowrap;
+}
+
+.logo {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold) 45%, var(--gold-deep));
+  box-shadow: inset 0 0 0 3px #0b1830, 0 0 8px rgba(200, 170, 110, .45);
+  flex: none;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.clock {
+  font: 600 16px/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.clock:empty { display: none; }
+
+.pill {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 600 12px/1.2 var(--font-small);
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--text);
+  background: rgba(255, 255, 255, .08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10);
+}
+
+/* --- Distribución -------------------------------------------------------------------- */
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 12px 10px 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+  align-content: start;
+  align-items: start;
+  gap: 12px;
+}
+
+main > .wide { grid-column: 1 / -1; }
+
+/* --- Tarjetas ----------------------------------------------------------------------- */
 
 .card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px;
+  border-radius: var(--r-card);
+  padding: 14px 16px 16px;
+  min-width: 0;
 }
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+
 .card h2 {
-  margin: 0 0 10px; font-size: 12px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .08em; color: var(--gold);
+  margin: 0;
+  font: 600 16px/1.25 var(--font-display);
+  color: var(--gold);
 }
+
+.card-head .extra {
+  font: 400 12px/1.3 var(--font-small);
+  color: var(--muted);
+}
+
+.origin {
+  margin: -4px 0 12px;
+}
+
 .muted { color: var(--muted); }
-.small { font-size: 12px; }
+.small { font: 400 12px/1.4 var(--font-small); }
 
-/* Iconos */
+/* La lente: la tarjeta principal de cada pantalla (compra ahora o tu campeón). */
+.card.lens {
+  border-radius: var(--r-lens);
+  padding: 16px 18px 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 70% at 0% 0%, rgba(200, 170, 110, .22), transparent 62%),
+    radial-gradient(50% 30% at 28% 0%, rgba(255, 255, 255, .10), transparent 70%),
+    var(--glass-sheen),
+    rgba(16, 32, 62, .60);
+}
+
+.card.lens::before {
+  background: linear-gradient(150deg, rgba(242, 223, 174, .85), rgba(200, 170, 110, .30) 30%, rgba(200, 170, 110, .08) 62%, rgba(242, 223, 174, .45));
+}
+
+/* Sobre el brillo dorado de la lente, el dorado normal no llega a AA: va más claro. */
+.card.lens h2 { color: var(--gold-bright); }
+
+.card.lens.ready {
+  box-shadow: var(--glass-shadow), var(--glass-inner), 0 0 30px -6px rgba(200, 170, 110, .55);
+}
+
+/* Un único destello cuando cambia la recomendación (nunca en bucle). */
+.card.lens.fresh::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(242, 223, 174, .18) 45%, rgba(255, 255, 255, .30) 50%, rgba(242, 223, 174, .18) 55%, transparent 70%);
+  transform: translateX(-100%);
+  animation: shine 1.3s cubic-bezier(.3, .6, .3, 1) .15s 1 both;
+}
+
+@keyframes shine {
+  to { transform: translateX(100%); }
+}
+
+/* Halo dorado que late cuando ya te llega el oro (se anima solo su opacidad). */
+.halo {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: inset 0 0 0 1.5px rgba(242, 223, 174, .9), inset 0 0 34px rgba(200, 170, 110, .45);
+}
+
+/* --- Iconos -------------------------------------------------------------------------- */
+
 .icon { position: relative; display: inline-block; flex: none; }
+
 .icon img {
-  display: block; width: 36px; height: 36px; border-radius: 4px;
-  border: 1px solid var(--border); background: var(--panel-2);
+  display: block;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-icon);
+  background: rgba(255, 255, 255, .05);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 2px 6px rgba(0, 0, 0, .35);
+  transition: transform .2s cubic-bezier(.16, 1, .3, 1);
 }
-.icon.big img { width: 56px; height: 56px; border-color: var(--gold-soft); }
-.icon.champ img { border-radius: 50%; width: 38px; height: 38px; }
-.icon.owned img { opacity: .35; }
+
+.icon:hover img { transform: translateY(-2px) scale(1.06); }
+
+.icon.big img {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(242, 223, 174, .70), 0 0 0 4px rgba(200, 170, 110, .18), 0 6px 14px rgba(0, 0, 0, .45);
+}
+
+.icon.champ img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+}
+
+.icon.champ.big img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.icon.owned img {
+  opacity: .42;
+  filter: saturate(.35);
+}
+
 .icon.owned::after {
-  content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;
-  color: var(--green); font-weight: 900; font-size: 18px; text-shadow: 0 0 4px #000;
+  content: "✓";
+  content: "✓" / ""; /* decorativo: el texto alternativo ya dice «comprado» */
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green);
+  color: #04170f;
+  font: 800 12px/1 var(--font-small);
+  box-shadow: 0 0 0 2px var(--navy);
 }
-.icon.next img { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-soft); }
+
+.icon.next img {
+  box-shadow: 0 0 0 2px var(--gold-bright), 0 0 14px rgba(200, 170, 110, .6);
+}
+
 .icon .count {
-  position: absolute; right: 2px; bottom: 0; font-size: 11px; font-weight: 700;
-  text-shadow: 0 0 3px #000, 0 0 3px #000;
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  font: 700 11px/1 var(--font-small);
+  color: var(--text);
+  background: #0b1830;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .18);
 }
-.icons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.arrow { color: var(--muted); font-size: 12px; }
 
-/* Compra ahora */
-.buy { display: flex; gap: 12px; align-items: flex-start; }
-.buy .name { font-size: 17px; font-weight: 700; }
-.buy .reason { color: var(--muted); margin: 2px 0 6px; }
-.ok { color: var(--green); font-weight: 600; }
-.warn { color: var(--orange); font-weight: 600; }
-.components { display: flex; gap: 6px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+.icons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.arrow { color: var(--muted); font-size: 14px; }
 
-/* Jugadores */
-.players { display: flex; flex-direction: column; gap: 6px; }
+/* --- Compra ahora --------------------------------------------------------------------- */
+
+.coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 16px/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--gold-bright);
+}
+
+.coins::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff3cf, var(--gold) 55%, var(--gold-deep));
+  box-shadow: 0 0 6px rgba(200, 170, 110, .5);
+}
+
+.coins small {
+  font: 400 12px/1 var(--font-small);
+  color: var(--muted);
+}
+
+.buy { display: flex; gap: 14px; align-items: flex-start; }
+.buy-body { flex: 1; min-width: 0; max-width: 620px; }
+
+.buy .name,
+.hero .name {
+  font: 600 21px/1.2 var(--font-display);
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.verdict {
+  margin-top: 4px;
+  font: 600 15px/1.3 var(--font-text);
+  transform-origin: left center;
+}
+
+.verdict.ok { color: var(--green); }
+.verdict.warn { color: var(--orange); }
+
+/* Tubo de cristal con oro líquido: cuánto te falta para la próxima compra. */
+.meter {
+  position: relative;
+  height: 10px;
+  margin: 8px 0 10px;
+  border-radius: 999px;
+  background: rgba(3, 8, 20, .55);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .10), 0 1px 0 rgba(255, 255, 255, .06);
+  overflow: hidden;
+}
+
+/* El relleno ocupa todo el tubo y se desplaza (transform): así sube sin recalcular el
+   diseño y su extremo brillante siempre queda en el borde del oro. */
+.meter .fill {
+  position: absolute;
+  inset: 0;
+  transform: translateX(calc((max(var(--p, 0), .03) - 1) * 100%));
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(90deg, var(--gold-deep), var(--gold) 55%, var(--gold-bright));
+  box-shadow: 0 0 10px rgba(200, 170, 110, .55);
+}
+
+.ready .meter .fill {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(90deg, var(--gold), var(--gold-bright) 70%, #d9ffe9);
+}
+
+.reason { color: var(--muted); }
+
+.components {
+  display: flex;
+  gap: 8px 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+/* --- Jugadores ------------------------------------------------------------------------ */
+
+.players { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+
 .player {
-  display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
-  padding: 6px 8px; border-radius: 6px; background: var(--panel-2);
-  border-left: 3px solid transparent;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 10px 7px 14px;
+  border-radius: var(--r-row);
+  background: rgba(255, 255, 255, .035);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
 }
-.player.very_strong { border-left-color: var(--red); }
-.player.strong { border-left-color: var(--orange); }
-.player.behind { border-left-color: var(--blue); }
-.player.dead { opacity: .5; }
-.player .title { display: flex; align-items: center; gap: 6px; font-weight: 600; flex-wrap: wrap; }
-.player .stats { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.player .right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
-.gold { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+/* Barra de luz a la izquierda con el color de cómo va. */
+.player::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 3px;
+  background: transparent;
+}
+
+/* Destello al cambiar de estado (la animación solo toca su opacidad). */
+.player::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(120% 160% at 0% 50%, var(--flash, rgba(255, 255, 255, .16)), transparent 70%);
+  box-shadow: inset 0 0 0 1px var(--flash, rgba(255, 255, 255, .16));
+}
+.player.very_strong { --flash: rgba(255, 93, 110, .6); }
+.player.strong { --flash: rgba(255, 173, 66, .55); }
+.player.behind { --flash: rgba(98, 175, 255, .5); }
+
+.player.very_strong {
+  background: linear-gradient(90deg, rgba(255, 93, 110, .22), rgba(255, 93, 110, .05) 60%, rgba(255, 255, 255, .03));
+  box-shadow: inset 0 0 0 1px rgba(255, 93, 110, .22);
+}
+.player.very_strong::before { background: var(--red); box-shadow: 0 0 8px rgba(255, 93, 110, .7); }
+.player.very_strong .icon.champ img { box-shadow: 0 0 0 2px var(--red); }
+
+.player.strong {
+  background: linear-gradient(90deg, rgba(255, 173, 66, .17), rgba(255, 173, 66, .04) 60%, rgba(255, 255, 255, .03));
+  box-shadow: inset 0 0 0 1px rgba(255, 173, 66, .18);
+}
+.player.strong::before { background: var(--orange); box-shadow: 0 0 8px rgba(255, 173, 66, .6); }
+.player.strong .icon.champ img { box-shadow: 0 0 0 2px var(--orange); }
+
+.player.behind {
+  background: linear-gradient(90deg, rgba(98, 175, 255, .13), rgba(98, 175, 255, .03) 60%, rgba(255, 255, 255, .03));
+}
+.player.behind::before { background: var(--blue); }
+
+.player.dead { opacity: .55; }
+.player.dead .icon.champ img { filter: grayscale(1); }
+
+.player .who { min-width: 0; }
+
+.player .title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font: 600 15px/1.25 var(--font-display);
+}
+
+.player .stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  margin-top: 2px;
+  font: 400 12px/1.35 var(--font-small);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.player .stats .kda { color: var(--text); font-weight: 600; }
+.player .stats .respawn { color: var(--text); }
+
+.player .right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  text-align: right;
+}
+
+.gold {
+  font: 600 12px/1.2 var(--font-small);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  white-space: nowrap;
+}
 .gold.up { color: var(--orange); }
-.gold.down { color: var(--blue); }
+.gold.down { color: var(--blue-text); }
 
 .tag {
-  font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px;
-  text-transform: uppercase; letter-spacing: .04em; background: #1d2f4a; color: var(--muted);
+  font: 600 11px/1 var(--font-small);
+  padding: 3px 6px;
+  border-radius: 6px;
+  color: var(--muted-strong);
+  background: rgba(255, 255, 255, .08);
 }
-.tag.lane { background: var(--gold-soft); color: var(--text); }
-.tag.dmg-ap { background: #2c2350; color: #b9a7ff; }
-.tag.dmg-ad { background: #3d2420; color: #ffb199; }
+.tag.lane { color: var(--gold-bright); background: rgba(200, 170, 110, .20); box-shadow: inset 0 0 0 1px rgba(200, 170, 110, .45); }
+.tag.dmg-ap { color: #cbbfff; background: rgba(140, 112, 255, .20); }
+.tag.dmg-ad { color: #ffc2ad; background: rgba(255, 122, 92, .18); }
 
 .badge {
-  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
-  background: #22324b; color: var(--muted); white-space: nowrap;
+  font: 700 12px/1 var(--font-small);
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  color: var(--muted-strong);
+  background: rgba(255, 255, 255, .07);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
 }
-.badge.very_strong { background: rgba(232, 64, 87, .18); color: var(--red); }
-.badge.strong { background: rgba(240, 163, 48, .18); color: var(--orange); }
-.badge.behind { background: rgba(74, 158, 232, .18); color: var(--blue); }
+.badge.very_strong { color: #2b0509; background: var(--red); box-shadow: 0 0 12px rgba(255, 93, 110, .45); }
+.badge.strong { color: #2b1700; background: var(--orange); }
+.badge.behind { color: var(--blue-text); background: rgba(98, 175, 255, .16); box-shadow: inset 0 0 0 1px rgba(98, 175, 255, .38); }
 
-/* Selección de campeones */
-.hero { display: flex; gap: 12px; align-items: center; }
-.hero .name { font-size: 18px; font-weight: 700; }
-.runes { display: grid; gap: 6px; }
-.runes .keystone { font-size: 16px; font-weight: 700; }
-.runes .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: baseline; }
-.runes .row b { color: var(--gold); font-weight: 600; min-width: 92px; }
+/* --- Selección de campeones ------------------------------------------------------------ */
+
+.hero { display: flex; gap: 16px; align-items: center; }
+
+.hero .icon.champ.big img {
+  box-shadow: 0 0 0 2px var(--gold-bright), 0 0 0 6px rgba(200, 170, 110, .18), 0 8px 18px rgba(0, 0, 0, .5);
+}
+
+.hero .meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.keystone {
+  font: 600 18px/1.25 var(--font-display);
+  color: var(--text);
+}
+
+.keystone small {
+  display: block;
+  margin-top: 1px;
+  font: 400 12px/1.3 var(--font-small);
+  color: var(--muted);
+}
+
+.runes { display: grid; gap: 8px; }
+
+.runes .row {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.runes .row b {
+  font: 600 12px/1.4 var(--font-small);
+  color: var(--gold);
+}
+
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.chip { padding: 2px 8px; border-radius: 4px; background: var(--panel-2); border: 1px solid var(--border); font-size: 12px; }
 
-.list { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
-.list li::marker { color: var(--gold); }
+.chip {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font: 600 12px/1.3 var(--font-small);
+  background: rgba(255, 255, 255, .07);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12);
+}
+
+.list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  list-style-type: "◆  ";
+  color: var(--muted);
+}
+.list li::marker { color: var(--gold); font-size: .75em; }
+
 .situational { display: grid; gap: 8px; }
-.situational .entry { display: flex; gap: 8px; align-items: center; }
+.situational .entry { display: flex; gap: 10px; align-items: center; }
 
-.section-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 8px 0 4px; }
+.section-label {
+  margin: 14px 0 7px;
+  font: 600 12px/1.3 var(--font-small);
+  color: var(--muted);
+}
 
-.empty { text-align: center; padding: 40px 16px; color: var(--muted); }
-.empty .big { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.origin + .section-label { margin-top: 0; }
+
+/* --- Sin partida ----------------------------------------------------------------------- */
+
+.empty {
+  justify-self: center;
+  width: 100%;
+  max-width: 520px;
+  margin-top: 6vh;
+  padding: 28px 22px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Emblema hextech dibujado con CSS (sin imágenes). */
+.emblem {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, transparent 0 66%, rgba(200, 170, 110, .7) 68% 72%, transparent 74% 86%, rgba(242, 223, 174, .45) 88% 91%, transparent 93%);
+}
+
+/* Marcas del emblema: giran un cuarto de vuelta al aparecer (una sola vez). */
+.emblem::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(242, 223, 174, .6) 0 1.4deg, transparent 1.4deg 15deg);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 0 87%, #000 88% 100%);
+  mask: radial-gradient(circle closest-side, transparent 0 87%, #000 88% 100%);
+}
+
+.emblem::after {
+  content: "";
+  position: absolute;
+  inset: 22px;
+  border-radius: 4px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold) 50%, var(--gold-deep));
+  box-shadow: 0 0 14px rgba(200, 170, 110, .55);
+}
+
+.empty .big {
+  margin-bottom: 6px;
+  font: 600 21px/1.25 var(--font-display);
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.empty .hint { max-width: 40ch; margin: 0 auto; }
+
+.empty .stats {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+/* --- Aviso ------------------------------------------------------------------------------ */
+
+.card.notice {
+  background:
+    radial-gradient(90% 80% at 0% 0%, rgba(255, 93, 110, .22), transparent 65%),
+    var(--glass-tint);
+}
+.card.notice::before { background: linear-gradient(160deg, rgba(255, 93, 110, .9), rgba(255, 93, 110, .25) 45%, rgba(255, 93, 110, .5)); }
+.card.notice h2 { color: #ffb3bb; }
+
+/* --- Pie ----------------------------------------------------------------------------------- */
 
 .footer {
-  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
-  border-top: 1px solid var(--border); color: var(--muted); font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px 10px;
+  font: 400 12px/1.3 var(--font-small);
+  color: var(--muted);
 }
-.footer .version { margin-left: auto; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
-.dot.on { background: var(--green); }
 
-.card.notice { border-color: var(--red); }
-.card.notice h2 { color: var(--red); }
-.empty .stats { margin-top: 14px; }
+.footer .version { margin-left: auto; font-variant-numeric: tabular-nums; }
+
+.dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex: none; }
+.dot.on { background: var(--green); box-shadow: 0 0 8px rgba(79, 214, 162, .7); }
+
+/* Al conectar: una onda que se expande una vez. */
+.dot.on::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--green);
+  opacity: 0;
+  animation: ripple 1.2s cubic-bezier(.16, 1, .3, 1) .2s 1;
+}
+
+@keyframes ripple {
+  from { opacity: .9; transform: scale(1); }
+  to { opacity: 0; transform: scale(3.2); }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Preferencias del sistema y respaldos ------------------------------------------------ */
+
+/* Ventana muy estrecha (o con zoom): el nombre cede su sitio a la fase; se sigue leyendo en voz. */
+@media (max-width: 360px) {
+  .brand-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+@media (max-width: 420px) {
+  .topbar { padding-left: 12px; }
+  .card { padding: 12px 13px 14px; }
+  .card.lens { padding: 14px 15px 16px; }
+  .runes .row { grid-template-columns: 80px 1fr; }
+}
+
+/* Reducir movimiento: fuera desplazamientos (destello, onda, elevación); los fundidos
+   cortos que hace app.js se mantienen para que nada aparezca de golpe. */
+@media (prefers-reduced-motion: reduce) {
+  .card.lens.fresh::after,
+  .dot.on::after { animation: none; display: none; }
+  .icon img { transition: none; }
+  .icon:hover img { transform: none; }
+}
+
+/* Sin vidrio (Windows con «Efectos de transparencia» desactivado, o sin soporte). */
+@media (prefers-reduced-transparency: reduce) {
+  .topbar, .card { -webkit-backdrop-filter: none; backdrop-filter: none; background: #0f2041; }
+  .card.lens { background: #142a4f; }
+  .card.notice { background: #2a1426; }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .topbar, .card { background: var(--glass-sheen), rgba(13, 28, 54, .94); }
+}
+
+@media (forced-colors: active) {
+  .topbar, .card { border: 1px solid CanvasText; }
+  .topbar::before, .card::before, .scene { display: none; }
+  .badge, .tag, .chip, .pill { border: 1px solid CanvasText; }
+  .player::before { background: CanvasText; }
+}

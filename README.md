@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.6.0 (runas, hechizos y builds con estadísticas reales de alto elo)
+## Estado: v0.7.0 (diseño liquid glass, con runas, hechizos y builds de alto elo)
 
 ### Lo que hace
 
@@ -140,6 +140,12 @@ primeros 3 minutos no se etiqueta a nadie.
   tienes defensa contra su tipo de daño, el objeto defensivo de tu tipo de campeón va primero.
 - Si alguien que **se cura mucho** va fuerte, la antisanación (su componente barato) va primero.
 - Si se dan las dos, manda la que responde al enemigo más fuerte.
+
+**Diseño**: estilo *liquid glass* con los colores de League (dorado y azul marino):
+tarjetas translúcidas con desenfoque y brillo en los bordes sobre un fondo con profundidad.
+Todo el texto cumple el contraste AA. Las animaciones son cortas y ligeras para no restar
+rendimiento a la partida; se desactivan si Windows tiene reducidos los efectos de movimiento,
+y la transparencia se quita si pides menos transparencia.
 
 Usa la API oficial de Riot de la partida (`127.0.0.1:2999`, verificada con su certificado)
 y **solo información visible en el marcador**: está permitido por las normas de Riot.
@@ -277,4 +283,5 @@ uv run ruff check .    # revisión de estilo y errores comunes
 4. **Ventana en el segundo monitor durante la partida: quién va fuerte y qué comprar** ✅
 5. **Builds afinadas con estadísticas reales de alto elo (API oficial de Riot)** ✅
 6. **Runas y hechizos de alto elo, descarga automática y guía de clave personal** ✅
-7. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas, pulido visual.
+7. **Diseño liquid glass de la ventana** ✅
+8. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.

@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 TITLE = "LoL Coach"
-BACKGROUND = "#091428"
+BACKGROUND = "#060d1c"  # el mismo fondo que --abyss en style.css (sin destello al abrir)
 MIN_SIZE = (380, 480)
 ICON_TIMEOUT = 5.0
 WEBVIEW2_CLIENT_ID = "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"

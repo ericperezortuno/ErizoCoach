@@ -7,14 +7,16 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+  <div class="scene" aria-hidden="true"></div>
   <header class="topbar">
-    <div class="brand"><span class="logo" aria-hidden="true"></span>LoL Coach</div>
+    <h1 class="brand"><span class="logo" aria-hidden="true"></span><span class="brand-name">LoL Coach</span></h1>
     <div class="status">
       <span id="clock" class="clock"></span>
-      <span id="phase" class="pill">Conectando…</span>
+      <span id="phase" class="pill" role="status">Conectando…</span>
     </div>
   </header>
-  <main id="app" aria-live="polite"></main>
+  <main id="app"></main>
+  <div id="announce" class="sr-only" role="status"></div>
   <footer class="footer">
     <span id="connection" class="dot off" aria-hidden="true"></span>
     <span id="connection-text">Conectando con LoL Coach…</span>
