@@ -90,9 +90,7 @@ class RecommendedPage:
     page: RunePage
     spells: tuple[int, ...]
     position: Position
-    keystone_name: str
     descriptor: str  # p. ej. "Daño de combos"
-    recommendation_id: str
 
     @classmethod
     def from_json(cls, data: Any) -> RecommendedPage | None:
@@ -115,9 +113,7 @@ class RecommendedPage:
             ),
             spells=tuple(as_int(s) for s in as_list(raw.get("summonerSpellIds")))[:2],
             position=Position.parse(raw.get("position")),
-            keystone_name=as_str(keystone.get("name")),
             descriptor=as_str(keystone.get("recommendationDescriptor")),
-            recommendation_id=as_str(raw.get("recommendationId")),
         )
 
 

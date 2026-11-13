@@ -130,6 +130,9 @@ ITEM_OVERRIDES: dict[str, dict[str, object]] = {
     "Ezreal": {"core": (3004, 3078, 6694), "extra": (3036, 3026, 3071), "boots": IONIAN},
     "Jhin": {"core": (6676, 3031, 3094), "boots": SWIFTNESS},  # Recaudadora, Filo, Cañón
     "Cassiopeia": {"boots": None},  # no puede comprar botas
+    # Espadachines de críticos (no Fuerza de trinidad): Arcoescudo, Filo infinito, Baile
+    "Yasuo": {"core": (6673, 3031, 6333), "extra": (3026, 3139, 3072), "boots": BERSERKER},
+    "Yone": {"core": (6673, 3031, 6333), "extra": (3026, 3139, 3072), "boots": BERSERKER},
 }
 
 

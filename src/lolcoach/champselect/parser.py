@@ -55,7 +55,6 @@ def parse_session(data: Any) -> ChampSelectSnapshot:
     return ChampSelectSnapshot(
         game_id=as_int(data.get("gameId")),
         phase=ChampSelectPhase.parse(as_dict(data.get("timer")).get("phase")),
-        local_cell_id=local_cell,
         my_team=my_team,
         their_team=their_team,
         ally_bans=ally_bans,
@@ -63,7 +62,6 @@ def parse_session(data: Any) -> ChampSelectSnapshot:
         has_pick_actions=bool(pick_actions),
         all_picks_completed=bool(pick_actions)
         and all(bool(action.get("completed")) for action in pick_actions),
-        is_custom_game=bool(data.get("isCustomGame")),
         bench_enabled=bool(data.get("benchEnabled")),
     )
 
@@ -93,7 +91,6 @@ def _parse_slot(
         champion_id=champion_id,
         locked=locked,
         position=Position.parse(raw.get("assignedPosition")),
-        pick_intent_id=max(as_int(raw.get("championPickIntent")), 0),
         spell1_id=max(as_int(raw.get("spell1Id")), 0),
         spell2_id=max(as_int(raw.get("spell2Id")), 0),
     )

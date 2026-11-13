@@ -25,8 +25,7 @@ from .extract import PlayerBuild, patch_key
 log = logging.getLogger(__name__)
 
 DATABASE = "matches.sqlite3"  # en la carpeta de estadísticas
-DETAIL_ITEMS = 1  # partidas guardadas antes de recoger runas y hechizos
-DETAIL_LOADOUT = 2  # con runas y hechizos
+DETAIL_LOADOUT = 2  # con runas y hechizos (1: guardadas antes de recogerlos, solo objetos)
 BUSY_TIMEOUT = 30  # segundos: la app y la consola pueden usar la base de datos a la vez
 SQLITE_CORRUPT, SQLITE_NOTADB = 11, 26  # códigos de SQLite: base dañada / no es una base
 SIDE_FILES = ("-journal", "-wal", "-shm")  # archivos que acompañan a la base
@@ -99,8 +98,12 @@ CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 
 
 def _connect(path: Path) -> sqlite3.Connection:
-    """Conexión comprobada: lanza ``CorruptDatabaseError`` si la base está dañada."""
-    db = sqlite3.connect(path, timeout=BUSY_TIMEOUT)
+    """Conexión comprobada: lanza ``CorruptDatabaseError`` si la base está dañada.
+
+    Se puede abrir en un hilo y usar en otro (la descarga la abre fuera del bucle de la
+    app, porque la comprobación tarda): cada almacén lo usa una sola tarea a la vez.
+    """
+    db = sqlite3.connect(path, timeout=BUSY_TIMEOUT, check_same_thread=False)
     try:
         _use_rollback_journal(db)
         problems = [str(row[0]) for row in db.execute("PRAGMA quick_check(5)")]

@@ -42,7 +42,9 @@ class RoleSlotBoots:
 
     def update(self, me: LivePlayer, gold: float) -> bool:
         """Registra una lectura. Devuelve True si tienes botas que la API no muestra."""
-        items = Counter({i.item_id: i.count for i in me.items})
+        items: Counter[int] = Counter()
+        for entry in me.items:  # el mismo objeto puede estar en varios huecos
+            items[entry.item_id] += entry.count
         has_boots = any(self._is_boots(i) for i in items)
         if not self.hidden and self._previous is not None and me.position == Position.BOTTOM:
             before, before_gold = self._previous

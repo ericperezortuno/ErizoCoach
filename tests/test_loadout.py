@@ -51,11 +51,9 @@ from .factories import (
 )
 from .gamedata_fixture import FixtureClient, fixture, loaded_gamedata
 
-SR = QueueInfo(440, "Flex", "CLASSIC", "RANKED_FLEX_SR", "TeamBuilderDraftPickStrategy",
-               True, False, 11)  # fmt: skip
-ARAM = QueueInfo(450, "ARAM", "ARAM", "ARAM_UNRANKED_5x5", "AllRandomPickStrategy",
-                 False, False, 12)  # fmt: skip
-ARENA = QueueInfo(1700, "Arena", "CHERRY", "CHERRY", "SimulPickStrategy", False, False, 30)
+SR = QueueInfo(440, "Flex", "CLASSIC", 11)
+ARAM = QueueInfo(450, "ARAM", "ARAM", 12)
+ARENA = QueueInfo(1700, "Arena", "CHERRY", 30)
 STANDARD_ENEMIES = [DARIUS, GRAVES, ZED, KAISA, NAUTILUS]
 
 

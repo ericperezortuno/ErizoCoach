@@ -35,7 +35,6 @@ class PlayerSlot:
     champion_id: int  # 0 = sin campeón (o desconocido, en enemigos de selección a ciegas)
     locked: bool  # True = campeón bloqueado (definitivo salvo intercambio)
     position: Position  # en enemigos siempre NONE: el cliente no lo revela
-    pick_intent_id: int = 0  # campeón "declarado" en la fase de planificación (aliados)
     spell1_id: int = 0
     spell2_id: int = 0
 
@@ -55,14 +54,12 @@ class ChampSelectSnapshot:
 
     game_id: int
     phase: ChampSelectPhase
-    local_cell_id: int
     my_team: tuple[PlayerSlot, ...]
     their_team: tuple[PlayerSlot, ...]
     ally_bans: tuple[int, ...] = ()
     enemy_bans: tuple[int, ...] = ()
     has_pick_actions: bool = True
     all_picks_completed: bool = False
-    is_custom_game: bool = False
     bench_enabled: bool = False  # ARAM: banquillo de campeones
 
     @property

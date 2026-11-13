@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.8.0 (segundo plano, equipos por línea, con runas, hechizos y builds de alto elo)
+## Estado: v0.8.1 (segundo plano, equipos por línea, con runas, hechizos y builds de alto elo)
 
 ### Lo que hace
 

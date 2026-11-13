@@ -100,10 +100,6 @@ class QueueInfo:
     id: int
     name: str
     game_mode: str  # CLASSIC, ARAM, CHERRY...
-    queue_type: str  # RANKED_SOLO_5x5, RANKED_FLEX_SR, NORMAL...
-    pick_mode: str  # TeamBuilderDraftPickStrategy, SimulPickStrategy...
-    is_ranked: bool
-    is_custom: bool
     map_id: int
 
     @classmethod
@@ -117,13 +113,5 @@ class QueueInfo:
             id=as_int(queue.get("id"), -1),
             name=as_str(queue.get("description")) or as_str(queue.get("name")),
             game_mode=as_str(queue.get("gameMode")),
-            queue_type=as_str(queue.get("type")),
-            pick_mode=as_str(queue.get("pickMode")),
-            is_ranked=bool(queue.get("isRanked")),
-            is_custom=bool(game_data.get("isCustomGame") or queue.get("isCustom")),
             map_id=as_int(queue.get("mapId")) or as_int(as_dict(session.get("map")).get("id")),
         )
-
-    @property
-    def is_draft(self) -> bool:
-        return "draft" in self.pick_mode.lower()

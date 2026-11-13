@@ -26,9 +26,9 @@ from lolcoach.models import LANE_POSITIONS, Position, QueueInfo
 from .factories import action, player, session
 from .gamedata_fixture import FixtureClient, loaded_gamedata
 
-SR = QueueInfo(440, "Flex", "CLASSIC", "R", "Draft", True, False, 11)
-ARAM = QueueInfo(450, "ARAM", "ARAM", "A", "AllRandom", False, False, 12)
-ARENA = QueueInfo(1700, "Arena", "CHERRY", "C", "Simul", False, False, 30)
+SR = QueueInfo(440, "Flex", "CLASSIC", 11)
+ARAM = QueueInfo(450, "ARAM", "ARAM", 12)
+ARENA = QueueInfo(1700, "Arena", "CHERRY", 30)
 
 # Campeones (id)
 AHRI, LEBLANC, JINX, SMOLDER, KAISA, VAYNE, ZED, DARIUS, MALPHITE = (
@@ -50,7 +50,6 @@ STANDARD = [DARIUS, GRAVES, ZED, KAISA, NAUTILUS]
 HEALERS = [SORAKA, AATROX, VLADIMIR, JINX, THRESH]
 AP_TEAM = [AHRI, LUX, BRAND, VLADIMIR, MALZAHAR]
 AD_TEAM = [DARIUS, ZED, JINX, GRAVES, YASUO]
-TANKS = [MALPHITE, ORNN, AMUMU, NAUTILUS, LEONA]
 
 
 def game(champion: int, position: str, enemies: list[int]) -> ChampSelectSnapshot:
@@ -211,6 +210,17 @@ async def test_champion_without_boots() -> None:
     plan = await recommend(CASSIO, "middle", STANDARD)
     assert plan.boots is None
     assert len(plan.full) == 6 and not any(loaded_gamedata().item(i).is_boots for i in plan.full)
+
+
+@pytest.mark.parametrize("champion", [157, 777])  # Yasuo, Yone
+async def test_crit_swordsmen_get_their_crit_build(champion: int) -> None:
+    """Sin estadísticas, las reglas les daban Fuerza de trinidad (luchador); en alto elo van
+    Arcoescudo inmortal, Filo infinito y Baile de la muerte con Grebas de berserker."""
+    plan = await BuildRecommender(loaded_gamedata()).recommend_for(
+        FixtureClient(), champion, Position.MIDDLE, [], 11
+    )
+    assert plan is not None
+    assert plan.core == (6673, 3031, 6333) and plan.boots == 3006
 
 
 async def test_support_mage_gets_support_start_and_upgrade() -> None:

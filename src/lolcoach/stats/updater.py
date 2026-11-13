@@ -200,7 +200,9 @@ class StatsUpdater:
 
     async def _download(self, api: RiotApiClient, patch: str) -> bool:
         target = self._settings.stats_target_matches
-        store = MatchStore(self._database)  # si está dañada, la aparta y empieza otra
+        # Abrir (con su comprobación) y podar tardan: fuera del bucle, que la ventana y los
+        # eventos del cliente no esperen. Si está dañada, la aparta y empieza otra.
+        store = await asyncio.to_thread(MatchStore, self._database)
         try:
             if (moved := store.take_quarantine_notice()) is not None:
                 self._warning = (
@@ -208,7 +210,7 @@ class StatsUpdater:
                     f"«{moved}» y las partidas se vuelven a descargar."
                 )
                 self._announced = ""  # que el aviso se vea ya, sin esperar a la tanda
-            _prune(store, patch)
+            await asyncio.to_thread(_prune, store, patch)
             before = store.match_count(patch)
             if before >= target and not store.matches_without_loadout(patch, limit=1):
                 self._warning = ""

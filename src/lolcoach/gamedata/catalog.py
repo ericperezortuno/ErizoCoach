@@ -28,6 +28,18 @@ from .runes import PerkStyle, RecommendedPage
 
 log = logging.getLogger(__name__)
 
+LOAD_ATTEMPTS = 3  # recién abierto, el cliente puede tardar en servir alguna lista
+LOAD_RETRY_DELAY = 2.0
+# Lo que se carga al conectar: (ruta, nombre para los avisos)
+STATIC_DATA = (
+    (endpoints.CHAMPION_SUMMARY, "campeones"),
+    (endpoints.PERKS, "runas"),
+    (endpoints.PERK_STYLES, "árboles"),
+    (endpoints.SUMMONER_SPELLS, "hechizos"),
+    (endpoints.RECOMMENDED_POSITIONS, "posiciones"),
+    (endpoints.ITEMS, "objetos"),
+)
+
 
 @dataclass(frozen=True, slots=True)
 class Champion:
@@ -63,7 +75,6 @@ class ChampionProfile:
     durability: int
     crowd_control: int
     mobility: int
-    utility: int
 
     @classmethod
     def from_json(cls, data: Mapping[str, Any]) -> ChampionProfile:
@@ -78,7 +89,6 @@ class ChampionProfile:
             durability=as_int(playstyle.get("durability")),
             crowd_control=as_int(playstyle.get("crowdControl")),
             mobility=as_int(playstyle.get("mobility")),
-            utility=as_int(playstyle.get("utility")),
         )
 
     @property
@@ -142,53 +152,72 @@ class GameData:
     def champion_count(self) -> int:
         return len(self._champions)
 
-    async def load(self, client: LcuClient, version: str) -> None:
-        if version == self._version and self._champions:
+    async def load(
+        self, client: LcuClient, version: str, *, retry_delay: float = LOAD_RETRY_DELAY
+    ) -> None:
+        """Carga los datos del parche. Lo que falle se reintenta unas veces; si aun así falta
+        algo, el parche no se da por cargado y se vuelve a intentar en la próxima conexión
+        (antes, una lista de objetos que fallaba al abrir el cliente dejaba la tienda vacía
+        toda la sesión)."""
+        if version == self._version:
             return
-        results = await asyncio.gather(
-            client.get(endpoints.CHAMPION_SUMMARY),
-            client.get(endpoints.PERKS),
-            client.get(endpoints.PERK_STYLES),
-            client.get(endpoints.SUMMONER_SPELLS),
-            client.get(endpoints.RECOMMENDED_POSITIONS),
-            client.get(endpoints.ITEMS),
-            return_exceptions=True,
-        )
-        summary, perks, styles, spells, positions, items = (
-            None if isinstance(r, BaseException) else r for r in results
-        )
-        labels = ("campeones", "runas", "árboles", "hechizos", "posiciones", "objetos")
-        for name, result in zip(labels, results, strict=True):
-            if isinstance(result, BaseException):
-                log.warning("No se pudieron cargar los datos de %s: %s", name, result)
-
-        self._champions = _parse_champions(summary)
-        self._alias_index = {}
-        self._perks = {
-            as_int(p.get("id")): as_str(p.get("name"))
-            for p in as_list(perks)
-            if isinstance(p, dict)
-        }
-        self._styles = {
-            style.id: style
-            for style in (
-                PerkStyle.from_json(s)
-                for s in as_list(as_dict(styles).get("styles"))
-                if isinstance(s, dict)
+        loaded: dict[str, Any] = {}
+        for attempt in range(LOAD_ATTEMPTS):
+            missing = [path for path, _ in STATIC_DATA if path not in loaded]
+            results = await asyncio.gather(
+                *(client.get(path) for path in missing), return_exceptions=True
             )
-        }
-        self._spells = _parse_spells(spells)
-        self._positions = _parse_positions(positions)
-        self._items = _parse_items(items)
+            failed: list[tuple[str, BaseException]] = []
+            for path, result in zip(missing, results, strict=True):
+                if isinstance(result, BaseException):
+                    failed.append((path, result))
+                else:
+                    loaded[path] = result
+            if not failed:
+                break
+            if attempt == LOAD_ATTEMPTS - 1:
+                names = dict(STATIC_DATA)
+                for path, exc in failed:
+                    log.warning("No se pudieron cargar los datos de %s: %s", names[path], exc)
+            else:
+                await asyncio.sleep(retry_delay)
+        self._apply_static(loaded)
         self._profiles.clear()
         self._recommended.clear()
-        if self._champions:
-            self._version = version
+        complete = len(loaded) == len(STATIC_DATA) and bool(self._champions)
+        self._version = version if complete else None
         log.debug(
             "Datos del parche %s: %d campeones, %d runas, %d árboles, %d hechizos, %d objetos",
             version, len(self._champions), len(self._perks), len(self._styles), len(self._spells),
             len(self._items),
         )  # fmt: skip
+
+    def _apply_static(self, loaded: Mapping[str, Any]) -> None:
+        """Cambia solo lo que ha llegado: lo que falló conserva lo que hubiera."""
+        if (summary := loaded.get(endpoints.CHAMPION_SUMMARY)) is not None:
+            self._champions = _parse_champions(summary)
+            self._alias_index = {}
+        if (perks := loaded.get(endpoints.PERKS)) is not None:
+            self._perks = {
+                as_int(p.get("id")): as_str(p.get("name"))
+                for p in as_list(perks)
+                if isinstance(p, dict)
+            }
+        if (styles := loaded.get(endpoints.PERK_STYLES)) is not None:
+            self._styles = {
+                style.id: style
+                for style in (
+                    PerkStyle.from_json(s)
+                    for s in as_list(as_dict(styles).get("styles"))
+                    if isinstance(s, dict)
+                )
+            }
+        if (spells := loaded.get(endpoints.SUMMONER_SPELLS)) is not None:
+            self._spells = _parse_spells(spells)
+        if (positions := loaded.get(endpoints.RECOMMENDED_POSITIONS)) is not None:
+            self._positions = _parse_positions(positions)
+        if (items := loaded.get(endpoints.ITEMS)) is not None:
+            self._items = _parse_items(items)
 
     def load_static(self, data: Mapping[str, Any], version: str) -> None:
         """Carga desde un diccionario ya leído (pruebas y herramientas)."""

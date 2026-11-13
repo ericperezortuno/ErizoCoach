@@ -70,7 +70,7 @@ async def test_full_ranked_draft_flow(
     assert started.queue is not None and started.queue.name == "Clasificatoria flexible"
     finalized = app.of(PicksFinalized)[0]
     assert finalized.snapshot.me.champion_id == AHRI
-    assert finalized.queue is not None and finalized.queue.is_ranked
+    assert finalized.queue is not None and finalized.queue.map_id == 11
     assert app.of(ChampSelectEnded)[0].outcome == ChampSelectOutcome.GAME_STARTING
 
     # Seguridad: ni la contraseña ni su versión codificada aparecen en ningún mensaje.

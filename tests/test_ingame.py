@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 import pytest
 
 from lolcoach.builds.models import BuildPlan
@@ -18,7 +20,7 @@ from .live_factories import ME_RIOT_ID, all_game_data, bot_game, live_player, st
 
 AHRI, ZED, SORAKA = 103, 238, 16
 ENEMY_IDS = [122, 104, 238, 145, 16]  # Darius, Graves, Zed, Kai'Sa, Soraka
-LUDEN, ZHONYA, MORELLO, OBLIVION_ORB, SORCERER, IONIAN = 6655, 3157, 3165, 3916, 3020, 3158
+LUDEN, ZHONYA, OBLIVION_ORB, SORCERER, IONIAN = 6655, 3157, 3916, 3020, 3158
 FED_ZED_ITEMS = (1055, 3158, 3142, 6697)  # Doran, botas, Youmuu, Soberbia
 
 
@@ -320,3 +322,41 @@ async def test_complete_build() -> None:
     advice = advice_for(plan, standard_game(my_items=plan.full))
     assert advice.next_purchase is None and "completa" in advice.message
     assert all(step.owned for step in advice.build)
+
+
+def test_a_second_identical_item_is_not_mistaken_for_hidden_boots() -> None:
+    """Dos Espadas largas en huecos distintos: la segunda explica el oro gastado."""
+    long_sword = 1036
+    _, hidden = follow(
+        bot_game((1055, long_sword), gold=700), bot_game((1055, long_sword, long_sword), gold=350)
+    )
+    assert not hidden
+
+
+async def test_urgent_defense_does_not_flip_while_the_threat_is_still_strong() -> None:
+    """Si Zed pasa de «muy fuerte» a «fuerte», el consejo de defensa se mantiene (antes
+    alternaba con la build cada pocos segundos)."""
+    plan = await ahri_plan()
+    gd = loaded_gamedata()
+    data = standard_game(zed_kda=(8, 1, 2), zed_items=FED_ZED_ITEMS, my_items=(1056, SORCERER))
+    game, report = report_for(data)
+    assert game.me is not None
+    first = advise(plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name)
+    assert first.next_purchase is not None and first.next_purchase.item_id == ZHONYA
+    zed = next(e for e in report.enemies if e.player.champion_alias == "Zed")
+    assert first.threat_id == zed.champion_id
+    calmer = dataclasses.replace(zed, strength=Strength.STRONG, is_lane_opponent=False)
+    report = dataclasses.replace(
+        report, enemies=tuple(calmer if e is zed else e for e in report.enemies)
+    )
+
+    def again(keep: int) -> int | None:
+        assert game.me is not None
+        advice = advise(
+            plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
+            keep_threat=keep,
+        )  # fmt: skip
+        return advice.next_purchase.item_id if advice.next_purchase else None
+
+    assert again(first.threat_id) == ZHONYA  # sigue fuerte: se mantiene
+    assert again(0) == LUDEN  # sin el aviso anterior, «fuerte» no basta (no es tu rival)

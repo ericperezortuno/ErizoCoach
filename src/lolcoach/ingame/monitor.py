@@ -61,6 +61,7 @@ class LiveGameMonitor:
         self._plan: BuildPlan | None = None
         self._plan_revision = 0  # versión de las estadísticas con la que se calculó ``_plan``
         self._role_boots: RoleSlotBoots | None = None  # botas que la API no muestra
+        self._threat_id = 0  # enemigo al que respondía el último consejo (para no alternar)
 
         bus.subscribe(GameflowPhaseChanged, self._on_phase)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -74,6 +75,7 @@ class LiveGameMonitor:
             if not self.running:
                 self._plan = None
                 self._role_boots = None  # partida nueva: se empieza de cero
+                self._threat_id = 0
                 self._task = asyncio.create_task(self._run())
         elif self.running:
             await self.stop()
@@ -133,8 +135,9 @@ class LiveGameMonitor:
         if plan is not None and game.me is not None:
             advice = advise(
                 plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
-                boots_out_of_sight=hidden_boots,
+                boots_out_of_sight=hidden_boots, keep_threat=self._threat_id,
             )  # fmt: skip
+            self._threat_id = advice.threat_id
         return LiveGameUpdated(game, report, advice, plan)
 
     async def _plan_for(self, my_id: int, game: LiveGame, enemy_ids: list[int]) -> BuildPlan | None:

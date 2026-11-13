@@ -55,10 +55,6 @@ class ChampionStats:
     runes: tuple[int, ...] = ()  # (árbol principal, secundario, 9 runas); () = sin datos
     spells: tuple[int, ...] = ()  # (hechizo D, hechizo F)
 
-    @property
-    def win_rate(self) -> float:
-        return self.wins / self.games if self.games else 0.0
-
 
 def is_legendary(item: Item | None) -> bool:
     return (

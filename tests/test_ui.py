@@ -120,6 +120,29 @@ async def test_players_without_a_lane_go_last_in_game_order() -> None:
     assert names == ["Zed", "Kai'Sa", "Soraka", "Darius", "Graves"]
 
 
+async def test_build_card_follows_a_plan_recomputed_in_game() -> None:
+    """App abierta a mitad de partida: la build se recalcula al llegar las estadísticas, y
+    la tarjeta de build (la que queda al acabar la partida) debe mostrar la nueva."""
+    presenter = UiPresenter(EventBus(), loaded_gamedata())
+    event = await live_event()
+    await presenter._on_live(event)
+    assert event.plan is not None
+    newer = dataclasses.replace(event.plan, source="estadísticas de 40 partidas")
+    await presenter._on_live(dataclasses.replace(event, plan=newer))
+    assert presenter.state["build"]["source"] == "estadísticas de 40 partidas"
+
+
+async def test_live_updates_keep_the_champ_select_build() -> None:
+    gd = loaded_gamedata()
+    presenter = UiPresenter(EventBus(), gd)
+    event = await live_event()
+    assert event.plan is not None
+    await presenter._on_build(BuildReady(event.plan))
+    shown = presenter.state["build"]
+    await presenter._on_live(event)  # el mismo plan: no se repinta la tarjeta
+    assert presenter.state["build"] is shown
+
+
 async def test_presenter_champ_select_build() -> None:
     bus = EventBus()
     gd = loaded_gamedata()

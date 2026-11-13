@@ -140,11 +140,11 @@ def test_queue_info_from_gameflow_session() -> None:
     }
     queue = QueueInfo.from_gameflow_session(data)
     assert queue is not None
-    assert (queue.id, queue.name, queue.is_ranked, queue.is_draft) == (
+    assert (queue.id, queue.name, queue.game_mode, queue.map_id) == (
         440,
         "Clasificatoria flexible",
-        True,
-        True,
+        "CLASSIC",
+        11,
     )
     assert QueueInfo.from_gameflow_session({}) is None
 

@@ -19,7 +19,7 @@ from typing import Protocol
 from ..gamedata.catalog import SummonerSpell
 from ..gamedata.runes import PRIMARY_INDEXES, SECONDARY_INDEXES, SHARD_INDEXES, RunePage
 from ..models import Position
-from .models import MatchContext
+from .models import DIVE_THREATS, MatchContext
 
 # Hechizos de invocador (IDs estables del juego)
 CLEANSE, EXHAUST, FLASH, HEAL, SMITE, TELEPORT, IGNITE, BARRIER = 1, 3, 4, 7, 11, 12, 14, 21
@@ -125,7 +125,7 @@ def adjust_spells(
         why = f"el equipo enemigo tiene {ctx.hard_cc_count} campeones con control fuerte"
         swap(HEAL, CLEANSE, why) or swap(BARRIER, CLEANSE, why)
 
-    elif ctx.position == Position.UTILITY and ctx.dive_threats >= 2:
+    elif ctx.position == Position.UTILITY and ctx.dive_threats >= DIVE_THREATS:
         swap(IGNITE, EXHAUST, f"{ctx.dive_threats} asesinos enemigos pueden lanzarse a tu tirador")
 
     elif (

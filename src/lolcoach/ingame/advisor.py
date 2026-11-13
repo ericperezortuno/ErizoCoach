@@ -7,7 +7,9 @@ Orden de prioridad:
      línea va fuerte) y aún no tienes defensa contra su tipo de daño.
    * Antisanación si quien se cura mucho va fuerte y aún no la tienes.
    Si se dan las dos, va primero la que responde al enemigo más fuerte (en empate,
-   la antisanación).
+   la antisanación). Un aviso de defensa se mantiene mientras ese enemigo siga yendo
+   fuerte (``keep_threat``): así no alterna con tu build cada pocos segundos cuando
+   su puntuación ronda el límite de «muy fuerte».
 2. **Tu build**: el siguiente objeto que te falte, en orden (botas, núcleo, resto).
 
 Además calcula cuánto oro te falta (descontando los componentes que ya tienes,
@@ -52,6 +54,7 @@ class Advice:
     next_purchase: PurchaseAdvice | None
     build: tuple[BuildStep, ...]
     message: str = ""  # p. ej. "Build completa"
+    threat_id: int = 0  # campeón al que responde la compra (0 = sigue tu build)
 
 
 ItemLookup = Callable[[int], Item | None]
@@ -62,6 +65,7 @@ class _Candidate:
     item_id: int
     reason: str
     threat_score: float
+    threat_id: int
 
 
 def advise(
@@ -73,8 +77,10 @@ def advise(
     champion_name: Callable[[int], str],
     *,
     boots_out_of_sight: bool = False,
+    keep_threat: int = 0,
 ) -> Advice:
-    """``boots_out_of_sight``: tienes botas que la API no muestra (espacio de la misión de rol)."""
+    """``boots_out_of_sight``: tienes botas que la API no muestra (espacio de la misión de rol).
+    ``keep_threat``: campeón al que respondía el consejo anterior (``Advice.threat_id``)."""
     owned = set(owned_ids)
     has_boots = boots_out_of_sight or any(_is_upgraded_boots(item(i)) for i in owned)
 
@@ -90,13 +96,14 @@ def advise(
         c
         for c in (
             _anti_heal(plan, report, owned, champion_name),
-            _urgent_defense(plan, report, owned, item, champion_name),
+            _urgent_defense(plan, report, owned, item, champion_name, keep_threat),
         )
         if c is not None
     ]
+    threat_id = 0
     if candidates:
         best = max(candidates, key=lambda c: c.threat_score)  # empate: la primera (antisanación)
-        chosen = (best.item_id, best.reason)
+        chosen, threat_id = (best.item_id, best.reason), best.threat_id
     else:
         steps = {s.item_id: s for s in build}
         next_step = next(
@@ -114,7 +121,7 @@ def advise(
         chosen = (next_step.item_id, reason)
 
     item_id, reason = chosen
-    return Advice(_purchase(item_id, reason, owned_ids, gold, item), build)
+    return Advice(_purchase(item_id, reason, owned_ids, gold, item), build, threat_id=threat_id)
 
 
 def purchase_order(plan: BuildPlan) -> list[int]:
@@ -133,6 +140,7 @@ def _urgent_defense(
     owned: set[int],
     item: ItemLookup,
     champion_name: Callable[[int], str],
+    keep_threat: int = 0,
 ) -> _Candidate | None:
     threat = next(
         (
@@ -141,7 +149,7 @@ def _urgent_defense(
             if e.damage_level >= MIN_THREAT_DAMAGE
             and (
                 e.strength == Strength.VERY_STRONG
-                or (e.is_lane_opponent and e.strength == Strength.STRONG)
+                or (e.threatening and (e.is_lane_opponent or e.champion_id == keep_threat))
             )
         ),
         None,
@@ -161,6 +169,7 @@ def _urgent_defense(
         f"{_who(threat, champion_name)} va {_strength_text(threat)} ({threat.player.kda}) "
         f"y hace daño {kind}: te ayuda a sobrevivir",
         threat.score,
+        threat.champion_id,
     )
 
 
@@ -184,6 +193,7 @@ def _anti_heal(
         f"{_who(healer, champion_name)} va {_strength_text(healer)} y se cura mucho: "
         "antisanación cuanto antes",
         healer.score,
+        healer.champion_id,
     )
 
 

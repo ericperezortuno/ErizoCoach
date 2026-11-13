@@ -167,9 +167,7 @@ class LoadoutRecommender:
             page=page,
             spells=found.spells,
             position=position,
-            keystone_name=gd.perk_name(page.keystone_id),
             descriptor="",
-            recommendation_id="estadisticas",
         )
         return base, f"estadísticas de {found.games} partidas de alto elo (parche {found.patch})"
 

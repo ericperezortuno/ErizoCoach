@@ -47,6 +47,7 @@ class UiPresenter:
     def __init__(self, bus: EventBus, gamedata: GameData) -> None:
         self._gd = gamedata
         self._listeners: list[Listener] = []
+        self._shown_plan: BuildPlan | None = None  # la build que enseña la tarjeta
         self._state: State = {
             "version": __version__,
             "connected": False,
@@ -101,6 +102,7 @@ class UiPresenter:
         await self._set(phase=event.current.value, phaseLabel=label)
 
     async def _on_champ_select(self, _event: ChampSelectStarted) -> None:
+        self._shown_plan = None
         await self._set(champion=None, loadout=None, build=None, game=None)
 
     async def _on_finalized(self, event: PicksFinalized) -> None:
@@ -118,6 +120,7 @@ class UiPresenter:
 
     async def _on_build(self, event: BuildReady) -> None:
         plan = event.plan
+        self._shown_plan = plan
         await self._set(
             build=self._build(plan),
             champion=self._champion(plan.champion_id, POSITION_LABELS.get(plan.position, "")),
@@ -198,7 +201,9 @@ class UiPresenter:
                     "components": [self._item(c) for c in purchase.affordable_components],
                 }
         changes: State = {"game": state}
-        if event.plan is not None and self._state.get("build") is None:
+        # Sin selección (app abierta a mitad) o recalculada (llegan las estadísticas)
+        if event.plan is not None and event.plan is not self._shown_plan:
+            self._shown_plan = event.plan
             changes["build"] = self._build(event.plan)
             changes["champion"] = self._champion(
                 event.plan.champion_id, POSITION_LABELS.get(event.plan.position, "")

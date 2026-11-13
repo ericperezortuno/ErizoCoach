@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from ..gamedata.catalog import ChampionProfile, DamageType
-from ..loadout.models import HARD_CC_CHAMPIONS, HEAVY_CC_TOTAL
+from ..loadout.models import DIVE_THREATS, HARD_CC_CHAMPIONS, HEAVY_CC_TOTAL
 from ..models import Position
 from .archetypes import AP_DAMAGE, FRONTLINE, MARKSMEN, MERCURY, PLATED
 from .models import Archetype, BaseBuild, BuildPlan, SituationalItem
@@ -40,7 +40,6 @@ SHIELDERS = frozenset({
 
 THREAT_COUNT = 3  # enemigos con un tipo de daño para que compense defenderse de él
 TANK_COUNT = 2
-DIVE_COUNT = 2
 SHIELD_COUNT = 2
 FLEX_SLOTS = 2  # huecos de la build completa que se adaptan a los enemigos
 
@@ -224,7 +223,7 @@ def find_needs(ctx: BuildContext, names: Names) -> list[SituationalItem]:
         apply()
 
     # 4) Asesinos que se lanzan sobre ti
-    if ctx.dive_threats >= DIVE_COUNT and a not in FRONTLINE:
+    if ctx.dive_threats >= DIVE_THREATS and a not in FRONTLINE:
         add(
             {"ap": 3157, "marksman": 6673, "enchanter": 3222},
             lambda item: f"{item}: {ctx.dive_threats} asesinos pueden lanzarse sobre ti",

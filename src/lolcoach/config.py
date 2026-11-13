@@ -74,10 +74,6 @@ class Settings:
     def lock_path(self) -> Path:
         return self.data_dir / "lolcoach.lock"
 
-    @property
-    def config_path(self) -> Path:
-        return self.data_dir / CONFIG_FILE_NAME
-
 
 def load_settings(
     *,
