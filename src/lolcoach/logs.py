@@ -67,7 +67,8 @@ class ConsoleFormatter(logging.Formatter):
 
 def setup_logging(log_dir: Path, *, debug: bool = False) -> None:
     """Consola: mensajes para el usuario. Archivo: todo el detalle técnico (rotativo, 4 MB máx.)."""
-    if hasattr(sys.stdout, "reconfigure"):
+    has_console = sys.stdout is not None  # el .exe de escritorio no tiene consola
+    if has_console and hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
     root = logging.getLogger()
@@ -76,11 +77,12 @@ def setup_logging(log_dir: Path, *, debug: bool = False) -> None:
         root.removeHandler(handler)
     logging.getLogger("lolcoach").setLevel(logging.DEBUG)
 
-    console = logging.StreamHandler(sys.stdout)
-    console.setLevel(logging.DEBUG if debug else logging.INFO)
-    console.setFormatter(ConsoleFormatter(debug=debug))
-    console.addFilter(REDACTOR)
-    root.addHandler(console)
+    if has_console:
+        console = logging.StreamHandler(sys.stdout)
+        console.setLevel(logging.DEBUG if debug else logging.INFO)
+        console.setFormatter(ConsoleFormatter(debug=debug))
+        console.addFilter(REDACTOR)
+        root.addHandler(console)
 
     try:
         log_dir.mkdir(parents=True, exist_ok=True)

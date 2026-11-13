@@ -20,22 +20,29 @@ from ..gamedata.runes import RecommendedPage, validate_page
 from ..lcu.client import LcuClient
 from ..models import Position, QueueInfo
 from .models import LANE_CONFIDENCE, Loadout, MatchContext
-from .positions import SUMMONERS_RIFT, infer_positions, lane_opponent, resolve_my_position
+from .positions import (
+    SUMMONERS_RIFT,
+    PositionHint,
+    infer_positions,
+    lane_opponent,
+    resolve_my_position,
+)
 from .rules import adjust_runes, adjust_spells, keep_flash_key
 
 log = logging.getLogger(__name__)
 
 
 class LoadoutRecommender:
-    def __init__(self, gamedata: GameData) -> None:
+    def __init__(self, gamedata: GameData, position_hint: PositionHint | None = None) -> None:
         self._gamedata = gamedata
+        self._position_hint = position_hint
 
     def resolve_position(self, snapshot: ChampSelectSnapshot, map_id: int) -> Position:
         me = snapshot.me
         if me is None:
             return Position.NONE
         return resolve_my_position(
-            me.position, me.champion_id, map_id, self._gamedata.positions_for
+            me.position, me.champion_id, map_id, self._gamedata.positions_for, self._position_hint
         )
 
     async def prefetch(

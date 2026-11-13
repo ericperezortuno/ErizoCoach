@@ -15,22 +15,19 @@ from __future__ import annotations
 
 import logging
 import secrets
-from collections import OrderedDict
 from importlib.resources import files
 from typing import Any
 
 from aiohttp import WSMsgType, web
 
 from ...gamedata.catalog import GameData
-from ...lcu.client import LcuError
 from ...lcu.connector import LcuConnector
+from .icons import IconProvider
 from .presenter import State, UiPresenter
 
 log = logging.getLogger(__name__)
 
 STATIC_FILES = {"app.js": "text/javascript", "style.css": "text/css"}
-ICON_CACHE_SIZE = 400
-CHAMPION_ICON = "/lol-game-data/assets/v1/champion-icons/{champion_id}.png"
 SECURITY_HEADERS = {
     "Content-Security-Policy": (
         "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; "
@@ -59,7 +56,7 @@ class UiServer:
         self.token = secrets.token_urlsafe(24)
         self.port = 0
         self._sockets: set[web.WebSocketResponse] = set()
-        self._icons: OrderedDict[str, bytes] = OrderedDict()
+        self._icons = IconProvider(gamedata, connector)
         self._runner: web.AppRunner | None = None
         self._static = files("lolcoach.ui.web").joinpath("static")
 
@@ -153,30 +150,15 @@ class UiServer:
     # --- Iconos (recursos del juego, a través del cliente) ------------------------------
 
     async def _item_icon(self, request: web.Request) -> web.Response:
-        item = self._gamedata.item(int(request.match_info["item_id"]))
-        if item is None or not item.icon_path:
-            raise web.HTTPNotFound()
-        return await self._icon(item.icon_path)
+        return await self._icon("item", int(request.match_info["item_id"]))
 
     async def _champion_icon(self, request: web.Request) -> web.Response:
-        champion_id = int(request.match_info["champion_id"])
-        return await self._icon(CHAMPION_ICON.format(champion_id=champion_id))
+        return await self._icon("champion", int(request.match_info["champion_id"]))
 
-    async def _icon(self, path: str) -> web.Response:
-        body = self._icons.get(path)
+    async def _icon(self, kind: str, ident: int) -> web.Response:
+        body = await self._icons.get(kind, ident)
         if body is None:
-            client = self._connector.client if self._connector else None
-            if client is None:
-                raise web.HTTPNotFound()
-            try:
-                body = await client.get_bytes(path)
-            except (LcuError, ValueError):
-                raise web.HTTPNotFound() from None
-            self._icons[path] = body
-            if len(self._icons) > ICON_CACHE_SIZE:
-                self._icons.popitem(last=False)
-        else:
-            self._icons.move_to_end(path)
+            raise web.HTTPNotFound()
         return web.Response(
             body=body, content_type="image/png", headers={"Cache-Control": "max-age=86400"}
         )

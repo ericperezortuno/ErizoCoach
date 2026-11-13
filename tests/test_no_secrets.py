@@ -14,8 +14,9 @@ import pytest
 from lolcoach.lcu.discovery import ClientLocator
 
 ROOT = Path(__file__).resolve().parent.parent
-SCANNED = ("src", "tests", "README.md", "pyproject.toml")
-TEXT_SUFFIXES = {".py", ".json", ".md", ".toml", ".txt", ".bat", ".pem"}
+SCANNED = ("src", "tests", "packaging", "scripts", "README.md", "pyproject.toml")
+TEXT_SUFFIXES = {".py", ".json", ".md", ".toml", ".txt", ".bat", ".pem", ".spec", ".js", ".css",
+                 ".html"}  # fmt: skip
 
 
 def _project_files() -> list[Path]:

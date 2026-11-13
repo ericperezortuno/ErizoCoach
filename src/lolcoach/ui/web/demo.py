@@ -6,6 +6,7 @@ contra un Zed que va muy fuerte y una Soraka que cura mucho.
 
 from __future__ import annotations
 
+from ...builds.archetypes import BuildSource
 from ...builds.recommender import BuildRecommender
 from ...bus import EventBus
 from ...events import BuildReady, LiveGameUpdated
@@ -52,9 +53,13 @@ def _player(gd: GameData, row: tuple, team: str) -> LivePlayer:
     )
 
 
-async def publish_demo(bus: EventBus, gd: GameData, client: LcuClient) -> None:
+async def publish_demo(
+    bus: EventBus, gd: GameData, client: LcuClient, source: BuildSource | None = None
+) -> None:
     enemy_ids = [row[0] for row in ENEMIES]
-    plan = await BuildRecommender(gd).recommend_for(client, AHRI, Position.MIDDLE, enemy_ids, 11)
+    plan = await BuildRecommender(gd, source).recommend_for(
+        client, AHRI, Position.MIDDLE, enemy_ids, 11
+    )
     if plan is None:
         return
     await bus.publish(BuildReady(plan))

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from ..builds.models import ARCHETYPE_LABELS
@@ -67,6 +68,9 @@ class ConsoleReporter:
         )
 
     def _on_disconnected(self, _event: ClientDisconnected) -> None:
+        task = asyncio.current_task()
+        if task is not None and task.cancelling():
+            return  # es LoL Coach el que se está cerrando, no el cliente
         log.info("Se ha cerrado el cliente de LoL. Esperando a que vuelva a abrirse...")
 
     def _on_phase(self, event: GameflowPhaseChanged) -> None:

@@ -23,6 +23,7 @@ from ..events import (
 from ..gamedata.catalog import GameData
 from ..lcu.client import LcuClient, LcuError
 from ..lcu.connector import LcuConnector
+from ..loadout.positions import PositionHint
 from ..models import QueueInfo
 from .archetypes import BuildSource
 from .itemset import ItemSetWriter, set_title
@@ -41,12 +42,13 @@ class BuildService:
         settings: Settings,
         *,
         source: BuildSource | None = None,
+        position_hint: PositionHint | None = None,
     ) -> None:
         self._bus = bus
         self._connector = connector
         self._gamedata = gamedata
         self._settings = settings
-        self._recommender = BuildRecommender(gamedata, source)
+        self._recommender = BuildRecommender(gamedata, source, position_hint)
         self._writer = ItemSetWriter()
         self._summoner_id = 0
         self._queue: QueueInfo | None = None

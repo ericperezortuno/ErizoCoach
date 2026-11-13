@@ -8,7 +8,7 @@ import logging
 from ..champselect.models import ChampSelectSnapshot
 from ..gamedata.catalog import GameData
 from ..lcu.client import LcuClient
-from ..loadout.positions import resolve_my_position
+from ..loadout.positions import PositionHint, resolve_my_position
 from ..models import Position, QueueInfo
 from .archetypes import HOWLING_ABYSS, SUMMONERS_RIFT, BuildSource, RuleBasedSource
 from .models import BaseBuild, BuildPlan, ItemCount
@@ -20,9 +20,15 @@ SUPPORTED_MAPS = (SUMMONERS_RIFT, HOWLING_ABYSS)
 
 
 class BuildRecommender:
-    def __init__(self, gamedata: GameData, source: BuildSource | None = None) -> None:
+    def __init__(
+        self,
+        gamedata: GameData,
+        source: BuildSource | None = None,
+        position_hint: PositionHint | None = None,
+    ) -> None:
         self._gamedata = gamedata
         self._source = source or RuleBasedSource()
+        self._position_hint = position_hint
 
     async def recommend(
         self, client: LcuClient, snapshot: ChampSelectSnapshot, queue: QueueInfo | None
@@ -46,7 +52,9 @@ class BuildRecommender:
         if champion_id <= 0 or map_id not in SUPPORTED_MAPS:
             return None  # Arena y otros modos no usan conjuntos de objetos normales
         gd = self._gamedata
-        position = resolve_my_position(assigned_position, champion_id, map_id, gd.positions_for)
+        position = resolve_my_position(
+            assigned_position, champion_id, map_id, gd.positions_for, self._position_hint
+        )
         profiles = await gd.profiles(client, [champion_id, *enemy_ids])
         base = self._validated(
             self._source.base_build(

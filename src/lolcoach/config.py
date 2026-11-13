@@ -11,7 +11,11 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     auto_item_set = true # poner la build en la tienda (conjunto de objetos)
     window = true              # ventana con consejos (segundo monitor)
     window_on_secondary = true # false = abrirla en el monitor principal
+    window_mode = "escritorio" # "escritorio" (ventana propia) o "navegador" (Edge)
+    window_on_top = false      # true = ventana siempre encima
     live_poll_interval = 3     # segundos entre lecturas de la partida (1-10)
+    riot_region = "euw1"       # región de las estadísticas (euw1, eun1, tr1, na1, kr)
+    stats_min_games = 20       # partidas mínimas para usar la build de estadísticas
 """
 
 from __future__ import annotations
@@ -21,6 +25,8 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from .stats.riot_api import REGIONS
 
 APP_DIR_NAME = "LoLCoach"
 CONFIG_FILE_NAME = "config.toml"
@@ -42,11 +48,19 @@ class Settings:
     auto_item_set: bool = True
     window: bool = True  # ventana para el segundo monitor
     window_on_secondary: bool = True  # False = en el monitor principal
+    window_mode: str = "escritorio"  # "escritorio" (ventana propia) o "navegador" (Edge)
+    window_on_top: bool = False  # mantener la ventana siempre encima
     live_poll_interval: float = 3.0  # segundos entre lecturas de la partida
+    riot_region: str = "euw1"  # región para descargar estadísticas (API de Riot)
+    stats_min_games: int = 20  # partidas mínimas para usar la build de estadísticas
 
     @property
     def window_profile_dir(self) -> Path:
         return self.data_dir / "window"
+
+    @property
+    def stats_dir(self) -> Path:
+        return self.data_dir / "stats"
 
     @property
     def log_dir(self) -> Path:
@@ -87,6 +101,21 @@ def load_settings(
     auto_item_set = _bool(values, "auto_item_set", True, warnings)
     window = _bool(values, "window", True, warnings)
     window_on_secondary = _bool(values, "window_on_secondary", True, warnings)
+    window_on_top = _bool(values, "window_on_top", False, warnings)
+    window_mode = values.get("window_mode", "escritorio")
+    if window_mode not in ("escritorio", "navegador"):
+        warnings.append('config.toml: \'window_mode\' debe ser "escritorio" o "navegador".')
+        window_mode = "escritorio"
+    region = values.get("riot_region", "euw1")
+    if region not in REGIONS:
+        warnings.append(
+            f"config.toml: 'riot_region' debe ser una de {sorted(REGIONS)}; se usa euw1."
+        )
+        region = "euw1"
+    min_games = values.get("stats_min_games", 20)
+    if isinstance(min_games, bool) or not isinstance(min_games, int) or not 5 <= min_games <= 500:
+        warnings.append("config.toml: 'stats_min_games' debe estar entre 5 y 500; se usa 20.")
+        min_games = 20
     poll = values.get("live_poll_interval", 3.0)
     if isinstance(poll, bool) or not isinstance(poll, int | float) or not 1 <= poll <= 10:
         warnings.append("config.toml: 'live_poll_interval' debe estar entre 1 y 10; se usa 3.")
@@ -112,7 +141,11 @@ def load_settings(
         auto_item_set=auto_item_set,
         window=window if window_flag is None else window_flag,
         window_on_secondary=window_on_secondary,
+        window_mode=window_mode,
+        window_on_top=window_on_top,
         live_poll_interval=float(poll),
+        riot_region=region,
+        stats_min_games=min_games,
     )
     return settings, warnings
 

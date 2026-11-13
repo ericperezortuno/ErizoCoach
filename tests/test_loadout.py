@@ -10,7 +10,7 @@ from lolcoach.gamedata.catalog import ChampionProfile, SummonerSpell
 from lolcoach.gamedata.runes import RecommendedPage, RunePage, validate_page
 from lolcoach.loadout import recommender as recommender_module
 from lolcoach.loadout.models import Loadout, MatchContext
-from lolcoach.loadout.positions import infer_positions, lane_opponent
+from lolcoach.loadout.positions import infer_positions, lane_opponent, resolve_my_position
 from lolcoach.loadout.recommender import LoadoutRecommender
 from lolcoach.loadout.rules import (
     BARRIER,
@@ -226,6 +226,29 @@ async def test_no_assigned_position_uses_the_usual_one() -> None:
     loadout = await recommend(game(LEBLANC, "", []))
     assert loadout.position == Position.MIDDLE
     assert loadout.runes is not None
+
+
+def test_position_hint_only_applies_without_assigned_position() -> None:
+    positions_for = loaded_gamedata().positions_for
+
+    def top(_champion: int) -> Position:
+        return Position.TOP
+
+    def unknown(_champion: int) -> Position:
+        return Position.NONE
+
+    assert resolve_my_position(Position.MIDDLE, LEBLANC, 11, positions_for, top) == Position.MIDDLE
+    assert resolve_my_position(Position.NONE, LEBLANC, 11, positions_for, top) == Position.TOP
+    assert (
+        resolve_my_position(Position.NONE, LEBLANC, 11, positions_for, unknown) == Position.MIDDLE
+    )
+    assert resolve_my_position(Position.NONE, LEBLANC, 12, positions_for, top) == Position.NONE
+
+
+async def test_runes_follow_the_position_hint() -> None:
+    recommender = LoadoutRecommender(loaded_gamedata(), position_hint=lambda _c: Position.TOP)
+    loadout = await recommender.recommend(FixtureClient(), game(LEBLANC, "", []), SR)
+    assert loadout is not None and loadout.position == Position.TOP
 
 
 async def test_aram_uses_aram_recommendation() -> None:

@@ -1,0 +1,208 @@
+"""Ventana de escritorio de LoL Coach (pywebview + WebView2 de Windows).
+
+* Es una ventana propia, con su nombre e icono (sin Edge ni navegador), con el mismo
+  diseño que la versión web.
+* La ventana y la app se comunican directamente con el puente de pywebview: **no hay
+  servidor ni puerto abierto** en tu PC.
+* La página solo puede pedir dos cosas a la app (``DesktopBridge``): el estado actual
+  y el icono de un objeto o campeón por su id numérico.
+* Se carga con una política de seguridad estricta: solo su propio código (marcado con
+  un *nonce* aleatorio en cada arranque), iconos incrustados y ninguna conexión de red.
+* Al cerrar la ventana se cierra LoL Coach.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import base64
+import contextlib
+import json
+import logging
+import secrets
+import sys
+from importlib.resources import files
+from typing import TYPE_CHECKING, Any
+
+from ..config import Settings
+from .web.icons import KINDS, IconProvider
+from .web.presenter import State, UiPresenter
+from .web.window import DEFAULT_WIDTH, list_monitors, window_geometry
+
+if TYPE_CHECKING:
+    from ..app import Application
+
+log = logging.getLogger(__name__)
+
+TITLE = "LoL Coach"
+BACKGROUND = "#091428"
+MIN_SIZE = (380, 480)
+ICON_TIMEOUT = 5.0
+WEBVIEW2_CLIENT_ID = "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+APP_USER_MODEL_ID = "LoLCoach.Desktop"
+
+
+def webview2_available() -> bool:
+    """¿Está instalado el motor WebView2 de Microsoft? (Viene de serie en Windows 11)."""
+    if sys.platform != "win32":
+        return False
+    import winreg
+
+    clients = rf"Microsoft\EdgeUpdate\Clients\{WEBVIEW2_CLIENT_ID}"
+    locations = (
+        (winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\WOW6432Node\{clients}"),
+        (winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\{clients}"),
+        (winreg.HKEY_CURRENT_USER, rf"Software\{clients}"),
+    )
+    for root, path in locations:
+        try:
+            with winreg.OpenKey(root, path) as key:
+                version, _ = winreg.QueryValueEx(key, "pv")
+        except OSError:
+            continue
+        if version and version != "0.0.0.0":
+            return True
+    return False
+
+
+def desktop_available() -> bool:
+    if not webview2_available():
+        return False
+    try:
+        import webview  # noqa: F401
+    except Exception as exc:  # pragma: no cover - depende del sistema
+        log.debug("pywebview no disponible: %s", exc)
+        return False
+    return True
+
+
+def build_html(nonce: str | None = None) -> str:
+    """La misma página que la versión web, con estilos y código incrustados y CSP estricta."""
+    static = files("lolcoach.ui.web").joinpath("static")
+    html = static.joinpath("index.html").read_text(encoding="utf-8")
+    css = static.joinpath("style.css").read_text(encoding="utf-8")
+    script = static.joinpath("app.js").read_text(encoding="utf-8")
+    nonce = nonce or secrets.token_urlsafe(18)
+    csp = (
+        f"default-src 'none'; script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'; "
+        "img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"
+    )
+    replacements = {
+        '<html lang="es">': '<html lang="es" data-mode="desktop">',
+        '<meta charset="utf-8">': (
+            f'<meta charset="utf-8">\n  <meta http-equiv="Content-Security-Policy" content="{csp}">'
+        ),
+        '<link rel="stylesheet" href="/static/style.css">': f'<style nonce="{nonce}">{css}</style>',
+        '<script src="/static/app.js"></script>': f'<script nonce="{nonce}">{script}</script>',
+    }
+    for old, new in replacements.items():
+        if old not in html:
+            raise RuntimeError(f"index.html ha cambiado: falta {old!r}")
+        html = html.replace(old, new, 1)
+    return html
+
+
+class DesktopBridge:
+    """Lo único que la página puede pedir a la app (expuesto como ``window.pywebview.api``).
+
+    Los atributos empiezan por ``_`` para que pywebview no los exponga a la página.
+    """
+
+    def __init__(
+        self, presenter: UiPresenter, icons: IconProvider, loop: asyncio.AbstractEventLoop
+    ) -> None:
+        self._presenter = presenter
+        self._icons = icons
+        self._loop = loop
+
+    def get_state(self) -> State:
+        return self._presenter.state
+
+    def icon(self, kind: Any, ident: Any) -> str | None:
+        """Icono como imagen incrustada (``data:``), o None si no existe."""
+        if kind not in KINDS:
+            return None
+        try:
+            number = int(ident)
+        except (TypeError, ValueError):
+            return None
+        if not 0 < number < 1_000_000:
+            return None
+        future = asyncio.run_coroutine_threadsafe(self._icons.get(kind, number), self._loop)
+        try:
+            body = future.result(timeout=ICON_TIMEOUT)
+        except Exception:
+            return None
+        return "data:image/png;base64," + base64.b64encode(body).decode("ascii") if body else None
+
+
+def render_script(state: State) -> str:
+    """Código que la app ejecuta en la página para pintar un estado nuevo."""
+    payload = json.dumps(state, ensure_ascii=True)
+    return f"window.lolcoach && window.lolcoach.render({payload})"
+
+
+class DesktopWindow:
+    def __init__(self, app: Application, settings: Settings) -> None:
+        self._app = app
+        self._settings = settings
+        self._window: Any = None
+        self._loaded = False
+
+    def run(self) -> None:
+        """Abre la ventana y espera a que la cierres (ocupa el hilo principal)."""
+        import webview
+
+        _set_app_user_model_id()
+        loop = self._app.loop
+        if loop is None:
+            raise RuntimeError("La app aún no ha arrancado")
+        geometry = window_geometry(
+            list_monitors(), prefer_secondary=self._settings.window_on_secondary
+        )
+        x, y, width, height = geometry or (None, None, DEFAULT_WIDTH, 900)
+        self._window = webview.create_window(
+            TITLE,
+            html=build_html(),
+            js_api=DesktopBridge(self._app.presenter, self._app.icons, loop),
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            min_size=MIN_SIZE,
+            background_color=BACKGROUND,
+            text_select=False,
+            on_top=self._settings.window_on_top,
+        )
+        self._window.events.loaded += self._on_loaded
+        self._window.events.closed += self._on_closed
+        self._app.presenter.add_listener(self._push)
+        webview.start(gui="edgechromium", private_mode=True)
+
+    def _on_loaded(self) -> None:
+        self._loaded = True
+        self._evaluate(render_script(self._app.presenter.state))
+
+    def _on_closed(self) -> None:
+        self._loaded = False
+        self._app.request_stop()
+
+    async def _push(self, state: State) -> None:
+        if self._loaded:
+            await asyncio.get_running_loop().run_in_executor(
+                None, self._evaluate, render_script(state)
+            )
+
+    def _evaluate(self, script: str) -> None:
+        try:
+            self._window.evaluate_js(script)
+        except Exception as exc:  # la ventana se está cerrando, etc.
+            log.debug("No se pudo actualizar la ventana: %s", exc)
+
+
+def _set_app_user_model_id() -> None:
+    """Que Windows agrupe la ventana como «LoL Coach» en la barra de tareas."""
+    if sys.platform == "win32":
+        import ctypes
+
+        with contextlib.suppress(AttributeError, OSError):
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_USER_MODEL_ID)

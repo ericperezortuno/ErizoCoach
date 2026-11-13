@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: Fase 4 (ventana en el segundo monitor durante la partida)
+## Estado: Fase 5 (builds con estadísticas reales de alto elo)
 
 ### Lo que hace
 
@@ -80,8 +80,28 @@ verás en la tienda de la partida, pestaña *Conjuntos de objetos*:
    | 2+ campeones con muchos escudos | Colmillo de serpiente |
    | Eres de primera línea | Botas de mercurio o blindadas según el daño enemigo |
 
-Es una base **provisional por reglas**: el siguiente paso previsto es afinarla por campeón
-con estadísticas reales de partidas de alto elo (API oficial de Riot), sin cambiar el resto.
+Si has descargado estadísticas (ver abajo), la build base de cada campeón y posición con
+suficientes partidas es **la que de verdad hacen los jugadores de alto elo**; las reglas
+quedan como respaldo para campeones con pocos datos y para ARAM.
+
+### Builds con estadísticas reales (API oficial de Riot)
+
+1. **Clave**: consigue tu clave gratuita en [developer.riotgames.com](https://developer.riotgames.com)
+   (*Development API Key*; caduca cada 24 h, o pide una *Personal API Key* que no caduca) y
+   guárdala con `uv run lolcoach stats clave`. Se pide sin mostrarse y se guarda **cifrada en el
+   Administrador de credenciales de Windows**. Nunca aparece en pantalla ni en los registros.
+2. **Descarga**: `uv run lolcoach stats descargar` (2 horas por defecto, unas 1.500 partidas por
+   hora). Recorre jugadores Challenger, Gran Maestro y Maestro de tu región, toma sus partidas
+   clasificatorias del parche actual y guarda de cada jugador solo campeón, posición, resultado y
+   compras en orden (**sin nombres, Riot ID ni identificadores**). Respeta los límites de Riot,
+   no repite partidas y se puede parar con Ctrl+C y continuar otro día.
+3. **Uso**: al abrir LoL Coach con el cliente, se prepara la build más habitual de cada campeón y
+   posición (inicio, botas, los 3 primeros objetos **en su orden real** y los siguientes). Con
+   20 partidas o más sustituye a la de reglas; la adaptación a los enemigos se aplica encima.
+   Si el parche es muy nuevo y aún hay pocas partidas, usa las del anterior.
+
+La consola y la ventana indican de dónde sale cada build, por ejemplo
+«estadísticas de 143 partidas de alto elo (parche 16.22)».
 
 **Tus conjuntos de objetos están a salvo**: el cliente solo permite reemplazar la lista
 entera, así que la app la lee, cambia solo el conjunto «LoL Coach» y comprueba después que
@@ -89,8 +109,9 @@ los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
 
 ### La ventana del segundo monitor
 
-Al arrancar, LoL Coach abre una ventana (Edge en modo aplicación, sin barras) **a toda
-altura en tu segundo monitor**, pegada al principal. Muestra:
+LoL Coach es una **aplicación de escritorio**: su ventana (con su nombre e icono) se abre
+**a toda altura en tu segundo monitor**, pegada al principal, y al cerrarla se cierra la app.
+Muestra:
 
 - **En la selección de campeones**: tu campeón, las runas y hechizos aplicados con sus
   motivos, y la build (inicio, núcleo, completa y «contra este equipo»).
@@ -115,33 +136,50 @@ primeros 3 minutos no se etiqueta a nadie.
 Usa la API oficial de Riot de la partida (`127.0.0.1:2999`, verificada con su certificado)
 y **solo información visible en el marcador**: está permitido por las normas de Riot.
 
-**Seguridad de la ventana**: el servidor solo escucha en `127.0.0.1`, exige una clave aleatoria
-que cambia en cada arranque, comprueba `Host` y `Origin` (ninguna web de tu navegador puede
-leerla) y envía cabeceras estrictas sin recursos externos. La ventana usa un perfil de Edge
-propio: no se mezcla con tu navegación.
+**Seguridad de la ventana**: es una ventana nativa (pywebview, con el motor WebView2 que
+Windows 11 trae de serie) que habla con la app **directamente, sin servidor ni puerto abierto**.
+La página solo puede pedir dos cosas (el estado y el icono de un objeto o campeón por su id) y
+se carga con una política estricta: solo su propio código (con un *nonce* nuevo en cada
+arranque), iconos incrustados y ninguna conexión de red.
+
+Si faltara WebView2, LoL Coach usa como respaldo Edge en modo aplicación con un servidor local
+(solo `127.0.0.1`, clave aleatoria, `Host` y `Origin` comprobados y cabeceras estrictas).
 
 ## Cómo se usa
 
-Requisitos: Windows y [uv](https://docs.astral.sh/uv/) (ya lo tienes instalado).
+**Con la aplicación instalada**: abre **LoL Coach** desde el menú Inicio o el acceso directo del
+escritorio. Para salir, cierra su ventana.
 
-Doble clic en **`Iniciar LoL Coach.bat`**, o desde una terminal en esta carpeta:
+**Instalar o actualizar** (desde una terminal en esta carpeta; requiere [uv](https://docs.astral.sh/uv/)):
 
 ```bash
-uv run lolcoach
+uv run python scripts/make_icon.py   # (solo si cambias el icono) assets/lolcoach.ico
+uv run python scripts/build_exe.py   # crea dist/LoL Coach/ con los ejecutables
+uv run python scripts/install.py     # lo instala con accesos directos (--desinstalar para quitarlo)
 ```
 
-Otras opciones:
+Se instala en `%LOCALAPPDATA%\Programs\LoL Coach` (sin permisos de administrador) con dos
+ejecutables: **`LoL Coach.exe`** (la aplicación, sin consola) y **`lolcoach-consola.exe`** (los
+comandos de texto, por ejemplo `lolcoach-consola.exe stats descargar`). Tus datos están aparte, en
+`%LOCALAPPDATA%\LoLCoach`, y no se tocan al actualizar ni al desinstalar.
+
+**Desde el código** (desarrollo):
 
 ```bash
+uv run lolcoach             # la app con su ventana de escritorio
 uv run lolcoach --check     # comprueba la conexión con el cliente y sale
 uv run lolcoach --debug     # muestra también los mensajes técnicos
 uv run lolcoach --demo      # abre la ventana con una partida de ejemplo (para verla sin jugar)
+uv run lolcoach --browser   # ventana con Edge en lugar de la de escritorio
 uv run lolcoach --no-window # sin ventana (solo consola)
+uv run lolcoach stats clave          # guarda tu clave de la API de Riot (cifrada)
+uv run lolcoach stats descargar      # descarga partidas de alto elo (--horas 2, --partidas N)
+uv run lolcoach stats estado         # cuántas partidas hay descargadas
+uv run lolcoach stats olvidar-clave  # borra la clave guardada
 ```
 
-Si cierras la ventana, la consola muestra la dirección para volver a abrirla. Cierra LoL
-Coach con **Ctrl+C** (si la consola se cierra de golpe, la ventana antigua se cierra sola la
-próxima vez que lo abras).
+Con la ventana de escritorio, al cerrarla se cierra LoL Coach. En modo `--browser` o
+`--no-window` se sale con **Ctrl+C**.
 
 Los registros se guardan en `%LOCALAPPDATA%\LoLCoach\logs\lolcoach.log`
 (máximo 4 MB, rotativos). Configuración opcional en `%LOCALAPPDATA%\LoLCoach\config.toml`:
@@ -155,7 +193,11 @@ auto_spells = true      # false = solo recomendar los hechizos, sin aplicarlos
 auto_item_set = true    # false = solo mostrar la build, sin ponerla en la tienda
 window = true           # false = sin ventana del segundo monitor
 window_on_secondary = true  # false = abrir la ventana en el monitor principal
+window_mode = "escritorio"  # "navegador" = usar Edge en lugar de la ventana de escritorio
+window_on_top = false       # true = ventana siempre encima
 live_poll_interval = 3  # segundos entre lecturas de la partida (1-10)
+riot_region = "euw1"    # región de las estadísticas: euw1, eun1, tr1, na1, kr
+stats_min_games = 20    # partidas mínimas para usar la build de estadísticas (5-500)
 ```
 
 ## Seguridad y normas de Riot
@@ -192,8 +234,13 @@ src/lolcoach/
   loadout/             Fase 2: posiciones, reglas, recomendación y aplicación de runas/hechizos
   builds/              Fase 3: tipos de campeón, builds base, adaptación y conjunto de objetos
   ingame/              Fase 4: lectura de la partida en vivo, quién va fuerte y qué comprar
-  ui/web/              Fase 4: servidor local seguro, ventana (HTML/CSS/JS) y modo demostración
-  ui/                  Presentación (consola; en la fase 4, ventana del segundo monitor)
+  stats/               Fase 5: clave, API de Riot, descarga, agregación y fuente de builds
+  ui/console.py        Mensajes en consola
+  ui/desktop.py        Ventana de escritorio (pywebview) y puente directo con la app
+  ui/web/              Interfaz (HTML/CSS/JS), presentador, iconos, servidor de respaldo y demo
+assets/                Icono de la aplicación (generado con scripts/make_icon.py)
+packaging/             Especificación de PyInstaller e información de versión del .exe
+scripts/               Construir el .exe, instalarlo con accesos directos y generar el icono
 tests/                 Pruebas automáticas: cliente de LoL simulado y datos reales del parche
 ```
 
@@ -201,7 +248,7 @@ Cada fase nueva se engancha a los eventos existentes (`PicksFinalized`,
 `MyChampionChanged`, `LoadoutApplied`, `BuildApplied`, `ChampSelectEnded`...) sin modificar
 lo anterior. Las reglas (`loadout/rules.py`, `builds/rules.py`) son funciones puras: se
 pueden ampliar, o sustituir por IA en un plan de pago, sin tocar el resto. La build base
-llega por `BuildSource`, preparada para añadir estadísticas reales más adelante.
+llega por `BuildSource`: hoy, estadísticas reales con las reglas como respaldo.
 
 ## Desarrollo
 
@@ -216,5 +263,5 @@ uv run ruff check .    # revisión de estilo y errores comunes
 2. **Runas y hechizos automáticos al hacerse el último pick** ✅
 3. **Build inicial en la tienda, adaptada a la composición enemiga** ✅
 4. **Ventana en el segundo monitor durante la partida: quién va fuerte y qué comprar** ✅
-5. Mejoras: builds afinadas con estadísticas reales (API de Riot), IA opcional (de pago),
-   historial propio, pulido visual.
+5. **Builds afinadas con estadísticas reales de alto elo (API oficial de Riot)** ✅
+6. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas, pulido visual.

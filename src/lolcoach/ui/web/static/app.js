@@ -1,11 +1,45 @@
 "use strict";
 
-// La ventana solo pinta el estado que envía LoL Coach por el websocket.
+// La ventana solo pinta el estado que le envía LoL Coach. Funciona de dos formas:
+// * Escritorio (pywebview): puente directo con la app, sin servidor ni red.
+// * Navegador (respaldo): servidor local con websocket.
 // Todo el texto se inserta con textContent (nunca como HTML).
 
+const DESKTOP = document.documentElement.dataset.mode === "desktop";
 const token = new URLSearchParams(location.search).get("t") || "";
 const app = document.getElementById("app");
+const iconCache = new Map(); // escritorio: clave -> imagen incrustada (o promesa)
 let retries = 0;
+
+// La app llama a window.lolcoach.render(estado) cuando algo cambia (escritorio).
+window.lolcoach = { render: (state) => render(state) };
+
+function startDesktop() {
+  window.addEventListener("pywebviewready", async () => {
+    setConnection(true);
+    render(await window.pywebview.api.get_state());
+  });
+}
+
+function setIcon(img, kind, id) {
+  if (!DESKTOP) {
+    img.src = `/icon/${kind}/${id}.png`;
+    return;
+  }
+  const key = `${kind}:${id}`;
+  const cached = iconCache.get(key);
+  if (typeof cached === "string") {
+    if (cached) img.src = cached;
+    return;
+  }
+  const api = window.pywebview && window.pywebview.api;
+  if (!api) return;
+  const pending = cached || api.icon(kind, id)
+    .then((src) => { iconCache.set(key, src || ""); return src || ""; })
+    .catch(() => { iconCache.delete(key); return ""; });
+  iconCache.set(key, pending);
+  pending.then((src) => { if (src) img.src = src; });
+}
 
 function connect() {
   const socket = new WebSocket(`ws://${location.host}/ws?t=${encodeURIComponent(token)}`);
@@ -48,17 +82,19 @@ function itemIcon(item, { big = false, owned = false, next = false, count = 1 } 
   if (!item) return null;
   const classes = ["icon", big && "big", owned && "owned", next && "next"].filter(Boolean).join(" ");
   const label = item.price ? `${item.name} (${item.price} de oro)` : item.name;
+  const img = el("img", { alt: item.name });
+  setIcon(img, "item", item.id);
   return el("span", { class: classes, title: label }, [
-    el("img", { src: `/icon/item/${item.id}.png`, alt: item.name, loading: "lazy" }),
+    img,
     count > 1 ? el("span", { class: "count", text: `x${count}` }) : null,
   ]);
 }
 
 function championIcon(id, name) {
   if (!id) return el("span", { class: "icon champ" });
-  return el("span", { class: "icon champ", title: name }, [
-    el("img", { src: `/icon/champion/${id}.png`, alt: name, loading: "lazy" }),
-  ]);
+  const img = el("img", { alt: name });
+  setIcon(img, "champion", id);
+  return el("span", { class: "icon champ", title: name }, [img]);
 }
 
 function card(title, children) {
@@ -149,6 +185,10 @@ function renderBuild(build) {
   }
   const notes = [...build.notes];
   if (notes.length) children.push(bulletList(notes));
+  const origin = build.source && build.source.startsWith("estadísticas")
+    ? `Base: ${build.source}`
+    : "Base: reglas por tipo de campeón (aún sin datos suficientes de partidas reales)";
+  children.unshift(el("div", { class: "muted small origin", text: origin }));
   return card(`Build · ${build.archetype}`, children);
 }
 
@@ -211,4 +251,5 @@ function renderPlayers(players) {
 }
 
 render({ phaseLabel: "Conectando…", connected: false });
-connect();
+if (DESKTOP) startDesktop();
+else connect();

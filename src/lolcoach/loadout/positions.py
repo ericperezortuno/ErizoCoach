@@ -74,10 +74,18 @@ def infer_positions(
 SUMMONERS_RIFT = 11
 
 
+PositionHint = Callable[[int], Position]
+
+
 def resolve_my_position(
-    assigned: Position, champion_id: int, map_id: int, positions_for: PositionsLookup
+    assigned: Position,
+    champion_id: int,
+    map_id: int,
+    positions_for: PositionsLookup,
+    hint: PositionHint | None = None,
 ) -> Position:
-    """Tu posición: la asignada; si no hay (a ciegas, práctica), la habitual de tu campeón.
+    """Tu posición: la asignada; si no hay (a ciegas, práctica), la más jugada en alto elo
+    según las estadísticas descargadas (``hint``) y, si no hay datos, la habitual de Riot.
 
     Fuera de la Grieta del Invocador (ARAM...) no hay posiciones.
     """
@@ -85,6 +93,10 @@ def resolve_my_position(
         return Position.NONE
     if assigned != Position.NONE:
         return assigned
+    if hint is not None:
+        preferred = hint(champion_id)
+        if preferred != Position.NONE:
+            return preferred
     usual = positions_for(champion_id)
     return usual[0] if usual else Position.NONE
 

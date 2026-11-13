@@ -13,6 +13,7 @@ import logging
 import ssl
 from collections.abc import Callable
 
+from ..builds.archetypes import BuildSource
 from ..builds.models import BuildPlan
 from ..builds.recommender import BuildRecommender
 from ..bus import EventBus
@@ -20,6 +21,7 @@ from ..events import ClientDisconnected, GameflowPhaseChanged, LiveGameEnded, Li
 from ..gamedata.catalog import GameData
 from ..lcu.client import LcuError
 from ..lcu.connector import LcuConnector
+from ..loadout.positions import PositionHint
 from ..models import GameflowPhase, Position
 from .advisor import advise
 from .analysis import analyze
@@ -43,6 +45,8 @@ class LiveGameMonitor:
         *,
         poll_interval: float = DEFAULT_POLL_INTERVAL,
         live_client_factory: Callable[[], LiveClient] | None = None,
+        source: BuildSource | None = None,
+        position_hint: PositionHint | None = None,
     ) -> None:
         self._bus = bus
         self._connector = connector
@@ -50,7 +54,7 @@ class LiveGameMonitor:
         self._current_plan = current_plan
         self._poll_interval = poll_interval
         self._client_factory = live_client_factory or (lambda: LiveClient(ssl_context))
-        self._recommender = BuildRecommender(gamedata)
+        self._recommender = BuildRecommender(gamedata, source, position_hint)
         self._task: asyncio.Task[None] | None = None
         self._plan: BuildPlan | None = None
 
