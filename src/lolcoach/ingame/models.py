@@ -45,6 +45,7 @@ class LivePlayer:
     is_dead: bool = False
     respawn_timer: float = 0.0
     is_bot: bool = False
+    has_smite: bool = False  # lleva Golpe: es el jungla
 
     @property
     def kda(self) -> str:
@@ -64,6 +65,7 @@ class LiveGame:
     me: LivePlayer | None
     allies: tuple[LivePlayer, ...]  # sin incluirte
     enemies: tuple[LivePlayer, ...]
+    destroyed_turrets: tuple[str, ...] = ()  # «Turret_T1_L_03_A»..., de los eventos
 
     @property
     def players(self) -> tuple[LivePlayer, ...]:
@@ -102,6 +104,26 @@ def parse_all_game_data(data: Any) -> LiveGame:
         me=me,
         allies=tuple(p for p in others if p.team == my_team),
         enemies=tuple(p for p in others if p.team != my_team),
+        destroyed_turrets=_destroyed_turrets(data),
+    )
+
+
+def _destroyed_turrets(data: Mapping[str, Any]) -> tuple[str, ...]:
+    """Las torres destruidas según los eventos de la partida (``TurretKilled``)."""
+    events = as_list(as_dict(data.get("events")).get("Events"))
+    return tuple(
+        as_str(event.get("TurretKilled"))
+        for event in (as_dict(e) for e in events)
+        if as_str(event.get("EventName")) == "TurretKilled" and as_str(event.get("TurretKilled"))
+    )
+
+
+def _has_smite(raw: Mapping[str, Any]) -> bool:
+    """Golpe en cualquiera de sus formas (``SummonerSmite``, y sus mejoras al jugar)."""
+    spells = as_dict(raw.get("summonerSpells"))
+    return any(
+        "SummonerSmite" in as_str(as_dict(spells.get(slot)).get("rawDisplayName"))
+        for slot in ("summonerSpellOne", "summonerSpellTwo")
     )
 
 
@@ -146,6 +168,7 @@ def _parse_player(raw: Mapping[str, Any]) -> LivePlayer:
         is_dead=bool(raw.get("isDead")),
         respawn_timer=_as_float(raw.get("respawnTimer")),
         is_bot=bool(raw.get("isBot")),
+        has_smite=_has_smite(raw),
     )
 
 

@@ -83,6 +83,21 @@ class StatsBuildSource:
             if len(o) == 2 + RUNE_FIELDS
         )
 
+    def lane_matchups(
+        self, champion_id: int, position: Position
+    ) -> tuple[tuple[int, int, int], ...]:
+        """Contra cada rival de su línea: (rival, partidas, victorias). Sin mínimo de partidas:
+        quien lo usa decide cuántas le bastan."""
+        entry = self._stats.get((champion_id, position.api_name))
+        return entry.matchups if entry is not None else ()
+
+    def lane_win_rate(self, champion_id: int, position: Position) -> float | None:
+        """Lo que gana en general en esa posición (None si casi no se juega)."""
+        entry = self._stats.get((champion_id, position.api_name))
+        if entry is None or entry.games < self._min_games:
+            return None
+        return entry.wins / entry.games
+
     def base_build(
         self,
         champion: Champion | None,

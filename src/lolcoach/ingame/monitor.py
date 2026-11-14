@@ -24,15 +24,16 @@ from ..lcu.connector import LcuConnector
 from ..loadout.positions import PositionHint
 from ..models import GameflowPhase, Position
 from .advisor import advise
-from .analysis import analyze
+from .analysis import analyze, item_value
 from .client import LiveClient, LiveClientUnavailable
+from .gold import GoldTracker
 from .models import LiveGame, parse_all_game_data
 from .role_slot import RoleSlotBoots
 
 log = logging.getLogger(__name__)
 
 IN_GAME = frozenset({GameflowPhase.GAME_START, GameflowPhase.IN_PROGRESS, GameflowPhase.RECONNECT})
-DEFAULT_POLL_INTERVAL = 3.0
+DEFAULT_POLL_INTERVAL = 1.0  # cada segundo, como el oro de las retransmisiones
 
 
 class LiveGameMonitor:
@@ -62,6 +63,7 @@ class LiveGameMonitor:
         self._plan_revision = 0  # versión de las estadísticas con la que se calculó ``_plan``
         self._role_boots: RoleSlotBoots | None = None  # botas que la API no muestra
         self._threat_id = 0  # enemigo al que respondía el último consejo (para no alternar)
+        self._gold = GoldTracker(lambda p: item_value(p, self._item_price))
 
         bus.subscribe(GameflowPhaseChanged, self._on_phase)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -76,6 +78,7 @@ class LiveGameMonitor:
                 self._plan = None
                 self._role_boots = None  # partida nueva: se empieza de cero
                 self._threat_id = 0
+                self._gold = GoldTracker(lambda p: item_value(p, self._item_price))
                 self._task = asyncio.create_task(self._run())
         elif self.running:
             await self.stop()
@@ -121,10 +124,11 @@ class LiveGameMonitor:
         report = analyze(
             game,
             champion_id=gd.champion_id_by_alias,
-            item_price=lambda item_id: item.price_total if (item := gd.item(item_id)) else 0,
+            item_price=self._item_price,
             profiles=profiles,
             positions_for=gd.positions_for,
             my_position=plan.position if plan else Position.NONE,
+            total_gold=self._gold.update(game),
         )
         hidden_boots = False
         if game.me is not None:
@@ -140,6 +144,10 @@ class LiveGameMonitor:
             )  # fmt: skip
             self._threat_id = advice.threat_id
         return LiveGameUpdated(game, report, advice, plan)
+
+    def _item_price(self, item_id: int) -> int:
+        item = self._gamedata.item(item_id)
+        return item.price_total if item else 0
 
     async def _plan_for(self, my_id: int, game: LiveGame, enemy_ids: list[int]) -> BuildPlan | None:
         """La build de la selección de campeones; si no la hay (app abierta a mitad), se calcula."""

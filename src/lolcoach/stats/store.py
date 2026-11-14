@@ -246,6 +246,12 @@ class MatchStore:
             for entry in json.loads(payload):
                 yield PlayerBuild.from_json(entry)
 
+    def games(self, patch: str) -> Iterator[list[PlayerBuild]]:
+        """Las builds de cada partida del parche, partida a partida (para emparejar líneas)."""
+        query = "SELECT builds FROM matches WHERE patch = ? AND builds IS NOT NULL"
+        for (payload,) in self._db.execute(query, (patch,)):
+            yield [PlayerBuild.from_json(entry) for entry in json.loads(payload)]
+
     def match_count(self, patch: str) -> int:
         query = "SELECT COUNT(*) FROM matches WHERE patch = ? AND builds IS NOT NULL"
         return int(self._db.execute(query, (patch,)).fetchone()[0])

@@ -20,7 +20,15 @@ from ..gamedata.catalog import GameData
 from ..lcu.client import LcuClient
 from ..lcu.connector import LcuConnector
 from ..models import ClientInfo
-from .aggregate import Stats, aggregate, is_fresh, load_stats, save_stats
+from .aggregate import (
+    Stats,
+    aggregate,
+    is_fresh,
+    lane_matchups,
+    load_stats,
+    save_stats,
+    with_matchups,
+)
 from .extract import patch_key
 from .pack import SharedStats
 from .publish import PackPublisher
@@ -76,6 +84,7 @@ def _prepare(database: Path, stats_dir: Path, patch: str, gamedata: GameData) ->
         if is_fresh(path, matches, loadouts) and (cached := load_stats(path)) is not None:
             return cached
         stats = aggregate(store.builds(chosen), gamedata.item)
+        stats = with_matchups(stats, lane_matchups(store.games(chosen)))
         save_stats(path, chosen, matches, stats, loadouts)
         return chosen, matches, stats
     finally:

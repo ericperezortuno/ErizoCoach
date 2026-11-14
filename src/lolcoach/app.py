@@ -19,6 +19,7 @@ from .lcu.connector import LcuConnector, fetch_client_info
 from .lcu.discovery import ClientLocator
 from .lcu.tls import create_ssl_context
 from .lcu.websocket import LcuEventStream
+from .loadout.counters import CounterService
 from .loadout.service import LoadoutService
 from .logs import REDACTOR
 from .models import GameflowPhase
@@ -79,6 +80,10 @@ class Application:
             position_hint=hint, stats=self.build_source,
             current_snapshot=lambda: self.tracker.snapshot,
         )  # fmt: skip
+        # Counters contra tu rival de línea, de los enfrentamientos de alto elo
+        self.counters = CounterService(
+            self.bus, self.connector, self.gamedata.positions_for, self.build_source
+        )
         # Sin clave de Riot, las estadísticas compartidas por quien sí la tiene.
         shared = None
         if settings.stats_shared:

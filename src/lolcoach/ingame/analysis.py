@@ -1,10 +1,10 @@
 """¿Quién va fuerte? Análisis a partir de lo que se ve en el marcador.
 
-El oro de los rivales no es visible, pero sus objetos sí: el valor de sus objetos
-es una buena aproximación del oro que han conseguido. Se combina con el KDA y el
-nivel, comparando con la media de la partida:
+El oro de los rivales no es visible: se calcula el oro total que ha conseguido cada uno,
+como en las retransmisiones de Riot (``gold.py``); sin ese cálculo, el valor de sus objetos.
+Se combina con el KDA y el nivel, comparando con la media de la partida:
 
-    puntuación = 0,60 · oro en objetos + 0,25 · KDA + 0,15 · nivel   (cada término de -1 a 1)
+    puntuación = 0,60 · oro + 0,25 · KDA + 0,15 · nivel   (cada término de -1 a 1)
 
 En los primeros minutos todo el mundo aparece como «normal»: no hay datos suficientes.
 """
@@ -49,7 +49,7 @@ class PlayerReport:
     player: LivePlayer
     champion_id: int
     item_gold: int
-    gold_vs_average: int  # positivo: más oro en objetos que la media
+    gold_vs_average: int  # positivo: más oro que la media
     score: float
     strength: Strength
     damage_type: DamageType
@@ -58,7 +58,8 @@ class PlayerReport:
     damage_level: int = 2  # 0-3 según su perfil: un apoyo encantador no es una amenaza de daño
     position: Position = Position.NONE  # su línea (la del juego o, si no la da, la deducida)
     lane_rival_id: int = 0  # su rival de posición: el de su misma línea en el otro equipo
-    gold_vs_lane_rival: int | None = None  # oro en objetos frente a ese rival (None = sin rival)
+    gold_vs_lane_rival: int | None = None  # oro frente a ese rival (None = sin rival)
+    gold: int = 0  # oro total conseguido (calculado); sin cálculo, el de los objetos
 
     @property
     def threatening(self) -> bool:
@@ -70,6 +71,16 @@ class GameReport:
     me: PlayerReport | None
     allies: tuple[PlayerReport, ...]
     enemies: tuple[PlayerReport, ...]  # de más a menos peligroso
+
+    @property
+    def team_gold(self) -> int:
+        """Oro total de tu equipo (contigo)."""
+        mine = (self.me, *self.allies) if self.me else self.allies
+        return sum(r.gold for r in mine)
+
+    @property
+    def enemy_gold(self) -> int:
+        return sum(r.gold for r in self.enemies)
 
     @property
     def top_threat(self) -> PlayerReport | None:
@@ -88,11 +99,14 @@ def analyze(
     profiles: Mapping[int, ChampionProfile],
     positions_for: Callable[[int], tuple[Position, ...]],
     my_position: Position = Position.NONE,
+    total_gold: Mapping[int, int] | None = None,
 ) -> GameReport:
+    """``total_gold``: oro total de cada jugador (``GoldTracker``, clave ``id(jugador)``)."""
     players = game.players
     if not players:
         return GameReport(None, (), ())
-    gold = {id(p): sum(item_price(i.item_id) * i.count for i in p.items) for p in players}
+    items = {id(p): item_value(p, item_price) for p in players}
+    gold = {pid: (total_gold or {}).get(pid, value) for pid, value in items.items()}
     average_gold = sum(gold.values()) / len(players)
     average_level = sum(p.level for p in players) / len(players)
     scale = max(average_gold, MIN_GOLD_SCALE)
@@ -121,12 +135,12 @@ def analyze(
 
     def report(player: LivePlayer) -> PlayerReport:
         cid = champion_id(player.champion_alias)
-        item_gold = gold[id(player)]
+        player_gold = gold[id(player)]
         rival = rival_of.get(id(player))
         kda = _clamp((player.kills - player.deaths + 0.3 * player.assists) / 6)
         level = _clamp((player.level - average_level) / 3)
         score = (
-            GOLD_WEIGHT * _clamp((item_gold - average_gold) / scale)
+            GOLD_WEIGHT * _clamp((player_gold - average_gold) / scale)
             + KDA_WEIGHT * kda
             + LEVEL_WEIGHT * level
         )
@@ -144,8 +158,8 @@ def analyze(
         return PlayerReport(
             player=player,
             champion_id=cid,
-            item_gold=item_gold,
-            gold_vs_average=round(item_gold - average_gold),
+            item_gold=items[id(player)],
+            gold_vs_average=round(player_gold - average_gold),
             score=round(score, 3),
             strength=strength,
             damage_type=profile.damage_type if profile else DamageType.UNKNOWN,
@@ -154,12 +168,18 @@ def analyze(
             damage_level=profile.damage if profile else 2,
             position=seats.get(id(player), player.position),
             lane_rival_id=champion_id(rival.champion_alias) if rival else 0,
-            gold_vs_lane_rival=item_gold - gold[id(rival)] if rival else None,
+            gold_vs_lane_rival=player_gold - gold[id(rival)] if rival else None,
+            gold=player_gold,
         )
 
     enemies = sorted((report(p) for p in game.enemies), key=lambda r: -r.score)
     allies = tuple(report(p) for p in game.allies)
     return GameReport(report(game.me) if game.me else None, allies, tuple(enemies))
+
+
+def item_value(player: LivePlayer, item_price: Callable[[int], int]) -> int:
+    """Lo que valen los objetos que lleva."""
+    return sum(item_price(i.item_id) * i.count for i in player.items)
 
 
 def _seats(

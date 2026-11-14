@@ -109,3 +109,13 @@ class LoadoutStats(Protocol):
     def rune_options_for(
         self, champion_id: int, position: Position
     ) -> tuple[StatsRuneOption, ...]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class CounterPick:
+    """Un campeón contra tu rival de línea, según las partidas de alto elo."""
+
+    champion_id: int
+    games: int
+    wins: int
+    win_rate: float  # 0-1, mezclado con lo que gana ese campeón en general (ver counters.py)

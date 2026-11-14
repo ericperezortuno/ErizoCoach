@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <img alt="Versión 0.15.0" src="https://img.shields.io/badge/versi%C3%B3n-0.15.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.17.0" src="https://img.shields.io/badge/versi%C3%B3n-0.17.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
-  <img alt="357 pruebas" src="https://img.shields.io/badge/pruebas-357-4fd6a2?style=for-the-badge&labelColor=0c1b35">
+  <img alt="387 pruebas" src="https://img.shields.io/badge/pruebas-387-4fd6a2?style=for-the-badge&labelColor=0c1b35">
   <img alt="Solo la API oficial de Riot" src="https://img.shields.io/badge/API-solo%20la%20oficial%20de%20Riot-c8aa6e?style=for-the-badge&labelColor=0c1b35">
 </p>
 
@@ -39,6 +39,13 @@
 ### 🔀 3 páginas para elegir
 La recomendada y las otras piedras angulares más jugadas, con sus partidas y su
 % de victorias. Tocar una la pone en el cliente.
+
+### 🥊 Counters contra tu rival de línea
+En cuanto el rival de tu línea elige, los **5 campeones a los que mejor les va contra
+él** en tu posición, sacados de los enfrentamientos de las partidas de alto elo. Solo
+los que puedes elegir (tuyos, sin banear ni coger). Con pocas partidas el porcentaje
+se acerca a la media del campeón, para que un 3 de 3 no parezca un 100 %. Cuando
+bloqueas, cómo va tu enfrentamiento.
 
 </td>
 <td width="50%" valign="top">
@@ -99,11 +106,14 @@ Los objetos que se mejoran solos (Abrazo del serafín, Muramana...) cuentan como
 <td width="50%" valign="top">
 
 ### 📊 Quién va fuerte, línea a línea
+- Arriba, el **oro total de cada equipo y su diferencia**, como en las retransmisiones.
 - Una fila por línea: **tu compañero, la diferencia de oro y su rival**.
 - **Verde ◄** si va por delante tu compañero, **rojo ►** si el rival, **=** si van igualados.
 - Cada jugador con KDA, súbditos, nivel, tipo de daño y una etiqueta
   **Muy fuerte / Fuerte / Normal / Por detrás**.
-- El oro de los rivales no se ve, pero sus objetos sí: se calcula con lo que valen.
+- **Oro total conseguido, en directo** (se actualiza cada segundo): tiempo de partida,
+  súbditos, monstruos, asesinatos, asistencias, primera sangre y torres; lo que no se ve
+  (placas, recompensas, objetivos) se corrige solo cada vez que alguien compra.
 - Si el juego no dice las líneas (a ciegas, práctica), se deducen por campeón.
 
 </td>
@@ -267,9 +277,26 @@ Para volver, haz clic en el **icono de LoL Coach junto al reloj** de Windows (pu
 de la flechita ˄) o abre LoL Coach otra vez. Con clic derecho en ese icono también puedes
 cerrarlo.
 
-**Quién va fuerte**: se combina el valor de los objetos de cada jugador (60 %), su KDA (25 %) y
-su nivel (15 %) frente a la media de la partida. En los primeros 3 minutos no se etiqueta a
-nadie. La diferencia de oro de la tarjeta de líneas es frente a su rival de posición.
+**Oro**: como en las retransmisiones de Riot, es el **oro total conseguido** (gastado o no).
+Ese dato solo lo tiene el servidor de la partida y la API local de Riot da únicamente el tuyo
+sin gastar; del resto se ve lo mismo que en el marcador. Así que se calcula con todo lo que
+da oro y se puede ver (valores oficiales de los parches 26.01-26.03):
+
+| Fuente | Cómo se cuenta |
+| --- | --- |
+| Inicial y pasivo | 500 de oro y 20,4 cada 10 s desde el 1:05 (igual para todos) |
+| Súbditos | 18,7 de media por súbdito hasta el 15:00 y hasta 21,5 desde el 25:00 (más cañones) |
+| Monstruos de la jungla | 24 por monstruo para quien lleva Golpe |
+| Asesinatos | 300 (rival de nivel 1-6) a 420 (nivel 18), +100 la primera sangre |
+| Asistencias | La mitad de la recompensa, repartida entre los que ayudan |
+| Torres | El oro global para todo el equipo (50 exteriores y del nexo, 25 interiores e inhibidores) |
+| Lo que no se ve | Placas, rachas, recompensas por ir por detrás, objetos de apoyo, dragones, Barón...: el valor de los objetos de un jugador nunca supera el oro que ha conseguido, así que cuando compra, lo que faltaba se le suma para el resto de la partida |
+
+Tu oro es exacto (tus objetos más tu oro sin gastar). Se lee la partida cada segundo.
+
+**Quién va fuerte**: se combina el oro de cada jugador (60 %), su KDA (25 %) y su nivel (15 %)
+frente a la media de la partida. En los primeros 3 minutos no se etiqueta a nadie. La
+diferencia de oro de la tarjeta de líneas es frente a su rival de posición.
 
 **Qué comprar**, por este orden:
 0. **Objetos iniciales**: al empezar la partida, con el inventario vacío, todo lo de inicio junto.
@@ -365,7 +392,7 @@ window = true           # false = sin ventana del segundo monitor
 window_on_secondary = true  # false = abrir la ventana en el monitor principal
 window_mode = "escritorio"  # "navegador" = usar Edge en lugar de la ventana de escritorio
 window_on_top = false       # true = ventana siempre encima
-live_poll_interval = 3  # segundos entre lecturas de la partida (1-10)
+live_poll_interval = 1  # segundos entre lecturas de la partida (1-10)
 riot_region = "euw1"    # tu región: euw1, eun1, tr1, na1, kr
 stats_regions = ["euw1", "kr", "na1"]  # regiones de las que se descargan partidas
 stats_min_games = 20    # partidas mínimas para usar la build de estadísticas (5-500)
@@ -461,4 +488,7 @@ cliente abierto.
 10. **Runas con imágenes, editables en la ventana y puestas al mantener la preselección** ✅
 11. **Compras con el núcleo primero, objetos mejorados y objetos iniciales** ✅
 12. **3 páginas de runas para elegir, hechizos editables y oro por línea** ✅
-13. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
+13. **Más partidas de alto elo (Diamante II+, EUW, KR y NA)** ✅
+14. **Oro total en directo, como en las retransmisiones** ✅
+15. **Counters contra tu rival de línea en la selección** ✅
+16. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.

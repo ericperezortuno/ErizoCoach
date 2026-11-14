@@ -14,13 +14,16 @@ Para cada (campeón, posición):
   secundarias más repetidos, y el fragmento más elegido de cada fila. Así la página
   sale siempre de combinaciones que juega la gente.
 * **Hechizos**: la pareja más repetida (en el orden de teclas más habitual).
+* **Enfrentamientos**: contra cada rival de su misma línea (misma posición en el otro
+  equipo), cuántas partidas y cuántas victorias. De ahí salen los counters.
 """
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import time
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -29,19 +32,20 @@ from typing import Any
 from ..builds.models import ItemCount
 from ..gamedata.items import Item
 from ..util import as_dict, as_int, as_list, as_str
-from .extract import PlayerBuild
+from .extract import POSITIONS, PlayerBuild
 
 STARTING_SECONDS = 60
 TRINKETS = frozenset({3340, 3363, 3364})  # guardianes/lentes: no forman parte de la build
 LEGENDARY_MIN_PRICE = 2200
 CHAIN_MIN_SUPPORT = 5  # partidas mínimas para fiarse de la cadena del núcleo
 FORMAT_VERSION = 2  # 2: con runas y hechizos
-# Las opciones de runas son un campo nuevo dentro del formato 2: las versiones anteriores de
-# la app lo ignoran (el paquete compartido les sigue valiendo). Esta marca solo sirve para
-# recalcular una caché local hecha antes de que existieran.
-RUNE_OPTIONS_VERSION = 1
+# Las opciones de runas (1) y los enfrentamientos (2) son campos nuevos dentro del formato 2:
+# las versiones anteriores de la app los ignoran (el paquete compartido les sigue valiendo).
+# Esta marca solo sirve para recalcular una caché local hecha antes de que existieran.
+RUNE_OPTIONS_VERSION = 2
 RUNE_OPTIONS = 3  # piedras angulares distintas que se ofrecen
 MIN_OPTION_GAMES = 5  # menos partidas que esto con una piedra angular es ruido
+MIN_MATCHUP_GAMES = 2  # enfrentamientos con una sola partida no se guardan (solo ocupan)
 
 ItemLookup = Callable[[int], Item | None]
 
@@ -63,6 +67,8 @@ class ChampionStats:
     # Hasta 3 páginas con piedras angulares distintas, de más a menos jugada:
     # (partidas, victorias, árbol principal, secundario, 9 runas)
     rune_options: tuple[tuple[int, ...], ...] = ()
+    # Contra cada rival de línea: (campeón rival, partidas, victorias), de más a menos partidas
+    matchups: tuple[tuple[int, int, int], ...] = ()
 
 
 def is_legendary(item: Item | None) -> bool:
@@ -139,6 +145,47 @@ def _summarize(key: tuple[int, str], games: list[PlayerBuild], item: ItemLookup)
         spells=_spell_pair(with_loadout),
         rune_options=_rune_options(with_loadout),
     )
+
+
+MatchupCounts = dict[tuple[int, str], dict[int, list[int]]]
+
+
+def lane_matchups(matches: Iterable[list[PlayerBuild]]) -> MatchupCounts:
+    """Partidas y victorias de cada (campeón, posición) contra cada rival de su línea.
+
+    En cada partida, el rival de línea es el del otro equipo con la misma posición: el
+    único con esa posición que ha tenido el resultado contrario. Si una posición no está
+    clara (dos jugadores en la misma, o falta), esa línea no cuenta.
+    """
+    counts: MatchupCounts = defaultdict(lambda: defaultdict(lambda: [0, 0]))
+    for builds in matches:
+        seats: dict[str, list[PlayerBuild]] = defaultdict(list)
+        for build in builds:
+            seats[build.position].append(build)
+        for position, pair in seats.items():
+            if position not in POSITIONS or len(pair) != 2 or pair[0].win == pair[1].win:
+                continue
+            for me, rival in (pair, pair[::-1]):
+                row = counts[(me.champion_id, position)][rival.champion_id]
+                row[0] += 1
+                row[1] += int(me.win)
+    return counts
+
+
+def with_matchups(
+    stats: dict[tuple[int, str], ChampionStats], counts: MatchupCounts
+) -> dict[tuple[int, str], ChampionStats]:
+    """Añade a cada entrada sus enfrentamientos de línea (los de 2 partidas o más)."""
+    result = dict(stats)
+    for key, entry in stats.items():
+        rows = counts.get(key, {})
+        matchups = sorted(
+            ((rival, games, wins) for rival, (games, wins) in rows.items()
+             if games >= MIN_MATCHUP_GAMES),
+            key=lambda row: (-row[1], row[0]),
+        )  # fmt: skip
+        result[key] = dataclasses.replace(entry, matchups=tuple(matchups))
+    return result
 
 
 def _most_common(values: Iterable[Any]) -> Any:
@@ -315,5 +362,10 @@ def _entry(raw: Mapping[str, Any]) -> ChampionStats:
             tuple(as_int(n) for n in option)
             for option in as_list(raw.get("rune_options"))
             if isinstance(option, list)
+        ),
+        matchups=tuple(
+            (as_int(row[0]), as_int(row[1]), as_int(row[2]))
+            for row in as_list(raw.get("matchups"))
+            if isinstance(row, list) and len(row) == 3
         ),
     )

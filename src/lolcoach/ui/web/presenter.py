@@ -17,6 +17,7 @@ from ...events import (
     ChampSelectStarted,
     ClientConnected,
     ClientDisconnected,
+    CountersUpdated,
     GameflowPhaseChanged,
     LiveGameEnded,
     LiveGameUpdated,
@@ -39,7 +40,7 @@ from ...gamedata.runes import (
 )
 from ...ingame.analysis import STRENGTH_LABELS, GameReport, PlayerReport
 from ...ingame.models import LivePlayer
-from ...loadout.models import LANE_CONFIDENCE, Loadout
+from ...loadout.models import LANE_CONFIDENCE, CounterPick, Loadout
 from ...models import LANE_POSITIONS, GameflowPhase
 from ..labels import GAMEFLOW_LABELS, POSITION_LABELS
 
@@ -90,6 +91,7 @@ class UiPresenter:
             "build": None,
             "game": None,
             "stats": None,  # estado de la descarga automática de estadísticas
+            "counters": None,  # counters contra tu rival de línea (selección)
             "runeCatalog": None,  # árboles de runas, para cambiarlas desde la ventana
             "spellCatalog": [],  # hechizos que se pueden elegir en este modo
         }
@@ -105,6 +107,7 @@ class UiPresenter:
         bus.subscribe(LiveGameUpdated, self._on_live)
         bus.subscribe(LiveGameEnded, self._on_live_ended)
         bus.subscribe(StatsStatus, self._on_stats)
+        bus.subscribe(CountersUpdated, self._on_counters)
 
     @property
     def state(self) -> State:
@@ -143,7 +146,10 @@ class UiPresenter:
         self._loadout, self._in_client = None, None
         mode = event.queue.game_mode if event.queue else ""
         spells = [self._spell(s.id) for s in self._gd.spells_for(mode)]
-        await self._set(champion=None, loadout=None, build=None, game=None, spellCatalog=spells)
+        await self._set(
+            champion=None, loadout=None, build=None, game=None, counters=None,
+            spellCatalog=spells,
+        )  # fmt: skip
 
     async def _on_finalized(self, event: PicksFinalized) -> None:
         me = event.snapshot.me
@@ -151,6 +157,30 @@ class UiPresenter:
             await self._set(champion=self._champion(me.champion_id, POSITION_LABELS[me.position]))
 
     # --- Runas y build ----------------------------------------------------------------
+
+    async def _on_counters(self, event: CountersUpdated) -> None:
+        """Counters contra tu rival de línea (o cómo va tu enfrentamiento si ya has elegido)."""
+        if not event.enemy_id or (not event.picks and event.mine is None):
+            await self._set(counters=None)
+            return
+
+        def pick(p: CounterPick) -> State:
+            return {
+                "id": p.champion_id,
+                "name": self._gd.champion_name(p.champion_id),
+                "winRate": round(p.win_rate * 100),
+                "games": p.games,
+                "wins": p.wins,
+            }
+
+        await self._set(
+            counters={
+                "enemy": self._champion(event.enemy_id, POSITION_LABELS.get(event.position, "")),
+                "picks": [pick(p) for p in event.picks],
+                "mine": pick(event.mine) if event.mine else None,
+                "locked": event.locked,
+            }
+        )
 
     async def _on_stats(self, event: StatsStatus) -> None:
         await self._set(stats={"text": event.text, "problem": event.problem})
@@ -344,6 +374,8 @@ class UiPresenter:
                 )
             ],
             "matchups": self._matchups(report, game.players),
+            # Oro total de cada equipo, como en las retransmisiones de Riot
+            "teamGold": {"mine": report.team_gold, "theirs": report.enemy_gold},
             "next": None,
             "message": "",
             "buildProgress": [],
@@ -412,6 +444,7 @@ class UiPresenter:
             "cs": p.creep_score,
             "level": p.level,
             "itemGold": report.item_gold,
+            "totalGold": report.gold,
             "goldDiff": report.gold_vs_average,
             # Frente a su rival de posición (el de su línea en el otro equipo)
             "laneGoldDiff": report.gold_vs_lane_rival,
@@ -431,7 +464,7 @@ class UiPresenter:
     def _matchups(self, report: GameReport, order: Sequence[LivePlayer]) -> list[State]:
         """Una fila por línea: tu compañero, la diferencia de oro y su rival de posición.
 
-        La diferencia es desde tu equipo (positiva = tu compañero lleva más oro en objetos).
+        La diferencia es desde tu equipo (positiva = tu compañero lleva más oro).
         Vacío si nadie tiene rival de posición (otros modos): entonces van en dos listas."""
         mine = _by_lane((report.me, *report.allies) if report.me else report.allies, order)
         theirs = _by_lane(report.enemies, order)

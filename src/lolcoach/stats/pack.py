@@ -36,14 +36,15 @@ DEFAULT_PACK_URL = (
 PACK_FILE = "estadisticas.json.gz"  # nombre en el repositorio público
 CACHE_FILE = "compartidas.json.gz"  # copia local de la última descarga buena
 REFRESH_SECONDS = 6 * 3600  # se vuelve a descargar como mucho cada 6 horas
-MAX_DOWNLOAD = 2_000_000  # bytes comprimidos (el paquete real ronda los 30 KB)
-MAX_UNPACKED = 20_000_000  # bytes descomprimidos: nada de «bombas» de compresión
+MAX_DOWNLOAD = 8_000_000  # bytes comprimidos (el paquete real ronda los 100-300 KB)
+MAX_UNPACKED = 60_000_000  # bytes descomprimidos: nada de «bombas» de compresión
 TIMEOUT = aiohttp.ClientTimeout(total=20)
 
 POSITIONS = frozenset(p.api_name for p in LANE_POSITIONS)
 PATCH = re.compile(r"\d{1,3}\.\d{1,3}")
 MAX_ID = 1_000_000
 MAX_GAMES = 10_000_000
+MAX_MATCHUPS = 400  # rivales distintos en una línea: hay menos campeones que esto
 
 
 class PackError(Exception):
@@ -102,6 +103,11 @@ def is_sane(entry: ChampionStats) -> bool:
         and all(0 < s < MAX_ID for s in entry.spells)
         and len(entry.rune_options) <= RUNE_OPTIONS
         and all(_sane_option(option, entry.loadout_games) for option in entry.rune_options)
+        and len(entry.matchups) <= MAX_MATCHUPS
+        and all(
+            0 < rival < MAX_ID and 0 < games <= entry.games and 0 <= wins <= games
+            for rival, games, wins in entry.matchups
+        )
     )
 
 

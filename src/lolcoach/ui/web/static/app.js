@@ -192,6 +192,11 @@ function card(title, children, { className = "", extra = null } = {}) {
   ]);
 }
 
+// 24300 -> "24,3k" (sin signo: para totales)
+function goldAmount(gold) {
+  return goldText(gold).slice(1);
+}
+
 function goldText(diff) {
   const abs = Math.abs(diff);
   const text = abs >= 1000 ? `${(abs / 1000).toFixed(1).replace(".", ",")}k` : `${abs}`;
@@ -211,7 +216,7 @@ function originLine(source, fallback) {
 
 function viewOf(state) {
   if (state.game) return "game";
-  if (state.champion || state.loadout || state.build) return "champ";
+  if (state.champion || state.loadout || state.build || state.counters) return "champ";
   return state.connected ? "menu" : "offline";
 }
 
@@ -281,11 +286,50 @@ function renderIdle(state) {
 }
 
 function renderChampSelect(state) {
+  const counters = state.counters ? renderCounters(state.counters) : null;
+  const choosing = state.counters && !state.counters.locked;
   return [
+    choosing ? counters : null, // aún eliges: lo primero, qué te puedes coger
     state.champion ? renderHero(state) : null,
+    choosing ? null : counters,
     state.loadout ? renderLoadout(state.loadout, state) : null,
     state.build ? renderBuild(state.build) : null,
   ];
+}
+
+// Counters contra tu rival de línea (de las partidas de alto elo) o, si ya has elegido,
+// cómo va tu enfrentamiento.
+function counterRow(pick, enemyName) {
+  const says = `${pick.name} gana el ${pick.winRate} % contra ${enemyName} `
+    + `(${pick.wins} de ${pick.games} partidas de alto elo; con pocas partidas se acerca a su media)`;
+  const strength = pick.winRate >= 55 ? "strong" : pick.winRate < 48 ? "weak" : "";
+  return el("li", { class: classes("counter", strength), title: says, "aria-label": says }, [
+    championIcon(pick.id, pick.name),
+    el("div", { class: "counter-who" }, [
+      el("span", { class: "counter-name", text: pick.name }),
+      el("small", { class: "muted", text: `${pick.games} partidas` }),
+    ]),
+    el("span", { class: "counter-rate", "aria-hidden": "true", text: `${pick.winRate} %` }),
+  ]);
+}
+
+function renderCounters(counters) {
+  const enemy = counters.enemy;
+  const title = counters.locked ? `Tu enfrentamiento contra ${enemy.name}` : `Counters contra ${enemy.name}`;
+  const extra = el("span", { class: "counter-enemy" }, [
+    enemy.position ? el("span", { class: "tag", text: enemy.position }) : null,
+    championIcon(enemy.id, enemy.name),
+  ]);
+  let body;
+  if (counters.locked) {
+    body = [el("ul", { class: "counters" }, [counterRow(counters.mine, enemy.name)])];
+  } else {
+    body = [
+      el("ul", { class: "counters" }, counters.picks.map((p) => counterRow(p, enemy.name))),
+      el("div", { class: "muted small", text: "Victorias en tu línea contra él en alto elo. Solo campeones que puedes elegir." }),
+    ];
+  }
+  return card(title, body, { className: "wide counters-card", extra });
 }
 
 function renderHero(state) {
@@ -658,7 +702,7 @@ function renderGame(state) {
     game.buildProgress.length ? renderProgress(game) : null,
     // Una fila por línea: tu compañero a la izquierda, su rival a la derecha y la diferencia
     // de oro en medio. Sin líneas (otros modos), las dos listas de siempre.
-    ...(game.matchups && game.matchups.length ? [renderMatchups(game.matchups)] : [
+    ...(game.matchups && game.matchups.length ? [renderMatchups(game.matchups, game.teamGold)] : [
       team.length ? card("Tu equipo", [renderPlayers(team, game.me, "ally")]) : null,
       game.enemies.length ? card("Rivales", [renderPlayers(game.enemies, null, "enemy")]) : null,
     ]),
@@ -804,8 +848,8 @@ function playerRow(p, me, side, { mirror = false, showGold = true, tag = "li" } 
   const diff = vsLane ? p.laneGoldDiff : p.goldDiff;
   const goldClass = diff > 400 ? "gold up" : diff < -400 ? "gold down" : "gold";
   const goldTitle = vsLane
-    ? `Oro en objetos frente a ${p.laneRival}, su rival de posición`
-    : "Oro en objetos frente a la media de la partida";
+    ? `Oro total frente a ${p.laneRival}, su rival de posición`
+    : "Oro total frente a la media de la partida";
   const badge = el("span", { class: `badge ${p.strength}`, text: p.strengthLabel });
   const parts = [
     championIcon(p.championId, p.name),
@@ -843,7 +887,31 @@ function playerRow(p, me, side, { mirror = false, showGold = true, tag = "li" } 
 
 // Enfrentamientos: cada línea con la diferencia de oro en medio, vista desde tu equipo.
 // La flecha apunta a quien lleva más oro en objetos.
-function renderMatchups(matchups) {
+// Cabecera de «Líneas»: el oro total de cada equipo y la diferencia, como en la retransmisión.
+function renderTeamGold(teamGold) {
+  if (!teamGold) {
+    return el("div", { class: "matchup-head", "aria-hidden": "true" }, [
+      el("span", { text: "Tu equipo" }), el("span", { text: "Oro" }), el("span", { text: "Rivales" }),
+    ]);
+  }
+  const diff = teamGold.mine - teamGold.theirs;
+  const even = Math.abs(diff) < 150;
+  const state = even ? "even" : diff > 0 ? "ahead" : "behind";
+  const says = even ? "Los dos equipos van igualados en oro"
+    : diff > 0 ? `Tu equipo lleva ${Math.abs(diff)} de oro más`
+      : `Los rivales llevan ${Math.abs(diff)} de oro más`;
+  return el("div", { class: "matchup-head team-gold", role: "group", "aria-label": says, title: says }, [
+    el("span", { "aria-hidden": "true" }, ["Tu equipo ", el("b", { text: goldAmount(teamGold.mine) })]),
+    el("span", { class: classes("gap-value", state), "aria-hidden": "true" }, [
+      diff > 0 && !even ? el("span", { class: "arrow", text: "◀" }) : null,
+      el("span", { text: even ? "=" : goldAmount(Math.abs(diff)) }),
+      diff < 0 && !even ? el("span", { class: "arrow", text: "▶" }) : null,
+    ]),
+    el("span", { "aria-hidden": "true" }, [el("b", { text: goldAmount(teamGold.theirs) }), " Rivales"]),
+  ]);
+}
+
+function renderMatchups(matchups, teamGold) {
   const rows = matchups.map((m) => {
     const ally = m.ally ? playerRow(m.ally, null, "ally", { showGold: false, tag: "div" }) : el("div", { class: "player empty-seat" });
     const enemy = m.enemy ? playerRow(m.enemy, null, "enemy", { mirror: true, showGold: false, tag: "div" }) : el("div", { class: "player empty-seat" });
@@ -872,9 +940,7 @@ function renderMatchups(matchups) {
     return el("li", { class: "matchup" }, [ally, middle, enemy]);
   });
   return card("Líneas", [
-    el("div", { class: "matchup-head", "aria-hidden": "true" }, [
-      el("span", { text: "Tu equipo" }), el("span", { text: "Oro" }), el("span", { text: "Rivales" }),
-    ]),
+    renderTeamGold(teamGold),
     el("ul", { class: "matchups" }, rows),
   ], { className: "wide lanes" });
 }

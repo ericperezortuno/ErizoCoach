@@ -19,8 +19,8 @@ from .gamedata.runes import RunePage
 from .ingame.advisor import Advice
 from .ingame.analysis import GameReport
 from .ingame.models import LiveGame
-from .loadout.models import Loadout
-from .models import ClientInfo, GameflowPhase, QueueInfo
+from .loadout.models import CounterPick, Loadout
+from .models import ClientInfo, GameflowPhase, Position, QueueInfo
 
 
 @dataclass(frozen=True, slots=True)
@@ -192,3 +192,14 @@ class SpellsEditRequested:
     """Desde la ventana: pon estos hechizos (D, F) en el cliente."""
 
     spells: tuple[int, int]
+
+
+@dataclass(frozen=True, slots=True)
+class CountersUpdated:
+    """Counters contra tu rival de línea en la selección (``enemy_id`` 0 = no hay que mostrar)."""
+
+    position: Position
+    enemy_id: int
+    picks: tuple[CounterPick, ...]
+    mine: CounterPick | None = None  # ya has bloqueado: cómo va tu enfrentamiento
+    locked: bool = False

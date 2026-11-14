@@ -13,7 +13,7 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     window_on_secondary = true # false = abrirla en el monitor principal
     window_mode = "escritorio" # "escritorio" (ventana propia) o "navegador" (Edge)
     window_on_top = false      # true = ventana siempre encima
-    live_poll_interval = 3     # segundos entre lecturas de la partida (1-10)
+    live_poll_interval = 1     # segundos entre lecturas de la partida (1-10)
     riot_region = "euw1"       # tu región (euw1, eun1, tr1, na1, kr)
     stats_regions = ["euw1", "kr", "na1"] # regiones de las que se descargan partidas
     stats_min_games = 20       # partidas mínimas para usar la build de estadísticas
@@ -62,7 +62,7 @@ class Settings:
     window_on_secondary: bool = True  # False = en el monitor principal
     window_mode: str = "escritorio"  # "escritorio" (ventana propia) o "navegador" (Edge)
     window_on_top: bool = False  # mantener la ventana siempre encima
-    live_poll_interval: float = 3.0  # segundos entre lecturas de la partida
+    live_poll_interval: float = 1.0  # segundos entre lecturas de la partida
     riot_region: str = "euw1"  # tu región (API de Riot)
     # Regiones de las que se descargan partidas a la vez (Riot limita cada una por separado)
     stats_regions: tuple[str, ...] = DEFAULT_STATS_REGIONS
@@ -152,10 +152,10 @@ def load_settings(
             f"{DEFAULT_TARGET_MATCHES}."
         )
         target = DEFAULT_TARGET_MATCHES
-    poll = values.get("live_poll_interval", 3.0)
+    poll = values.get("live_poll_interval", 1.0)
     if isinstance(poll, bool) or not isinstance(poll, int | float) or not 1 <= poll <= 10:
-        warnings.append("config.toml: 'live_poll_interval' debe estar entre 1 y 10; se usa 3.")
-        poll = 3.0
+        warnings.append("config.toml: 'live_poll_interval' debe estar entre 1 y 10; se usa 1.")
+        poll = 1.0
 
     interval = values.get("discovery_interval", 3.0)
     if (

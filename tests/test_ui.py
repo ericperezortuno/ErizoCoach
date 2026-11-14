@@ -285,6 +285,10 @@ async def test_lanes_pair_each_ally_with_their_rival_and_the_gold_gap() -> None:
     ahri = rows[2]
     assert ahri["ally"]["me"] and ahri["position"] == "Medio"
     assert ahri["goldDiff"] == ahri["ally"]["laneGoldDiff"] == -ahri["enemy"]["laneGoldDiff"]
+    # Oro total de cada equipo, como en la retransmisión
+    team = presenter.state["game"]["teamGold"]
+    assert team["mine"] == sum(r["ally"]["totalGold"] for r in rows)
+    assert team["theirs"] == sum(r["enemy"]["totalGold"] for r in rows)
 
 
 async def test_without_lanes_there_are_no_matchups() -> None:

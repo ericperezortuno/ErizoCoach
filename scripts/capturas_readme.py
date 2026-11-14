@@ -58,7 +58,8 @@ from lolcoach.events import (  # noqa: E402
 )
 from lolcoach.gamedata.catalog import GameData  # noqa: E402
 from lolcoach.ingame.advisor import advise  # noqa: E402
-from lolcoach.ingame.analysis import analyze  # noqa: E402
+from lolcoach.ingame.analysis import analyze, item_value  # noqa: E402
+from lolcoach.ingame.gold import GoldTracker  # noqa: E402
 from lolcoach.ingame.models import parse_all_game_data  # noqa: E402
 from lolcoach.loadout.recommender import LoadoutRecommender  # noqa: E402
 from lolcoach.models import GameflowPhase, Position, QueueInfo  # noqa: E402
@@ -344,6 +345,7 @@ class Show:
         self.gd, self.source = gd, source
         self.bus = EventBus()
         self.presenter = UiPresenter(self.bus, gd)
+        self.gold: GoldTracker | None = None  # oro total de cada jugador, partida a partida
         self.server = UiServer(self.presenter, gd, SimpleNamespace(client=None))  # type: ignore[arg-type]
         self.loadout: Any = None
         self.plan: Any = None
@@ -401,13 +403,20 @@ class Show:
             )
         game = parse_all_game_data(players(minute))
         gd = self.gd
+
+        def price(item_id: int) -> int:
+            return item.price_total if (item := gd.item(item_id)) else 0
+
+        if self.gold is None:
+            self.gold = GoldTracker(lambda p: item_value(p, price))
         report = analyze(
             game,
             champion_id=gd.champion_id_by_alias,
-            item_price=lambda i: item.price_total if (item := gd.item(i)) else 0,
+            item_price=price,
             profiles=gd._profiles,
             positions_for=gd.positions_for,
             my_position=Position.MIDDLE,
+            total_gold=self.gold.update(game),  # como en la app: oro total en directo
         )
         assert game.me is not None
         advice = advise(self.plan, report, game.me.item_ids, game.current_gold, gd.item,
