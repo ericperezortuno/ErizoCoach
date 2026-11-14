@@ -1,36 +1,154 @@
-# LoL Coach
+<p align="center">
+  <img src="docs/img/banner.svg" width="100%" alt="LoL Coach: runas, hechizos y build para League of Legends; en partida, qué comprar y quién va fuerte">
+</p>
 
-Asistente local para League of Legends que te pone las runas, los hechizos de
-invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
-dice en tu segundo monitor qué comprar y quién va fuerte.
+<p align="center">
+  <img alt="Versión 0.14.2" src="https://img.shields.io/badge/versi%C3%B3n-0.14.2-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
+  <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
+  <img alt="344 pruebas" src="https://img.shields.io/badge/pruebas-344-4fd6a2?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Solo la API oficial de Riot" src="https://img.shields.io/badge/API-solo%20la%20oficial%20de%20Riot-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+</p>
 
-## Estado: v0.14.1 (hechizos editables en la ventana, diferencia de oro entre cada pareja de línea, objetos iniciales, 3 páginas de runas)
+<p align="center">
+  <b>Te pone las runas, los hechizos y la build en cuanto eliges campeón</b>, adaptados a los rivales y<br>
+  a lo que de verdad juegan los jugadores de alto elo. Durante la partida, en tu segundo monitor,<br>
+  te dice <b>qué comprar ahora</b> y <b>quién va fuerte</b> en cada línea.
+</p>
 
-### Lo que hace
+<p align="center">
+  <img src="docs/img/seleccion.webp" width="820" alt="Selección de campeones: al preseleccionar a Ahri salen sus runas, hechizos y build; a los 5 segundos se ponen solas en el cliente y se elige otra de las páginas propuestas">
+  <br><sub>La ventana real de LoL Coach en la selección de campeones: previsión, runas puestas solas y otra página elegida con un clic.</sub>
+</p>
+
+---
+
+## ✨ En la selección de campeones
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🎯 Runas y hechizos solos
+- **Preselecciona 5 segundos** y tus runas y hechizos ya están puestos en el cliente.
+- **Al último pick** se ajustan a los rivales que ya se ven (salvo lo que hayas cambiado tú).
+- **Base de alto elo**: lo que más se juega con tu campeón y posición en Challenger,
+  Gran Maestro y Maestro; si faltan datos, la recomendación de Riot.
+- **Destello se queda en tu tecla** (D o F).
+
+### 🔀 3 páginas para elegir
+La recomendada y las otras piedras angulares más jugadas, con sus partidas y su
+% de victorias. Tocar una la pone en el cliente.
+
+</td>
+<td width="50%" valign="top">
+<img src="docs/img/runas.png" alt="Tarjeta de runas con las imágenes de la página, los hechizos con su tecla y las páginas para elegir, junto a la build">
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="docs/img/editor.webp" alt="Editor de runas: se cambia la piedra angular y un fragmento, y luego el hechizo de la D">
+</td>
+<td width="50%" valign="top">
+
+### ✏️ Cámbialas desde la ventana
+- **Runas**: abre el editor y toca la que quieras, como en el cliente. Se escribe al
+  momento en tu página «LoL Coach». Si cambias de árbol, el resto se recoloca solo para
+  que la página siga siendo válida.
+- **Hechizos**: toca el de la D o el de la F y elige otro de los de tu modo. Si eliges
+  el de la otra tecla, se intercambian.
+- **Lo que cambies tú se respeta**: ni la app ni el último pick lo vuelven a tocar para
+  ese campeón.
+
+### 🛒 La build en la tienda
+Un conjunto de objetos «LoL Coach» con lo inicial, las botas, el núcleo en orden y lo que
+pide el equipo enemigo, listo en la pestaña *Conjuntos de objetos*.
+
+</td>
+</tr>
+</table>
+
+## ⚔️ Durante la partida
+
+<p align="center">
+  <img src="docs/img/partida.webp" width="820" alt="En partida: primero los objetos iniciales y después la compra recomendada, tu build y la tarjeta de líneas con la diferencia de oro de cada pareja">
+</p>
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 💰 Qué comprar ahora
+1. **Al empezar**, lo inicial junto: *Anillo de Doran + 2 pociones*.
+2. **El núcleo de tu build, sin desvíos**, y lo que empezaste, se termina.
+3. **Antisanación barata** si quien se cura mucho está en tu línea (solo el componente).
+4. **Con el núcleo hecho**, la respuesta a la mayor amenaza (defensa o antisanación).
+
+Con lo que te falta de oro, una barra que se llena y qué componentes ya puedes comprar.
+Los objetos que se mejoran solos (Abrazo del serafín, Muramana...) cuentan como hechos.
+
+</td>
+<td width="50%" valign="top">
+<img src="docs/img/inicio.png" alt="Compra ahora al empezar: Anillo de Doran y dos pociones de vida, con el oro justo">
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="docs/img/partida.png" alt="Tarjeta de líneas: cada compañero frente a su rival de posición con la diferencia de oro en medio">
+</td>
+<td width="50%" valign="top">
+
+### 📊 Quién va fuerte, línea a línea
+- Una fila por línea: **tu compañero, la diferencia de oro y su rival**.
+- **Verde ◄** si va por delante tu compañero, **rojo ►** si el rival, **=** si van igualados.
+- Cada jugador con KDA, súbditos, nivel, tipo de daño y una etiqueta
+  **Muy fuerte / Fuerte / Normal / Por detrás**.
+- El oro de los rivales no se ve, pero sus objetos sí: se calcula con lo que valen.
+- Si el juego no dice las líneas (a ciegas, práctica), se deducen por campeón.
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary><b>📱 También en una ventana estrecha</b></summary>
+<br>
+<p align="center"><img src="docs/img/estrecha.png" width="320" alt="La tarjeta de líneas en una ventana estrecha: compañero, diferencia y rival uno debajo de otro"></p>
+</details>
+
+## 🧭 Cómo funciona
+
+```mermaid
+flowchart LR
+    C["🎮 Cliente de LoL<br/><sub>API local oficial</sub>"] -- "selección de campeones" --> A(("LoL Coach"))
+    S[("📈 Alto elo<br/><sub>API de Riot o<br/>paquete compartido</sub>")] --> A
+    A -- "runas · hechizos ·<br/>conjunto de objetos" --> C
+    P["⚔️ Partida en vivo<br/><sub>127.0.0.1:2999</sub>"] -- "marcador" --> A
+    A --> V[["🖥️ Ventana en tu<br/>segundo monitor"]]
+```
+
+- **Solo la API local y oficial** del cliente y de la partida (`127.0.0.1`): no lee la memoria
+  del juego, no inyecta nada y no automatiza nada dentro de la partida. Compatible con
+  Vanguard y con las normas de Riot para aplicaciones de terceros.
+- **Solo información visible en el marcador** durante la partida.
+
+---
+
+<details>
+<summary><b>🧩 Runas y hechizos, en detalle</b></summary>
 
 - **Detecta sola el cliente de LoL** (aunque lo abras después que la app, o lo cierres y lo
   vuelvas a abrir) y se conecta de forma **segura**, verificada con el certificado oficial de Riot.
 - **Sigue la selección de campeones en tiempo real**: tu posición, quién bloquea qué campeón,
   baneos, intercambios, dodges y el momento en que **se hace el último pick**.
-- **Preselección mantenida**: si te quedas **5 segundos** en un campeón, sus runas y hechizos
-  se ponen ya en el cliente (provisionales: al último pick se ajustan a los rivales, salvo lo
-  que hayas cambiado tú).
-- **Cambia las runas desde la ventana**: la página se ve con sus imágenes y, con «Cambiar
-  runas», eliges otras como en el cliente; se escriben al momento en tu página «LoL Coach».
-  Lo que cambies tú (en la ventana o en el cliente) no se vuelve a tocar para ese campeón.
-- **Cambia los hechizos desde la ventana**: toca el de la D o el de la F y elige otro de los
-  de tu modo (si eliges el de la otra tecla, se intercambian). También se respeta.
-- **3 páginas de runas para elegir**: la recomendada y las otras piedras angulares más jugadas
-  en alto elo con tu campeón y posición (con sus partidas y % de victorias); si faltan datos,
-  las recomendaciones de Riot. Tocar una la pone en el cliente.
-- **Objetos mejorados**: si tu Bastón del arcángel ya es Abrazo del serafín (o tu Manamune,
-  Muramana, etc.), cuenta como comprado y no te lo vuelve a pedir.
 - **Previsión al preseleccionar**: en cuanto preseleccionas o miras un campeón, la ventana
-  enseña las runas y hechizos que le pondrá (para tu posición asignada), sin tocar nada aún.
+  enseña las runas y hechizos que le pondrá (para tu posición asignada).
+- **Preselección mantenida**: si te quedas 5 segundos en un campeón, se ponen ya en el cliente
+  (provisionales).
 - **Al hacerse el último pick, te pone las runas y los hechizos** (en el mismo segundo):
   1. **Base**: las runas y hechizos que más usan los jugadores de alto elo con tu campeón
-     y posición (si hay estadísticas suficientes, ver abajo); si no, la recomendación
-     oficial de Riot para tu campeón, posición y mapa (se actualiza sola con cada parche).
+     y posición (si hay estadísticas suficientes); si no, la recomendación oficial de Riot
+     para tu campeón, posición y mapa (se actualiza sola con cada parche).
   2. **Rival de línea por probabilidad**: se prueban todos los repartos posibles de los
      enemigos en las líneas según las posiciones habituales de cada campeón.
   3. **Ajustes explicados**, solo cuando hay un motivo claro:
@@ -47,22 +165,20 @@ dice en tu segundo monitor qué comprar y quién va fuerte.
 
   4. **Si no se ven los enemigos** (selección a ciegas) **o no está claro tu rival**, se
      usan las runas y hechizos por defecto para tu campeón, sin ajustes de línea.
-- **Destello se queda en la tecla en la que lo tienes** (D o F).
-- **Puedes cambiar runas y hechizos a mano**: la app no vuelve a tocarlos en esa selección.
-  Solo vuelve a aplicar si cambia tu campeón (intercambio o banquillo de ARAM).
+- **Lo que cambies tú** (en la ventana o en el cliente) no se vuelve a tocar para ese
+  campeón. Solo vuelve a aplicar si cambia tu campeón (intercambio o banquillo de ARAM).
 - En ARAM usa las recomendaciones de ARAM (Destello + Marca). En modos sin runas no toca nada.
 
-### Tu página de runas
+**Tu página de runas**: la app usa **una sola página propia**, llamada «LoL Coach: (campeón)».
+Si existe, la reescribe; si no, la crea si tienes un hueco libre. Si no hay hueco, **solo
+reutiliza una página vacía y no válida** (sin nombre): nunca toca tus otras páginas. Si no
+hay ninguna opción, no cambia las runas y te las muestra para que las pongas tú (los
+hechizos sí se aplican). Para darle una página, renombra una a «LoL Coach».
 
-La app usa **una sola página propia**, llamada «LoL Coach: (campeón)»:
+</details>
 
-- Si existe, la reescribe. Si no, la crea si tienes un hueco libre.
-- Si no hay hueco, **solo reutiliza una página vacía y no válida** (sin nombre).
-  Nunca toca tus otras páginas.
-- Si no hay ninguna opción, no cambia las runas: te las muestra para que las pongas tú
-  (los hechizos sí se aplican). Para darle una página, renombra una a «LoL Coach».
-
-### La build en la tienda
+<details>
+<summary><b>🛒 La build en la tienda, en detalle</b></summary>
 
 En el mismo momento, la app escribe un **conjunto de objetos «LoL Coach: (campeón)»**, que
 verás en la tienda de la partida, pestaña *Conjuntos de objetos*:
@@ -78,12 +194,13 @@ verás en la tienda de la partida, pestaña *Conjuntos de objetos*:
 
 **De dónde sale la build** (Riot no ofrece builds recomendadas en el cliente):
 
-1. **Tipo de campeón**: con su perfil oficial (roles, tipo de daño) se clasifica en uno de 10
-   tipos (mago de daño explosivo, tirador de críticos, luchador, tanque, apoyo encantador...).
-   Hay excepciones para campeones con builds especiales (Smolder, Kai'Sa, Ezreal, Jhin...).
-2. **Build base del tipo**, con todos sus objetos **validados contra el parche actual**: si
-   Riot retira uno, se descarta y se completa con los siguientes.
-3. **Adaptación a los enemigos**, con el motivo en la consola:
+1. **Estadísticas de alto elo** (ver abajo): con 20 partidas o más de tu campeón y posición,
+   la build que de verdad hacen (inicio, botas y los 3 primeros objetos en su orden real).
+2. **Si faltan datos, reglas por tipo de campeón**: con su perfil oficial (roles, tipo de
+   daño) se clasifica en uno de 10 tipos (mago de daño explosivo, tirador de críticos,
+   luchador, tanque, apoyo encantador...), con excepciones para builds especiales (Smolder,
+   Kai'Sa, Ezreal, Jhin...). Todos los objetos se **validan contra el parche actual**.
+3. **Adaptación a los enemigos**, con el motivo:
 
    | Situación | Qué añade (según tu tipo de campeón) |
    |---|---|
@@ -96,11 +213,14 @@ verás en la tienda de la partida, pestaña *Conjuntos de objetos*:
    | 2+ campeones con muchos escudos | Colmillo de serpiente |
    | Eres de primera línea | Botas de mercurio o blindadas según el daño enemigo |
 
-Si has descargado estadísticas (ver abajo), la build base de cada campeón y posición con
-suficientes partidas es **la que de verdad hacen los jugadores de alto elo**; las reglas
-quedan como respaldo para campeones con pocos datos y para ARAM.
+**Tus conjuntos de objetos están a salvo**: el cliente solo permite reemplazar la lista
+entera, así que la app la lee, cambia solo el conjunto «LoL Coach» y comprueba después que
+los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
 
-### Builds con estadísticas reales (API oficial de Riot)
+</details>
+
+<details>
+<summary><b>📈 Estadísticas de alto elo (API oficial de Riot)</b></summary>
 
 1. **Clave**: consigue tu clave gratuita en [developer.riotgames.com](https://developer.riotgames.com)
    y guárdala con `uv run lolcoach stats clave`. Se pide sin mostrarse y se guarda **cifrada en
@@ -117,57 +237,40 @@ quedan como respaldo para campeones con pocos datos y para ARAM.
    caduca, te avisa en la ventana. También se puede lanzar a mano con
    `uv run lolcoach stats descargar` (con la app cerrada).
 3. **Uso**: tras cada tanda de descarga se recalcula, sin reiniciar, la build más habitual de
-   cada campeón y posición (inicio, botas, los 3 primeros objetos **en su orden real** y los
-   siguientes), sus runas (la piedra angular más elegida y, entre quienes la llevan, lo más
-   elegido de cada fila) y sus hechizos. Con 20 partidas o más sustituyen a las reglas y a la
-   recomendación de Riot; los ajustes contra los enemigos se aplican encima. Si el parche es
-   muy nuevo y aún hay pocas partidas, usa las del anterior.
+   cada campeón y posición, sus runas (las 3 piedras angulares más elegidas y, entre quienes
+   llevan cada una, lo más elegido de cada fila) y sus hechizos. Con 20 partidas o más
+   sustituyen a las reglas y a la recomendación de Riot; los ajustes contra los enemigos se
+   aplican encima. Si el parche es muy nuevo y aún hay pocas partidas, usa las del anterior.
 4. **Sin clave**: se descargan solas las **estadísticas compartidas** que publica quien sí
    tiene clave (un archivo pequeño, sin datos de jugadores, validado antes de usarlo). Así
    un amigo tiene las mismas builds sin configurar nada. Ver
    [docs/estadisticas-compartidas.md](docs/estadisticas-compartidas.md).
 
-La consola y la ventana indican de dónde salen las runas y la build, por ejemplo
-«estadísticas de 143 partidas de alto elo (parche 16.22)».
+La ventana indica de dónde salen las runas y la build, por ejemplo
+«estadísticas de 392 partidas de alto elo (parche 16.22)».
 
-**Tus conjuntos de objetos están a salvo**: el cliente solo permite reemplazar la lista
-entera, así que la app la lee, cambia solo el conjunto «LoL Coach» y comprueba después que
-los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
+</details>
 
-### La ventana del segundo monitor
+<details>
+<summary><b>🖥️ La ventana, en detalle</b></summary>
 
 LoL Coach es una **aplicación de escritorio**: su ventana (con su nombre e icono) se abre
 **centrada en tu segundo monitor** (1056 × 700, o lo que quepa), y al cerrarla se cierra la app.
-Muestra:
-
-- **En la selección de campeones**: tu campeón, las runas y hechizos aplicados con sus
-  motivos, y la build (inicio, núcleo, completa y «contra este equipo»).
-- **Durante la partida** (se actualiza cada 3 segundos):
-  - **Compra ahora**: el siguiente objeto, el porqué, cuánto oro te falta y qué
-    componentes ya te puedes comprar (bajando por la receta si hace falta).
-  - **Tu build**: lo que ya tienes marcado y lo siguiente resaltado.
-  - **Líneas**: una fila por línea (superior, jungla, medio, inferior, apoyo) con tu
-    compañero a la izquierda, su rival de posición a la derecha y, **en medio, la diferencia
-    de oro en objetos** entre los dos (verde ◀ si va por delante tu compañero, rojo ▶ si el
-    rival, «=» si van igualados). Cada jugador lleva KDA, súbditos, nivel, tipo de daño,
-    «Tu rival» y una etiqueta **Muy fuerte / Fuerte / Normal / Por detrás** (frente a toda
-    la partida). Si el juego no dice las líneas (a ciegas, práctica), se deducen por campeón;
-    fuera de la Grieta van las dos listas, con el oro frente a la media.
+Durante la partida se actualiza cada 3 segundos.
 
 **Segundo plano**: el botón **Segundo plano** de la cabecera esconde la ventana (tampoco sale
 en la barra de tareas) y LoL Coach **sigue funcionando igual**: runas, hechizos, build en la
 tienda y descarga de estadísticas. Mientras tanto la ventana no se repinta, así que no gasta.
 Para volver, haz clic en el **icono de LoL Coach junto al reloj** de Windows (puede estar dentro
 de la flechita ˄) o abre LoL Coach otra vez. Con clic derecho en ese icono también puedes
-cerrarlo. La primera vez que lo escondes, Windows te avisa de que sigue en marcha.
+cerrarlo.
 
-**Quién va fuerte**: el oro de los rivales no se ve, pero sus objetos sí. Se combina el valor
-de sus objetos (60 %), su KDA (25 %) y su nivel (15 %) frente a la media de la partida. En los
-primeros 3 minutos no se etiqueta a nadie.
+**Quién va fuerte**: se combina el valor de los objetos de cada jugador (60 %), su KDA (25 %) y
+su nivel (15 %) frente a la media de la partida. En los primeros 3 minutos no se etiqueta a
+nadie. La diferencia de oro de la tarjeta de líneas es frente a su rival de posición.
 
 **Qué comprar**, por este orden:
-0. **Objetos iniciales**: al empezar la partida, con el inventario vacío, todo lo de inicio
-   junto (p. ej. Anillo de Doran + 2 pociones), según tu build.
+0. **Objetos iniciales**: al empezar la partida, con el inventario vacío, todo lo de inicio junto.
 1. **Antisanación barata**, la única que se adelanta al núcleo: solo el componente (Orbe del
    olvido, Llamada del verdugo...), nunca el objeto entero. En fase de líneas (hasta el
    14:00), solo si quien se cura está en tu línea.
@@ -181,29 +284,36 @@ primeros 3 minutos no se etiqueta a nadie.
 **Diseño**: estilo *liquid glass* con los colores de League (dorado y azul marino):
 tarjetas translúcidas con desenfoque y brillo en los bordes sobre un fondo con profundidad.
 Todo el texto cumple el contraste AA. Las animaciones son cortas y ligeras para no restar
-rendimiento a la partida; se desactivan si Windows tiene reducidos los efectos de movimiento,
-y la transparencia se quita si pides menos transparencia.
-
-Usa la API oficial de Riot de la partida (`127.0.0.1:2999`, verificada con su certificado)
-y **solo información visible en el marcador**: está permitido por las normas de Riot.
+rendimiento a la partida; se reducen si Windows tiene reducidos los efectos de movimiento, y
+la transparencia se quita si pides menos transparencia.
 
 **Seguridad de la ventana**: es una ventana nativa (pywebview, con el motor WebView2 que
 Windows 11 trae de serie) que habla con la app **directamente, sin servidor ni puerto abierto**.
-La página solo puede pedir tres cosas (el estado, el icono de un objeto o campeón por su id y
-pasar a segundo plano) y
-se carga con una política estricta: solo su propio código (con un *nonce* nuevo en cada
-arranque), iconos incrustados y ninguna conexión de red.
+La página solo puede pedir cinco cosas (el estado, el icono de un objeto, campeón, runa o
+hechizo por su id, pasar a segundo plano y poner otras runas u otros hechizos, que la app
+valida antes de escribir) y se carga con una política estricta: solo su propio código (con
+un *nonce* nuevo en cada arranque), iconos incrustados y ninguna conexión de red.
 
 Si faltara WebView2, LoL Coach usa como respaldo Edge en modo aplicación con un servidor local
 (solo `127.0.0.1`, clave aleatoria, `Host` y `Origin` comprobados y cabeceras estrictas).
 
-## Cómo se usa
+</details>
+
+## 🚀 Cómo se usa
 
 **Con la aplicación instalada**: abre **LoL Coach** desde el menú Inicio o el acceso directo del
 escritorio. Para salir, cierra su ventana (o, si está en segundo plano, clic derecho en su
 icono junto al reloj → *Cerrar LoL Coach*).
 
-**Instalar o actualizar** (desde una terminal en esta carpeta; requiere [uv](https://docs.astral.sh/uv/)):
+**Pasárselo a otra persona**: `scripts/build_installer.py` crea `dist\Instalar LoL Coach
+<versión>.exe`, un solo archivo que se instala con doble clic (sin permisos de administrador)
+y se desinstala desde *Aplicaciones instaladas*. Guía para quien lo instala:
+[docs/instalar-en-otro-pc.md](docs/instalar-en-otro-pc.md).
+
+<details>
+<summary><b>Instalar o actualizar desde el código</b></summary>
+
+Desde una terminal en esta carpeta; requiere [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv run python scripts/make_icon.py   # (solo si cambias el icono) assets/lolcoach.ico
@@ -212,17 +322,15 @@ uv run python scripts/install.py     # lo instala con accesos directos (--desins
 uv run python scripts/build_installer.py  # instalador de un archivo para pasárselo a otra persona
 ```
 
-**Pasárselo a otra persona**: `scripts/build_installer.py` crea `dist\Instalar LoL Coach
-<versión>.exe`, un solo archivo que se instala con doble clic (sin permisos de administrador)
-y se desinstala desde *Aplicaciones instaladas*. Guía para quien lo instala:
-[docs/instalar-en-otro-pc.md](docs/instalar-en-otro-pc.md).
-
 Se instala en `%LOCALAPPDATA%\Programs\LoL Coach` (sin permisos de administrador) con dos
 ejecutables: **`LoL Coach.exe`** (la aplicación, sin consola) y **`lolcoach-consola.exe`** (los
 comandos de texto, por ejemplo `lolcoach-consola.exe stats descargar`). Tus datos están aparte, en
 `%LOCALAPPDATA%\LoLCoach`, y no se tocan al actualizar ni al desinstalar.
 
-**Desde el código** (desarrollo):
+</details>
+
+<details>
+<summary><b>Comandos y configuración</b></summary>
 
 ```bash
 uv run lolcoach             # la app con su ventana de escritorio
@@ -263,13 +371,17 @@ stats_target_matches = 3000  # partidas por parche a partir de las que se para (
 stats_shared = true          # sin clave (o con pocos datos): usar las estadísticas compartidas
 ```
 
-## Seguridad y normas de Riot
+</details>
+
+## 🛡️ Seguridad y normas de Riot
 
 - Solo usa la API **local y oficial** del cliente (`127.0.0.1`). No lee la memoria del
   juego, no inyecta nada y no automatiza acciones dentro de la partida: es compatible
   con Vanguard y con las normas de Riot para aplicaciones de terceros.
-- No se envía nada a Internet. Todos los datos (campeones, runas, recomendaciones) los da
-  el propio cliente, en tu idioma y de tu parche.
+- Los datos del juego (campeones, runas, objetos, recomendaciones) los da el propio cliente,
+  en tu idioma y de tu parche. Lo único que va a Internet es la descarga de estadísticas
+  (de la API de Riot con tu clave, o el paquete compartido público) y, si lo configuras, la
+  publicación de ese paquete. **Nada tuyo** (Riot ID, partidas, claves) sale de tu PC.
 - La conexión TLS **solo confía en la autoridad de certificación de Riot**
   (`src/lolcoach/lcu/certs/riotgames.pem`) y verifica que el certificado es para
   `127.0.0.1`. Si otro programa intentara hacerse pasar por el cliente, se rechaza.
@@ -282,7 +394,8 @@ stats_shared = true          # sin clave (o con pocos datos): usar las estadíst
 - Una prueba automática comprueba, con el cliente abierto, que su contraseña temporal no
   aparece en ningún archivo del proyecto.
 
-## Estructura
+<details>
+<summary><b>🏗️ Estructura del código</b></summary>
 
 ```
 src/lolcoach/
@@ -294,36 +407,44 @@ src/lolcoach/
   lcu/                 Conexión con el cliente: detección, TLS, HTTP, websocket, reconexión
   champselect/         Modelo, lectura y seguimiento de la selección de campeones
   gamedata/            Datos del juego leídos del cliente: campeones, perfiles, runas, hechizos
-  loadout/             Fase 2: posiciones, reglas, recomendación y aplicación de runas/hechizos
-  builds/              Fase 3: tipos de campeón, builds base, adaptación y conjunto de objetos
-  ingame/              Fase 4: lectura de la partida en vivo, quién va fuerte y qué comprar
-  stats/               Fase 5: clave, API de Riot, descarga (también automática), agregación
-                       y fuente de builds, runas y hechizos
+  loadout/             Posiciones, reglas, recomendación y aplicación de runas/hechizos
+  builds/              Tipos de campeón, builds base, adaptación y conjunto de objetos
+  ingame/              Lectura de la partida en vivo, quién va fuerte y qué comprar
+  stats/               Clave, API de Riot, descarga (también automática), agregación,
+                       paquete compartido y fuente de builds, runas y hechizos
   ui/console.py        Mensajes en consola
   ui/desktop.py        Ventana de escritorio (pywebview) y puente directo con la app
   ui/tray.py           Icono en la bandeja de Windows para el segundo plano
   ui/web/              Interfaz (HTML/CSS/JS), presentador, iconos, servidor de respaldo y demo
 assets/                Icono de la aplicación (generado con scripts/make_icon.py)
 packaging/             PyInstaller, información de versión del .exe e instalador (installer.py)
-scripts/               Construir el .exe, instalarlo, crear el instalador y generar el icono
+scripts/               Construir el .exe, instalarlo, crear el instalador, el icono y las capturas
 tests/                 Pruebas automáticas: cliente de LoL simulado y datos reales del parche
-docs/                  Guías (clave personal, estadísticas compartidas, instalar en otro PC)
+docs/                  Guías y las imágenes de este README (docs/img)
 ```
 
-Cada fase nueva se engancha a los eventos existentes (`PicksFinalized`,
-`MyChampionChanged`, `LoadoutApplied`, `BuildApplied`, `ChampSelectEnded`...) sin modificar
+Cada función nueva se engancha a los eventos existentes (`PicksFinalized`,
+`MyChampionChanged`, `LoadoutApplied`, `LoadoutInClient`, `BuildApplied`...) sin modificar
 lo anterior. Las reglas (`loadout/rules.py`, `builds/rules.py`) son funciones puras: se
 pueden ampliar, o sustituir por IA en un plan de pago, sin tocar el resto. La build base
 llega por `BuildSource`: hoy, estadísticas reales con las reglas como respaldo.
 
-## Desarrollo
+</details>
+
+## 🧪 Desarrollo
 
 ```bash
-uv run pytest          # pruebas
-uv run ruff check .    # revisión de estilo y errores comunes
+uv run pytest                             # pruebas
+uv run ruff check .                       # revisión de estilo y errores comunes
+uv run python scripts/capturas_readme.py  # rehace las capturas y animaciones de este README
 ```
 
-## Hoja de ruta
+Las capturas se hacen con la **ventana real** (el mismo presentador, HTML, CSS y animaciones
+que la app) y Edge sin ventana, con datos del parche, iconos de CommunityDragon (copia pública
+de los archivos del cliente) y las estadísticas compartidas de alto elo. No necesita el
+cliente abierto.
+
+## 🗺️ Hoja de ruta
 
 1. **Conexión y lectura de la selección de campeones** ✅
 2. **Runas y hechizos automáticos al hacerse el último pick** ✅
@@ -334,4 +455,7 @@ uv run ruff check .    # revisión de estilo y errores comunes
 7. **Diseño liquid glass de la ventana** ✅
 8. **Segundo plano con icono en la bandeja y equipos ordenados por línea** ✅
 9. **Estadísticas compartidas: builds de alto elo también sin clave de Riot** ✅
-10. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
+10. **Runas con imágenes, editables en la ventana y puestas al mantener la preselección** ✅
+11. **Compras con el núcleo primero, objetos mejorados y objetos iniciales** ✅
+12. **3 páginas de runas para elegir, hechizos editables y oro por línea** ✅
+13. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.

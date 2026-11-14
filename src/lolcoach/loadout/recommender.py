@@ -148,11 +148,18 @@ class LoadoutRecommender:
             adjustments=(*rune_reasons, *spell_reasons),
             notes=_notes(ctx, gd),
             source=source,
-            options=self._options(runes, pages, ctx) if runes is not None else (),
+            options=self._options(runes, pages, ctx, from_stats=source.startswith("estadísticas"))
+            if runes is not None
+            else (),
         )
 
     def _options(
-        self, chosen: RunePage, pages: tuple[RecommendedPage, ...], ctx: MatchContext
+        self,
+        chosen: RunePage,
+        pages: tuple[RecommendedPage, ...],
+        ctx: MatchContext,
+        *,
+        from_stats: bool = False,
     ) -> tuple[RuneOption, ...]:
         """Hasta 3 páginas con piedras angulares distintas: la recomendada y las siguientes más
         jugadas en alto elo; si faltan, las recomendaciones de Riot. Todas con los mismos
@@ -173,7 +180,13 @@ class LoadoutRecommender:
         def key(page: RunePage) -> tuple[int, int]:
             return page.primary_style_id, page.keystone_id
 
+        # El porqué de la recomendada: sus datos de alto elo si los hay; si sale de las
+        # estadísticas sin ese detalle, se dice así (no «de Riot», que confundiría)
         first = next((d for p, d in candidates if key(p) == key(chosen)), "")
+        if from_stats and not first.endswith("victorias"):
+            first = "la más jugada en alto elo"
+        elif first.startswith("Recomendación de Riot"):
+            first = first.replace("Recomendación de Riot", "de Riot", 1)
         options = [RuneOption(chosen, f"Recomendada · {first}" if first else "Recomendada", True)]
         seen = {key(chosen)}
         for page, detail in candidates:

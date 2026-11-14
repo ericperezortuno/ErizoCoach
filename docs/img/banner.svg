@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" width="1280" height="360" role="img" aria-labelledby="t d">
+  <title id="t">LoL Coach</title>
+  <desc id="d">Asistente para League of Legends: runas, hechizos y build en la selección, y en partida qué comprar y quién va fuerte.</desc>
+  <defs>
+    <radialGradient id="bg" cx="18%" cy="20%" r="95%">
+      <stop offset="0" stop-color="#16305a"/>
+      <stop offset=".55" stop-color="#0c1b35"/>
+      <stop offset="1" stop-color="#060d1c"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#c8aa6e" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#c8aa6e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gem" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2dfae"/>
+      <stop offset=".45" stop-color="#c8aa6e"/>
+      <stop offset="1" stop-color="#7a5b26"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c8aa6e"/>
+      <stop offset=".42" stop-color="#c8aa6e"/>
+      <stop offset=".5" stop-color="#fff6dc"/>
+      <stop offset=".58" stop-color="#c8aa6e"/>
+      <stop offset="1" stop-color="#c8aa6e"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="title-clip">
+      <text x="300" y="168" font-family="Segoe UI Variable Display, Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="92" font-weight="700" letter-spacing="1">LoL Coach</text>
+    </clipPath>
+  </defs>
+  <style>
+    .spin { transform-box: fill-box; transform-origin: center; animation: spin 80s linear infinite; }
+    .spin-back { transform-box: fill-box; transform-origin: center; animation: spin 50s linear infinite reverse; }
+    .emblem-ring { transform-box: fill-box; transform-origin: center; animation: spin 24s linear infinite; }
+    .pulse { animation: pulse 4.5s ease-in-out infinite; }
+    .shine { animation: shine 6s cubic-bezier(.3, .6, .3, 1) infinite; }
+    .chip { animation: rise .9s cubic-bezier(.16, 1, .3, 1) both; }
+    .chip:nth-of-type(2) { animation-delay: .12s; }
+    .chip:nth-of-type(3) { animation-delay: .24s; }
+    .chip:nth-of-type(4) { animation-delay: .36s; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+    @keyframes shine { 0% { transform: translateX(-520px); } 55%, 100% { transform: translateX(620px); } }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      .spin, .spin-back, .emblem-ring, .pulse, .shine, .chip { animation: none; }
+      .shine { display: none; }
+    }
+  </style>
+
+  <rect width="1280" height="360" rx="28" fill="url(#bg)"/>
+
+  <!-- La rueda del fondo de la ventana, girando despacio -->
+  <g opacity=".5">
+    <circle class="spin" cx="1090" cy="190" r="250" fill="none" stroke="#c8aa6e" stroke-opacity=".28" stroke-width="2" stroke-dasharray="3 22"/>
+    <circle class="spin-back" cx="1090" cy="190" r="205" fill="none" stroke="#c8aa6e" stroke-opacity=".45" stroke-width="14" stroke-dasharray="2 16"/>
+    <circle cx="1090" cy="190" r="170" fill="none" stroke="#c8aa6e" stroke-opacity=".35" stroke-width="3"/>
+    <circle cx="1090" cy="190" r="140" fill="none" stroke="#f2dfae" stroke-opacity=".18" stroke-width="1.5"/>
+  </g>
+
+  <!-- Emblema: anillo que gira y rombo dorado -->
+  <circle class="pulse" cx="170" cy="180" r="120" fill="url(#glow)"/>
+  <circle class="emblem-ring" cx="170" cy="180" r="82" fill="none" stroke="#c8aa6e" stroke-width="3" stroke-dasharray="40 14 8 14"/>
+  <circle cx="170" cy="180" r="64" fill="#0b1830" stroke="#f2dfae" stroke-opacity=".5" stroke-width="1.5"/>
+  <rect x="134" y="144" width="72" height="72" rx="10" transform="rotate(45 170 180)" fill="url(#gem)"/>
+  <rect x="150" y="160" width="40" height="40" rx="6" transform="rotate(45 170 180)" fill="#0b1830"/>
+  <rect x="160" y="170" width="20" height="20" rx="3" transform="rotate(45 170 180)" fill="url(#gem)"/>
+
+  <!-- Título con un destello que lo cruza -->
+  <text x="300" y="168" font-family="Segoe UI Variable Display, Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="92" font-weight="700" letter-spacing="1" fill="url(#gold)">LoL Coach</text>
+  <g clip-path="url(#title-clip)">
+    <rect class="shine" x="300" y="80" width="140" height="110" fill="url(#sheen)" transform="skewX(-18)"/>
+  </g>
+  <text x="304" y="214" font-family="Segoe UI Variable Text, Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="25" fill="#f0e6d2">Runas, hechizos y build para League of Legends.</text>
+  <text x="304" y="248" font-family="Segoe UI Variable Text, Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="25" fill="#a9b7cc">En partida, en tu segundo monitor: qué comprar y quién va fuerte.</text>
+
+  <!-- Lo que hace -->
+  <g font-family="Segoe UI Variable Small, Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="600">
+    <g class="chip"><rect x="304" y="276" width="206" height="38" rx="19" fill="#c8aa6e" fill-opacity=".14" stroke="#c8aa6e" stroke-opacity=".5"/><text x="407" y="301" text-anchor="middle" fill="#f2dfae">Runas automáticas</text></g>
+    <g class="chip"><rect x="522" y="276" width="208" height="38" rx="19" fill="#c8aa6e" fill-opacity=".14" stroke="#c8aa6e" stroke-opacity=".5"/><text x="626" y="301" text-anchor="middle" fill="#f2dfae">Builds de alto elo</text></g>
+    <g class="chip"><rect x="742" y="276" width="186" height="38" rx="19" fill="#c8aa6e" fill-opacity=".14" stroke="#c8aa6e" stroke-opacity=".5"/><text x="835" y="301" text-anchor="middle" fill="#f2dfae">Qué comprar ya</text></g>
+    <g class="chip"><rect x="940" y="276" width="176" height="38" rx="19" fill="#4fd6a2" fill-opacity=".12" stroke="#4fd6a2" stroke-opacity=".5"/><text x="1028" y="301" text-anchor="middle" fill="#bdf3dd">Oro por línea</text></g>
+  </g>
+</svg>

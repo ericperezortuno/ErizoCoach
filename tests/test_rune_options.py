@@ -199,3 +199,25 @@ async def test_the_window_lists_the_options() -> None:
     assert len(options) == 3 and options[0]["recommended"]
     assert options[1]["page"]["keystone"]["id"] == 8229
     assert len(options[1]["page"]["perkIds"]) == 9 and "victorias" in options[1]["detail"]
+
+
+async def test_the_recommended_page_says_where_it_comes_from() -> None:
+    """Base de alto elo sin datos por piedra angular (paquete antiguo): no dice «de Riot»."""
+    from lolcoach.loadout.models import StatsLoadout
+
+    class OnlyBase(Stats):
+        def loadout_for(self, champion_id: int, position: Position) -> StatsLoadout | None:
+            page = RunePage(8100, 8200, ELECTROCUTE[2:])
+            return StatsLoadout(page, (4, 14), 300, "16.22")
+
+        def rune_options_for(self, champion_id: int, position: Position) -> tuple:
+            return ()
+
+    gd = loaded_gamedata()
+    loadout = await LoadoutRecommender(gd, stats=OnlyBase()).recommend(
+        FixtureClient(), snapshot(AHRI), SR
+    )
+    assert loadout is not None
+    assert loadout.options[0].detail == "Recomendada · la más jugada en alto elo"
+    riot = await LoadoutRecommender(gd).recommend(FixtureClient(), snapshot(AHRI), SR)
+    assert riot is not None and riot.options[0].detail.startswith("Recomendada · de Riot")
