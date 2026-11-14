@@ -272,3 +272,31 @@ async def test_starting_items_are_shown_together() -> None:
     assert [s["id"] for s in shown["starting"]] == [s.item_id for s in plan.starting]
     assert shown["price"] == sum(s["price"] * s["count"] for s in shown["starting"])
     assert " + " in shown["name"] or len(plan.starting) == 1
+
+
+async def test_lanes_pair_each_ally_with_their_rival_and_the_gold_gap() -> None:
+    presenter = UiPresenter(EventBus(), loaded_gamedata())
+    await presenter._on_live(await live_event())
+    rows = presenter.state["game"]["matchups"]
+    assert [(r["ally"]["name"], r["enemy"]["name"]) for r in rows] == [
+        ("Garen", "Darius"), ("Lee Sin", "Graves"), ("Ahri", "Zed"),
+        ("Jinx", "Kai'Sa"), ("Thresh", "Soraka"),
+    ]  # fmt: skip
+    ahri = rows[2]
+    assert ahri["ally"]["me"] and ahri["position"] == "Medio"
+    assert ahri["goldDiff"] == ahri["ally"]["laneGoldDiff"] == -ahri["enemy"]["laneGoldDiff"]
+
+
+async def test_without_lanes_there_are_no_matchups() -> None:
+    event = await live_event()
+    report = dataclasses.replace(
+        event.report,
+        me=dataclasses.replace(event.report.me, lane_rival_id=0, gold_vs_lane_rival=None),  # type: ignore[arg-type]
+        allies=tuple(
+            dataclasses.replace(r, lane_rival_id=0, gold_vs_lane_rival=None)
+            for r in event.report.allies
+        ),
+    )
+    presenter = UiPresenter(EventBus(), loaded_gamedata())
+    await presenter._on_live(dataclasses.replace(event, report=report))
+    assert presenter.state["game"]["matchups"] == []  # la ventana pinta las dos listas

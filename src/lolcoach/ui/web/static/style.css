@@ -608,6 +608,82 @@ main > .wide { grid-column: 1 / -1; }
   text-align: right;
 }
 
+/* --- Líneas: tu compañero | diferencia de oro | su rival ------------------------------- */
+
+.matchups { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.matchup,
+.matchup-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+.matchup-head {
+  margin-bottom: 6px;
+  font: 600 12px/1.3 var(--font-small);
+  color: var(--muted);
+}
+.matchup-head > :nth-child(2) { text-align: center; }
+.matchup-head > :nth-child(3) { text-align: right; }
+
+.player.empty-seat { min-height: 52px; background: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .04); }
+
+/* El rival, en espejo: icono a la derecha, etiqueta a la izquierda y la barra de color fuera. */
+.player.mirror { padding: 7px 14px 7px 10px; }
+.player.mirror::before { left: auto; right: 5px; }
+.player.mirror::after { background: radial-gradient(120% 160% at 100% 50%, var(--flash, rgba(255, 255, 255, .16)), transparent 70%); }
+.player.mirror .who { text-align: right; }
+.player.mirror .title,
+.player.mirror .stats { justify-content: flex-end; }
+.player.mirror .right { align-items: flex-start; text-align: left; }
+.player.mirror.very_strong { background: linear-gradient(270deg, rgba(255, 93, 110, .22), rgba(255, 93, 110, .05) 60%, rgba(255, 255, 255, .03)); }
+.player.mirror.strong { background: linear-gradient(270deg, rgba(255, 173, 66, .17), rgba(255, 173, 66, .04) 60%, rgba(255, 255, 255, .03)); }
+.player.mirror.behind { background: linear-gradient(270deg, rgba(98, 175, 255, .13), rgba(98, 175, 255, .03) 60%, rgba(255, 255, 255, .03)); }
+
+.gap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  border-radius: var(--r-row);
+  text-align: center;
+  color: var(--muted);
+}
+.gap .lane-name { font: 600 10px/1.2 var(--font-small); letter-spacing: .04em; text-transform: uppercase; }
+.gap-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 700 15px/1.1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.gap .arrow { font-size: 10px; }
+.gap.ahead { color: var(--green); background: rgba(79, 214, 162, .10); box-shadow: inset 0 0 0 1px rgba(79, 214, 162, .28); }
+.gap.behind { color: var(--red); background: rgba(255, 93, 110, .10); box-shadow: inset 0 0 0 1px rgba(255, 93, 110, .28); }
+.gap.even { background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10); }
+.gap.ahead .lane-name, .gap.behind .lane-name { color: var(--muted-strong); }
+
+/* Estrecha: uno debajo de otro (compañero, diferencia, rival), sin espejo. */
+@media (max-width: 760px) {
+  .matchup-head { display: none; }
+  .matchup { grid-template-columns: 1fr; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+  .matchup:last-child { border-bottom: 0; }
+  .gap { flex-direction: row; justify-content: center; gap: 10px; padding: 3px 8px; }
+  .player.mirror { padding: 7px 10px 7px 14px; }
+  .player.mirror::before { left: 5px; right: auto; }
+  .player.mirror > :nth-child(1) { order: 3; }
+  .player.mirror > :nth-child(2) { order: 2; }
+  .player.mirror > :nth-child(3) { order: 1; }
+  /* Uno encima del otro: la flecha apunta arriba (tu compañero) o abajo (su rival). */
+  .gap .arrow { display: inline-block; transform: rotate(90deg); }
+  .player.mirror .who { text-align: left; }
+  .player.mirror .title,
+  .player.mirror .stats { justify-content: flex-start; }
+  .player.mirror .right { align-items: flex-end; text-align: right; }
+}
+
 .gold {
   font: 600 12px/1.2 var(--font-small);
   font-variant-numeric: tabular-nums;
@@ -701,7 +777,46 @@ main > .wide { grid-column: 1 / -1; }
   color: var(--text);
 }
 
-.spells { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.spells { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+/* Hechizos: cada uno con su tecla; en la selección se pueden tocar para cambiarlos. */
+.spell-slot { position: relative; display: inline-grid; place-items: center; flex: none; }
+.spell-slot .key {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  padding: 1px 4px;
+  border-radius: 5px;
+  font: 700 10px/1.2 var(--font-small);
+  color: var(--text);
+  background: #0b1830;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .22);
+}
+button.spell-slot {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-icon);
+  background: none;
+  cursor: pointer;
+  transition: transform .15s ease-out;
+}
+button.spell-slot:hover { transform: translateY(-2px); }
+button.spell-slot:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 3px; }
+button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 0 0 12px rgba(200, 170, 110, .6); }
+
+.spell-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: var(--r-row);
+  background: rgba(0, 0, 0, .22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+.rune-option.spell-option { border-radius: var(--r-icon); }
+.rune-option.spell-option .rune img { width: 34px; height: 34px; border-radius: var(--r-icon); background: none; }
 .section-label.inline { margin: 0 4px 0 0; }
 
 .edit-toggle { margin-top: 12px; }
@@ -957,7 +1072,8 @@ main > .wide { grid-column: 1 / -1; }
   .scene::after { animation: none; }
   .icon img { transition: none; }
   .icon:hover img { transform: none; }
-  .rune-option, .rune-option:active, .rune-choice, .rune-choice:active { transition: none; transform: none; }
+  .rune-option, .rune-option:active, .rune-choice, .rune-choice:active,
+  button.spell-slot, button.spell-slot:hover { transition: none; transform: none; }
   .ghost, .ghost:active { transition: none; transform: none; }
 }
 
@@ -981,4 +1097,5 @@ main > .wide { grid-column: 1 / -1; }
   .rune-choice { border: 1px solid ButtonText; }
   .ghost { border: 1px solid ButtonText; color: ButtonText; background: ButtonFace; }
   .player::before { background: CanvasText; }
+  .gap { border: 1px solid CanvasText; }
 }

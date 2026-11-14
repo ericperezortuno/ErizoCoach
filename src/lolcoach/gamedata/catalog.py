@@ -285,6 +285,14 @@ class GameData:
     def spell(self, spell_id: int) -> SummonerSpell | None:
         return self._spells.get(spell_id)
 
+    def spells_for(self, game_mode: str) -> list[SummonerSpell]:
+        """Los hechizos que se pueden elegir en ese modo (sin modo: la Grieta)."""
+        mode = game_mode or "CLASSIC"
+        return sorted(
+            (s for s in self._spells.values() if s.name and mode in s.game_modes),
+            key=lambda s: s.id,
+        )
+
     def spell_name(self, spell_id: int) -> str:
         spell = self._spells.get(spell_id)
         return spell.name if spell else f"hechizo #{spell_id}"

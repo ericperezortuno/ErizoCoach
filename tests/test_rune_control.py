@@ -303,3 +303,93 @@ def test_rune_and_spell_icons_come_only_from_the_game() -> None:
     assert icons.path_for("spell", 4) == "/lol-game-data/assets/DATA/Flash.png"
     assert icons.path_for("perk", 4) is None  # cada tipo, por separado
     assert icons.path_for("evil", 8112) is None
+
+
+# --- Cambiar los hechizos desde la ventana ---------------------------------------------------
+
+
+async def test_spells_chosen_in_the_window_go_to_the_client(
+    fake: FakeLcu, client_ssl: ssl.SSLContext
+) -> None:
+    from lolcoach.events import SpellsEditRequested
+
+    async with Harness(credentials_for(fake), client_ssl) as app:
+        scenario = await start_hovering(fake, app, spells=(4, 14))
+        await app.bus.publish(SpellsEditRequested((4, 12)))  # Destello + Teleportar
+        patches = fake.writes_to(endpoints.CHAMP_SELECT_MY_SELECTION)
+        assert patches[-1][2] == {"spell1Id": 4, "spell2Id": 12}
+        shown = app.of(LoadoutInClient)[-1]
+        assert shown.spells == (4, 12) and shown.spells_by == RunesBy.YOU_IN_APP
+        await finish_draft(fake, app, scenario)
+    # Al último pick no se pisan tus hechizos
+    assert len(fake.writes_to(endpoints.CHAMP_SELECT_MY_SELECTION)) == len(patches)
+    final = next(a for a in app.of(LoadoutApplied) if not a.provisional)
+    assert not final.spells_applied
+
+
+async def test_impossible_spells_from_the_window_are_rejected(
+    fake: FakeLcu, client_ssl: ssl.SSLContext
+) -> None:
+    from lolcoach.events import SpellsEditRequested
+
+    async with Harness(credentials_for(fake), client_ssl) as app:
+        await start_hovering(fake, app)
+        for spells in ((4, 4), (4, 32), (4, 99999)):  # repetido, Marca (ARAM), no existe
+            await app.bus.publish(SpellsEditRequested(spells))
+            assert "no se pueden" in app.of(LoadoutInClient)[-1].problem
+        assert fake.writes_to(endpoints.CHAMP_SELECT_MY_SELECTION) == []
+
+
+async def test_the_window_offers_the_spells_of_the_mode() -> None:
+    from lolcoach.champselect.parser import parse_session
+    from lolcoach.models import QueueInfo
+
+    gd = loaded_gamedata()
+    snapshot = parse_session(DraftScenario().state(3))
+    for queue, has, lacks in (
+        (QueueInfo(420, "Clasificatoria", "CLASSIC", 11), 11, 32),  # Aplastar sí, Marca no
+        (QueueInfo(450, "ARAM", "ARAM", 12), 32, 11),
+    ):
+        presenter = UiPresenter(EventBus(), gd)
+        await presenter._on_champ_select(ChampSelectStarted(snapshot, queue))
+        ids = {s["id"] for s in presenter.state["spellCatalog"]}
+        assert has in ids and lacks not in ids and 4 in ids
+
+
+async def test_the_window_can_only_ask_for_two_different_spells() -> None:
+    from lolcoach.events import SpellsEditRequested
+
+    bus = EventBus()
+    seen: list[SpellsEditRequested] = []
+    bus.subscribe(SpellsEditRequested, seen.append)
+    presenter = UiPresenter(bus, loaded_gamedata())
+    for bad in (None, [4, 14], {"spell1Id": 4}, {"spell1Id": 4, "spell2Id": 4},
+                {"spell1Id": "4", "spell2Id": 14}, {"spell1Id": True, "spell2Id": 14}):  # fmt: skip
+        assert not await presenter.request_spells(bad)
+    assert seen == []
+    assert await presenter.request_spells({"spell1Id": 14, "spell2Id": 4})
+    assert seen == [SpellsEditRequested((14, 4))]
+
+
+async def test_spell_changes_arrive_through_the_websocket() -> None:
+    from lolcoach.events import SpellsEditRequested
+
+    bus = EventBus()
+    seen: list[SpellsEditRequested] = []
+    bus.subscribe(SpellsEditRequested, seen.append)
+    ui = UiServer(UiPresenter(bus, loaded_gamedata()), loaded_gamedata(), connector=None)
+    await ui.start()
+    try:
+        async with (
+            aiohttp.ClientSession() as http,
+            http.ws_connect(
+                f"http://127.0.0.1:{ui.port}/ws?t={ui.token}",
+                headers={"Origin": f"http://127.0.0.1:{ui.port}"},
+            ) as ws,
+        ):
+            await ws.receive_json(timeout=5)
+            await ws.send_json({"type": "setSpells", "spells": {"spell1Id": 4, "spell2Id": 12}})
+            await wait_until(lambda: bool(seen))
+        assert seen == [SpellsEditRequested((4, 12))]
+    finally:
+        await ui.stop()

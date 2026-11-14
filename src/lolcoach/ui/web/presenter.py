@@ -26,6 +26,7 @@ from ...events import (
     PicksFinalized,
     RunesBy,
     RunesEditRequested,
+    SpellsEditRequested,
     StatsStatus,
 )
 from ...gamedata.catalog import DamageType, GameData
@@ -36,7 +37,7 @@ from ...gamedata.runes import (
     SHARD_INDEXES,
     RunePage,
 )
-from ...ingame.analysis import STRENGTH_LABELS, PlayerReport
+from ...ingame.analysis import STRENGTH_LABELS, GameReport, PlayerReport
 from ...ingame.models import LivePlayer
 from ...loadout.models import LANE_CONFIDENCE, Loadout
 from ...models import LANE_POSITIONS, GameflowPhase
@@ -90,6 +91,7 @@ class UiPresenter:
             "game": None,
             "stats": None,  # estado de la descarga automática de estadísticas
             "runeCatalog": None,  # árboles de runas, para cambiarlas desde la ventana
+            "spellCatalog": [],  # hechizos que se pueden elegir en este modo
         }
         bus.subscribe(ClientConnected, self._on_connected)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -135,11 +137,13 @@ class UiPresenter:
         label = GAMEFLOW_LABELS.get(event.current) or self._state["phaseLabel"]
         await self._set(phase=event.current.value, phaseLabel=label)
 
-    async def _on_champ_select(self, _event: ChampSelectStarted) -> None:
+    async def _on_champ_select(self, event: ChampSelectStarted) -> None:
         self._shown_plan = None
         self._loadout_final = False
         self._loadout, self._in_client = None, None
-        await self._set(champion=None, loadout=None, build=None, game=None)
+        mode = event.queue.game_mode if event.queue else ""
+        spells = [self._spell(s.id) for s in self._gd.spells_for(mode)]
+        await self._set(champion=None, loadout=None, build=None, game=None, spellCatalog=spells)
 
     async def _on_finalized(self, event: PicksFinalized) -> None:
         me = event.snapshot.me
@@ -185,6 +189,17 @@ class UiPresenter:
         if page is None:
             return False
         await self._bus.publish(RunesEditRequested(page))
+        return True
+
+    async def request_spells(self, raw: Any) -> bool:
+        """La ventana pide otros hechizos: ``{"spell1Id": n, "spell2Id": n}`` (D y F). Se
+        comprueba después que existan en este modo antes de ponerlos."""
+        if not isinstance(raw, dict):
+            return False
+        first, second = raw.get("spell1Id"), raw.get("spell2Id")
+        if not all(type(n) is int and 0 < n < MAX_ID for n in (first, second)) or first == second:
+            return False
+        await self._bus.publish(SpellsEditRequested((int(first), int(second))))  # type: ignore[arg-type]
         return True
 
     async def _on_build(self, event: BuildReady) -> None:
@@ -328,6 +343,7 @@ class UiPresenter:
                     game.players,
                 )
             ],
+            "matchups": self._matchups(report, game.players),
             "next": None,
             "message": "",
             "buildProgress": [],
@@ -411,6 +427,45 @@ class UiPresenter:
             "respawn": round(p.respawn_timer),
             "items": [i.item_id for i in p.items],
         }
+
+    def _matchups(self, report: GameReport, order: Sequence[LivePlayer]) -> list[State]:
+        """Una fila por línea: tu compañero, la diferencia de oro y su rival de posición.
+
+        La diferencia es desde tu equipo (positiva = tu compañero lleva más oro en objetos).
+        Vacío si nadie tiene rival de posición (otros modos): entonces van en dos listas."""
+        mine = _by_lane((report.me, *report.allies) if report.me else report.allies, order)
+        theirs = _by_lane(report.enemies, order)
+        if not any(r.lane_rival_id for r in mine):
+            return []
+        rows: list[State] = []
+        paired: set[int] = set()
+        for ally in mine:
+            rival = next(
+                (e for e in theirs if ally.lane_rival_id and e.champion_id == ally.lane_rival_id),
+                None,
+            )
+            if rival is not None:
+                paired.add(id(rival))
+            rows.append(
+                {
+                    "position": POSITION_LABELS.get(ally.position, ""),
+                    "ally": self._player(ally) | {"me": ally is report.me},
+                    "enemy": self._player(rival) if rival else None,
+                    "goldDiff": ally.gold_vs_lane_rival if rival else None,
+                }
+            )
+        for enemy in theirs:  # rivales sin pareja (raro): al final, solos
+            if id(enemy) not in paired:
+                position = POSITION_LABELS.get(enemy.position, "")
+                rows.append(
+                    {
+                        "position": position,
+                        "ally": None,
+                        "enemy": self._player(enemy),
+                        "goldDiff": None,
+                    }
+                )
+        return rows
 
 
 _LANE_RANK = {position: rank for rank, position in enumerate(LANE_POSITIONS)}

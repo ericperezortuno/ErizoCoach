@@ -185,3 +185,10 @@ class RunesEditRequested:
     """Desde la ventana: pon esta página de runas en el cliente."""
 
     page: RunePage
+
+
+@dataclass(frozen=True, slots=True)
+class SpellsEditRequested:
+    """Desde la ventana: pon estos hechizos (D, F) en el cliente."""
+
+    spells: tuple[int, int]

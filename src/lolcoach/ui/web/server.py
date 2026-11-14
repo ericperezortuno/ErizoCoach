@@ -9,8 +9,9 @@ Seguridad:
   ``Origin`` del websocket: una web abierta en tu navegador no puede leer la ventana.
 * Cabeceras estrictas (CSP sin recursos externos, sin incrustar en otras webs).
 * Los iconos solo se piden por id numérico y solo de los recursos del juego.
-* Por el canal, la ventana solo puede pedir otra página de runas (números que se validan
-  con los árboles del juego antes de escribirlos, y solo en la página de LoL Coach).
+* Por el canal, la ventana solo puede pedir otra página de runas u otros hechizos (números
+  que se validan con los datos del juego antes de escribirlos; las runas, solo en la
+  página de LoL Coach).
 """
 
 from __future__ import annotations
@@ -148,15 +149,19 @@ class UiServer:
         return ws
 
     async def _command(self, data: str) -> None:
-        """Lo único que la ventana puede pedir por el canal: otra página de runas."""
+        """Lo único que la ventana puede pedir por el canal: otras runas u otros hechizos."""
         if len(data) > MAX_COMMAND_SIZE:
             return
         try:
             command = json.loads(data)
         except ValueError:
             return
-        if isinstance(command, dict) and command.get("type") == "setRunes":
+        if not isinstance(command, dict):
+            return
+        if command.get("type") == "setRunes":
             await self._presenter.request_runes(command.get("page"))
+        elif command.get("type") == "setSpells":
+            await self._presenter.request_spells(command.get("spells"))
 
     async def _broadcast(self, state: State) -> None:
         for ws in list(self._sockets):

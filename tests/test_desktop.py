@@ -99,9 +99,23 @@ def test_bridge_rejects_anything_else(
     assert icons.calls == []  # ni siquiera se intenta
 
 
-def test_bridge_exposes_only_four_methods() -> None:
+def test_bridge_exposes_only_five_methods() -> None:
     public = [name for name in dir(DesktopBridge) if not name.startswith("_")]
-    assert public == ["background", "get_state", "icon", "set_runes"]
+    assert public == ["background", "get_state", "icon", "set_runes", "set_spells"]
+
+
+def test_bridge_set_spells_only_passes_two_spells(
+    running_loop: asyncio.AbstractEventLoop,
+) -> None:
+    from lolcoach.events import SpellsEditRequested
+
+    bus = EventBus()
+    seen: list[SpellsEditRequested] = []
+    bus.subscribe(SpellsEditRequested, seen.append)
+    bridge = DesktopBridge(UiPresenter(bus, loaded_gamedata()), FakeIcons(), running_loop)  # type: ignore[arg-type]
+    assert not bridge.set_spells({"spell1Id": 4, "spell2Id": "x"})
+    assert bridge.set_spells({"spell1Id": 4, "spell2Id": 14})
+    assert seen == [SpellsEditRequested((4, 14))]
 
 
 def test_bridge_set_runes_only_passes_a_rune_page(

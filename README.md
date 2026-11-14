@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.13.1 (objetos iniciales al empezar, oro frente a tu rival de posición, 3 páginas de runas para elegir, objetos mejorados reconocidos)
+## Estado: v0.14.1 (hechizos editables en la ventana, diferencia de oro entre cada pareja de línea, objetos iniciales, 3 páginas de runas)
 
 ### Lo que hace
 
@@ -18,6 +18,8 @@ dice en tu segundo monitor qué comprar y quién va fuerte.
 - **Cambia las runas desde la ventana**: la página se ve con sus imágenes y, con «Cambiar
   runas», eliges otras como en el cliente; se escriben al momento en tu página «LoL Coach».
   Lo que cambies tú (en la ventana o en el cliente) no se vuelve a tocar para ese campeón.
+- **Cambia los hechizos desde la ventana**: toca el de la D o el de la F y elige otro de los
+  de tu modo (si eliges el de la otra tecla, se intercambian). También se respeta.
 - **3 páginas de runas para elegir**: la recomendada y las otras piedras angulares más jugadas
   en alto elo con tu campeón y posición (con sus partidas y % de victorias); si faltan datos,
   las recomendaciones de Riot. Tocar una la pone en el cliente.
@@ -144,14 +146,13 @@ Muestra:
   - **Compra ahora**: el siguiente objeto, el porqué, cuánto oro te falta y qué
     componentes ya te puedes comprar (bajando por la receta si hace falta).
   - **Tu build**: lo que ya tienes marcado y lo siguiente resaltado.
-  - **Tu equipo** (a la izquierda) y **Rivales** (a la derecha): KDA, súbditos, nivel, tipo
-    de daño, «Tu rival» y una etiqueta **Muy fuerte / Fuerte / Normal / Por detrás**.
-  - **Oro frente a su rival de posición**: cada jugador muestra cuánto oro lleva en objetos
-    más o menos que el de su misma línea en el otro equipo (p. ej. «−3,1k oro vs Zed»). Si el
-    juego no dice las líneas (a ciegas, práctica), se deducen por campeón; fuera de la Grieta,
-    frente a la media de la partida.
-  - Los dos equipos van **por línea** (superior, jungla, medio, inferior, apoyo), así que
-    cada fila enfrenta a los dos jugadores de esa línea.
+  - **Líneas**: una fila por línea (superior, jungla, medio, inferior, apoyo) con tu
+    compañero a la izquierda, su rival de posición a la derecha y, **en medio, la diferencia
+    de oro en objetos** entre los dos (verde ◀ si va por delante tu compañero, rojo ▶ si el
+    rival, «=» si van igualados). Cada jugador lleva KDA, súbditos, nivel, tipo de daño,
+    «Tu rival» y una etiqueta **Muy fuerte / Fuerte / Normal / Por detrás** (frente a toda
+    la partida). Si el juego no dice las líneas (a ciegas, práctica), se deducen por campeón;
+    fuera de la Grieta van las dos listas, con el oro frente a la media.
 
 **Segundo plano**: el botón **Segundo plano** de la cabecera esconde la ventana (tampoco sale
 en la barra de tareas) y LoL Coach **sigue funcionando igual**: runas, hechizos, build en la

@@ -377,10 +377,9 @@ function renderLoadout(loadout, state) {
     ]));
   }
   if (loadout.spells.length) {
-    children.push(el("div", { class: "spells" }, [
-      el("span", { class: "section-label inline", text: "Hechizos" }),
-      ...loadout.spells.map((s) => gameIcon("spell", s.id, s.name, "spell")),
-    ]));
+    const canEditSpells = Boolean(loadout.spells.length === 2 && state.connected
+      && state.phase === "ChampSelect" && state.spellCatalog && state.spellCatalog.length);
+    children.push(...renderSpells(loadout, state, canEditSpells));
   }
   if (loadout.laneOpponent) children.push(el("div", { class: "muted small", text: `Rival de línea probable: ${loadout.laneOpponent}` }));
   const canEdit = Boolean(loadout.editable && catalog && page && state.connected && state.phase === "ChampSelect");
@@ -401,6 +400,84 @@ function renderLoadout(loadout, state) {
   if (extra.length) children.push(bulletList(extra));
   return card(loadout.preview && !loadout.runesBy ? "Runas y hechizos (previsión)" : "Runas y hechizos", children,
     { className: "loadout" });
+}
+
+// --- Hechizos: toca el de la D o el de la F y elige otro (como en el cliente: si eliges el
+// que ya está en la otra tecla, se intercambian). Se ponen al momento en tu selección.
+
+const SPELL_KEYS = ["D", "F"];
+const spellEditor = { slot: -1, pending: null, until: 0 };
+
+function shownSpells(loadout) {
+  const real = loadout.spells.map((s) => s.id);
+  const draft = spellEditor.pending;
+  if (draft && ((draft[0] === real[0] && draft[1] === real[1]) || Date.now() > spellEditor.until)) {
+    spellEditor.pending = null;
+  }
+  return spellEditor.pending || real;
+}
+
+function sendSpells(ids) {
+  spellEditor.pending = ids;
+  spellEditor.until = Date.now() + 4000;
+  const spells = { spell1Id: ids[0], spell2Id: ids[1] };
+  if (DESKTOP) {
+    const api = window.pywebview && window.pywebview.api;
+    if (api && api.set_spells) api.set_spells(spells).catch(() => {});
+  } else if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ type: "setSpells", spells }));
+  }
+  render(lastState);
+}
+
+function renderSpells(loadout, state, canEdit) {
+  const ids = shownSpells(loadout);
+  const names = {};
+  for (const s of [...(state.spellCatalog || []), ...loadout.spells]) names[s.id] = s.name;
+  if (!canEdit) spellEditor.slot = -1;
+  const slots = ids.map((id, i) => {
+    const key = el("span", { class: "key", "aria-hidden": "true", text: SPELL_KEYS[i] });
+    if (!canEdit) return el("span", { class: "spell-slot", title: `${SPELL_KEYS[i]}: ${names[id] || ""}` }, [gameIcon("spell", id, names[id], "spell"), key]);
+    const picking = spellEditor.slot === i;
+    const button = el("button", {
+      type: "button", class: classes("spell-slot", "editable", picking && "picking"),
+      "aria-expanded": picking ? "true" : "false", "data-focus-key": `spell-slot:${i}`,
+      "aria-label": `Cambiar el hechizo de la ${SPELL_KEYS[i]} (ahora ${names[id] || "?"})`,
+      title: `Cambiar el hechizo de la ${SPELL_KEYS[i]}`,
+    }, [gameIcon("spell", id, "", "spell"), key]);
+    button.addEventListener("click", () => { spellEditor.slot = picking ? -1 : i; render(lastState); });
+    return button;
+  });
+  const yours = loadout.spellsBy === "you_in_app" || loadout.spellsBy === "you_in_client";
+  const parts = [el("div", { class: "spells" }, [
+    el("span", { class: "section-label inline", text: "Hechizos" }),
+    ...slots,
+    yours ? el("span", { class: "small muted", text: "Tuyos: LoL Coach no los toca" })
+      : canEdit && spellEditor.slot < 0 ? el("span", { class: "small muted", text: "Toca uno para cambiarlo" }) : null,
+  ])];
+  if (canEdit && spellEditor.slot >= 0) {
+    const slot = spellEditor.slot;
+    parts.push(el("div", { class: "spell-picker", role: "group", "aria-label": `Elige el hechizo de la ${SPELL_KEYS[slot]}` },
+      state.spellCatalog.map((s) => {
+        const selected = ids[slot] === s.id;
+        const button = el("button", {
+          type: "button", class: classes("rune-option", "spell-option", selected && "selected"),
+          "aria-pressed": selected ? "true" : "false", "aria-label": s.name, title: s.name,
+          "data-focus-key": `spell:${s.id}`,
+        }, [gameIcon("spell", s.id, "", "")]);
+        button.addEventListener("click", () => {
+          if (selected) return;
+          const next = ids.slice();
+          const other = 1 - slot;
+          if (next[other] === s.id) next[other] = next[slot]; // ya estaba en la otra tecla: se cambian
+          next[slot] = s.id;
+          spellEditor.slot = -1;
+          sendSpells(next);
+        });
+        return button;
+      })));
+  }
+  return parts;
 }
 
 // Hasta 3 páginas con piedras angulares distintas: tocar una la pone en el cliente.
@@ -579,10 +656,12 @@ function renderGame(state) {
   return [
     renderPurchase(game),
     game.buildProgress.length ? renderProgress(game) : null,
-    // Los dos equipos van por línea (superior → apoyo): cada fila frente a su rival.
-    // Tu equipo a la izquierda y los rivales a la derecha.
-    team.length ? card("Tu equipo", [renderPlayers(team, game.me, "ally")]) : null,
-    game.enemies.length ? card("Rivales", [renderPlayers(game.enemies, null, "enemy")]) : null,
+    // Una fila por línea: tu compañero a la izquierda, su rival a la derecha y la diferencia
+    // de oro en medio. Sin líneas (otros modos), las dos listas de siempre.
+    ...(game.matchups && game.matchups.length ? [renderMatchups(game.matchups)] : [
+      team.length ? card("Tu equipo", [renderPlayers(team, game.me, "ally")]) : null,
+      game.enemies.length ? card("Rivales", [renderPlayers(game.enemies, null, "enemy")]) : null,
+    ]),
   ];
 }
 
@@ -702,58 +781,102 @@ function renderProgress(game) {
 }
 
 function renderPlayers(players, me, side) {
-  return el("ul", { class: "players" }, players.map((p) => {
-    const tags = [
-      p.me || p === me ? el("span", { class: "tag", text: "Tú" }) : null,
-      p.lane ? el("span", { class: "tag lane", text: "Tu rival" }) : null,
-      p.damage === "AP" ? el("span", { class: "tag dmg-ap", text: "AP" }) : null,
-      p.damage === "AD" ? el("span", { class: "tag dmg-ad", text: "AD" }) : null,
-    ];
-    const stats = el("div", { class: "stats" }, [
-      el("span", { class: "kda", text: p.kda }),
-      el("span", { text: `${p.cs} CS` }),
-      el("span", { text: `Nv ${p.level}` }),
-      p.dead && p.respawn ? el("span", { class: "respawn", text: `reaparece en ${p.respawn} s` }) : null,
-    ]);
-    // Frente a su rival de posición; si no se sabe quién es (otro modo), frente a la media.
-    const vsLane = p.laneGoldDiff !== null && p.laneGoldDiff !== undefined;
-    const diff = vsLane ? p.laneGoldDiff : p.goldDiff;
-    const goldClass = diff > 400 ? "gold up" : diff < -400 ? "gold down" : "gold";
-    const goldTitle = vsLane
-      ? `Oro en objetos frente a ${p.laneRival}, su rival de posición`
-      : "Oro en objetos frente a la media de la partida";
-    const badge = el("span", { class: `badge ${p.strength}`, text: p.strengthLabel });
-    const row = el("li", { class: classes("player", p.strength, p.dead && "dead") }, [
-      championIcon(p.championId, p.name),
-      el("div", { class: "who" }, [el("div", { class: "title" }, [p.name, ...tags]), stats]),
-      el("div", { class: "right" }, [
-        badge,
-        el("span", { class: goldClass, title: goldTitle }, [
-          `${goldText(diff)} oro`,
-          vsLane ? el("small", { class: "versus", text: ` vs ${p.laneRival}` }) : null,
-        ]),
-      ]),
-    ]);
+  return el("ul", { class: "players" }, players.map((p) => playerRow(p, me, side)));
+}
 
-    const key = `${side}:${p.championId || p.name}`;
-    const before = memory.players.get(key);
-    seen.players.set(key, { strength: p.strength, dead: Boolean(p.dead) });
-    if (before && !seen.entering) {
-      if (before.strength !== p.strength) {
-        // Cambia de estado: la fila se ilumina con su color y la etiqueta salta.
-        motion(() => {
-          animate(row, [{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 0 }],
-            { duration: reducedMotion.matches ? 600 : 1300, easing: "ease-out", pseudoElement: "::after" });
-          move(badge, [{ transform: "scale(.6)" }, { transform: "none" }], { duration: 480, easing: EASE_POP });
-        });
-      }
-      if (before.dead !== Boolean(p.dead)) {
-        motion(() => animate(row, [{ opacity: before.dead ? 0.55 : 1 }, { opacity: p.dead ? 0.55 : 1 }],
-          { duration: reducedMotion.matches ? 150 : 450, easing: "ease-out" }));
-      }
+// `mirror`: el rival, de derecha a izquierda (su icono pegado al borde de fuera).
+// `showGold`: la diferencia de oro en la fila (en el enfrentamiento por líneas va en medio).
+function playerRow(p, me, side, { mirror = false, showGold = true, tag = "li" } = {}) {
+  const tags = [
+    p.me || p === me ? el("span", { class: "tag", text: "Tú" }) : null,
+    p.lane ? el("span", { class: "tag lane", text: "Tu rival" }) : null,
+    p.damage === "AP" ? el("span", { class: "tag dmg-ap", text: "AP" }) : null,
+    p.damage === "AD" ? el("span", { class: "tag dmg-ad", text: "AD" }) : null,
+  ];
+  const stats = el("div", { class: "stats" }, [
+    el("span", { class: "kda", text: p.kda }),
+    el("span", { text: `${p.cs} CS` }),
+    el("span", { text: `Nv ${p.level}` }),
+    p.dead && p.respawn ? el("span", { class: "respawn", text: `reaparece en ${p.respawn} s` }) : null,
+  ]);
+  // Frente a su rival de posición; si no se sabe quién es (otro modo), frente a la media.
+  const vsLane = p.laneGoldDiff !== null && p.laneGoldDiff !== undefined;
+  const diff = vsLane ? p.laneGoldDiff : p.goldDiff;
+  const goldClass = diff > 400 ? "gold up" : diff < -400 ? "gold down" : "gold";
+  const goldTitle = vsLane
+    ? `Oro en objetos frente a ${p.laneRival}, su rival de posición`
+    : "Oro en objetos frente a la media de la partida";
+  const badge = el("span", { class: `badge ${p.strength}`, text: p.strengthLabel });
+  const parts = [
+    championIcon(p.championId, p.name),
+    el("div", { class: "who" }, [el("div", { class: "title" }, [p.name, ...tags]), stats]),
+    el("div", { class: "right" }, [
+      badge,
+      showGold ? el("span", { class: goldClass, title: goldTitle }, [
+        `${goldText(diff)} oro`,
+        vsLane ? el("small", { class: "versus", text: ` vs ${p.laneRival}` }) : null,
+      ]) : null,
+    ]),
+  ];
+  const row = el(tag, { class: classes("player", p.strength, p.dead && "dead", mirror && "mirror") },
+    mirror ? parts.reverse() : parts);
+
+  const key = `${side}:${p.championId || p.name}`;
+  const before = memory.players.get(key);
+  seen.players.set(key, { strength: p.strength, dead: Boolean(p.dead) });
+  if (before && !seen.entering) {
+    if (before.strength !== p.strength) {
+      // Cambia de estado: la fila se ilumina con su color y la etiqueta salta.
+      motion(() => {
+        animate(row, [{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 0 }],
+          { duration: reducedMotion.matches ? 600 : 1300, easing: "ease-out", pseudoElement: "::after" });
+        move(badge, [{ transform: "scale(.6)" }, { transform: "none" }], { duration: 480, easing: EASE_POP });
+      });
     }
-    return row;
-  }));
+    if (before.dead !== Boolean(p.dead)) {
+      motion(() => animate(row, [{ opacity: before.dead ? 0.55 : 1 }, { opacity: p.dead ? 0.55 : 1 }],
+        { duration: reducedMotion.matches ? 150 : 450, easing: "ease-out" }));
+    }
+  }
+  return row;
+}
+
+// Enfrentamientos: cada línea con la diferencia de oro en medio, vista desde tu equipo.
+// La flecha apunta a quien lleva más oro en objetos.
+function renderMatchups(matchups) {
+  const rows = matchups.map((m) => {
+    const ally = m.ally ? playerRow(m.ally, null, "ally", { showGold: false, tag: "div" }) : el("div", { class: "player empty-seat" });
+    const enemy = m.enemy ? playerRow(m.enemy, null, "enemy", { mirror: true, showGold: false, tag: "div" }) : el("div", { class: "player empty-seat" });
+    const diff = m.goldDiff;
+    let middle;
+    if (diff === null || diff === undefined) {
+      middle = el("div", { class: "gap" }, [el("span", { class: "lane-name", text: m.position || "" })]);
+    } else {
+      const even = Math.abs(diff) < 150;
+      const state = even ? "even" : diff > 0 ? "ahead" : "behind";
+      const amount = even ? "=" : goldText(Math.abs(diff)).replace("+", "");
+      const allyName = m.ally.name;
+      const enemyName = m.enemy.name;
+      const says = even ? `${allyName} y ${enemyName} van igualados en oro`
+        : diff > 0 ? `${allyName} lleva ${Math.abs(diff)} de oro más que ${enemyName}`
+          : `${enemyName} lleva ${Math.abs(diff)} de oro más que ${allyName}`;
+      middle = el("div", { class: classes("gap", state), title: says, "aria-label": says }, [
+        el("span", { class: "lane-name", "aria-hidden": "true", text: m.position || "" }),
+        el("span", { class: "gap-value", "aria-hidden": "true" }, [
+          diff > 0 && !even ? el("span", { class: "arrow", text: "◀" }) : null,
+          el("span", { text: amount }),
+          diff < 0 && !even ? el("span", { class: "arrow", text: "▶" }) : null,
+        ]),
+      ]);
+    }
+    return el("li", { class: "matchup" }, [ally, middle, enemy]);
+  });
+  return card("Líneas", [
+    el("div", { class: "matchup-head", "aria-hidden": "true" }, [
+      el("span", { text: "Tu equipo" }), el("span", { text: "Oro" }), el("span", { text: "Rivales" }),
+    ]),
+    el("ul", { class: "matchups" }, rows),
+  ], { className: "wide lanes" });
 }
 
 render({ phaseLabel: "Conectando…", connected: false }, true);

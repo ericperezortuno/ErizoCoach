@@ -8,7 +8,8 @@
 * Al hacerse el último pick (``PicksFinalized``): se calculan con todos los rivales y se
   aplican (ajustando las provisionales).
 * Si después cambia tu campeón (intercambio o banquillo de ARAM): se vuelve a aplicar.
-* Desde la ventana puedes cambiar las runas: se escriben en tu página de LoL Coach.
+* Desde la ventana puedes cambiar las runas (se escriben en tu página de LoL Coach) y los
+  hechizos.
 * Lo que cambies tú (en la ventana o en el cliente) se respeta para ese campeón: la app
   no lo vuelve a tocar salvo que cambies de campeón. Antes de escribir, se comprueba en
   el cliente si has cambiado algo.
@@ -41,6 +42,7 @@ from ..events import (
     PicksFinalized,
     RunesBy,
     RunesEditRequested,
+    SpellsEditRequested,
 )
 from ..gamedata.catalog import GameData
 from ..gamedata.runes import RunePage, validate_page
@@ -127,6 +129,7 @@ class LoadoutService:
         bus.subscribe(MyPickPreviewChanged, self._on_preview)
         bus.subscribe(PicksFinalized, self._on_finalized)
         bus.subscribe(RunesEditRequested, self._on_edit)
+        bus.subscribe(SpellsEditRequested, self._on_spells)
         bus.subscribe(ChampSelectEnded, self._on_end)
         bus.subscribe(ClientDisconnected, self._on_end)
 
@@ -226,6 +229,33 @@ class LoadoutService:
             self._runes = _Runes(champion, event.page, RunesBy.YOU_IN_APP, page_id)
             log.info("Runas cambiadas desde la ventana (%s)", title)
             await self._publish_state(champion, page_name=title)
+
+    async def _on_spells(self, event: SpellsEditRequested) -> None:
+        """Has cambiado los hechizos en la ventana: se ponen en tu selección."""
+        champion = self._target_champion()
+        client = self._connector.client
+        mode = self._queue.game_mode if self._queue else ""
+        allowed = {s.id for s in self._gamedata.spells_for(mode)}
+        first, second = event.spells
+        problem = ""
+        if client is None:
+            problem = "Sin conexión con el cliente de LoL: no se han podido cambiar los hechizos."
+        elif not champion:
+            problem = "Los hechizos se cambian durante la selección, con un campeón elegido."
+        elif first == second or first not in allowed or second not in allowed:
+            problem = "Esos hechizos no se pueden llevar juntos en este modo."
+        if problem or client is None:
+            await self._publish_state(champion, problem=problem)
+            return
+        async with self._write_lock:
+            try:
+                await self._applier.apply_spells(client, event.spells)
+            except LcuError as exc:
+                await self._publish_state(champion, problem=f"No se pudieron cambiar: {exc}")
+                return
+            self._spells = _Spells(champion, event.spells, RunesBy.YOU_IN_APP)
+            log.info("Hechizos cambiados desde la ventana")
+            await self._publish_state(champion)
 
     # --- Cálculo y aplicación ---------------------------------------------------------
 
