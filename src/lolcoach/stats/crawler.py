@@ -1,8 +1,10 @@
 """Descarga partidas clasificatorias de alto elo del parche actual.
 
-Recorrido:
+Recorrido, en cada región (EUW, Corea y Norteamérica a la vez: Riot cuenta los
+límites de la clave por separado en cada una, así que se descarga el triple):
 
-1. Ligas Challenger, Gran Maestro y Maestro de tu región -> jugadores.
+1. Ligas Challenger, Gran Maestro y Maestro, y Diamante I y II (por páginas)
+   -> jugadores. Se consultan antes los de Maestro o más.
 2. Partidas del parche guardadas sin runas ni hechizos (versión 0.5.0): se
    vuelve a pedir su detalle (1 petición) para completarlas.
 3. Para cada jugador, sus últimas partidas clasificatorias en solitario.
@@ -11,30 +13,57 @@ Recorrido:
    momento.
 
 Las partidas ya descargadas no se vuelven a pedir, y al llegar a partidas de un
-parche anterior se pasa al siguiente jugador. Con una clave de desarrollo
-(100 peticiones cada 2 minutos) salen unas 1.500 partidas por hora.
+parche anterior se pasa al siguiente jugador. Con una clave personal (100
+peticiones cada 2 minutos) salen unas 1.500 partidas por hora en cada región.
 """
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 from .extract import attach_loadouts, extract_builds, match_patch, patch_key
-from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError, RiotApiStaleIdError
-from .store import MatchStore
+from .riot_api import (
+    RiotApiClient,
+    RiotApiError,
+    RiotApiKeyError,
+    RiotApiStaleIdError,
+    match_prefix,
+)
+from .store import MatchStore, players_refreshed_key
 
 log = logging.getLogger(__name__)
 
-TIERS = ("CHALLENGER", "GRANDMASTER", "MASTER")
+APEX_TIERS = ("CHALLENGER", "GRANDMASTER", "MASTER")
+DIVISIONS = ("DIAMOND I", "DIAMOND II")  # hasta Diamante II incluido
+TIERS = (*APEX_TIERS, *DIVISIONS)
+MAX_LEAGUE_PAGES = 80  # unos 200 jugadores por página: de sobra para cualquier división
 PLAYERS_REFRESH_SECONDS = 24 * 3600
 MATCHES_PER_PLAYER = 20
+NO_PLAYERS_LEFT = "no quedan jugadores por consultar"
+
+
+@dataclass
+class MatchBudget:
+    """Partidas nuevas que aún se quieren, compartidas por las regiones que descargan a la vez."""
+
+    left: int
+    total: int = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.total = self.left
+
+    @property
+    def spent(self) -> bool:
+        return self.left <= 0
 
 
 @dataclass
 class CrawlProgress:
+    region: str = ""
     patch: str = ""
     new_matches: int = 0  # partidas del parche guardadas en esta sesión
     completed: int = 0  # partidas antiguas completadas con runas y hechizos
@@ -62,18 +91,22 @@ class Crawler:
         *,
         patch: str | None = None,
         max_matches: int | None = None,
+        budget: MatchBudget | None = None,
         max_seconds: float | None = None,
         tiers: tuple[str, ...] = TIERS,
         on_progress: Callable[[CrawlProgress], None] | None = None,
     ) -> None:
         self._api = api
+        self._region = api.region
         self._store = store
         self._patch = patch
-        self._max_matches = max_matches
+        # El límite de partidas nuevas: el compartido con otras regiones o uno propio
+        self._budget = budget or (MatchBudget(max_matches) if max_matches is not None else None)
         self._max_seconds = max_seconds
         self._tiers = tiers
         self._on_progress = on_progress or (lambda _p: None)
-        self.progress = CrawlProgress()
+        self.progress = CrawlProgress(region=self._region)
+        self._leagues_cut_short = False
 
     async def run(self) -> CrawlProgress:
         await self._refresh_players()
@@ -83,28 +116,28 @@ class Crawler:
         except RiotApiStaleIdError:
             # Jugadores guardados con otra clave: sus PUUID ya no valen. Se releen las ligas
             # (los identificadores llegan cifrados para la clave actual) y se sigue.
-            forgotten = self._store.forget_players()
+            forgotten = self._store.forget_players(self._region)
             log.info(
-                "Los %d jugadores guardados eran de otra clave de Riot: se vuelven a leer "
-                "las ligas", forgotten,
+                "Los %d jugadores guardados de %s eran de otra clave de Riot: se vuelven a "
+                "leer las ligas", forgotten, self._region,
             )  # fmt: skip
             await self._refresh_players()
             await self._crawl_players()
         return self.progress
 
     async def _crawl_players(self) -> None:
-        for player_id in self._store.players_to_crawl():
+        for player_id in self._store.players_to_crawl(self._region):
             if self._should_stop():
                 return
             await self._crawl_player(player_id)
             self.progress.players += 1
             self.progress.requests = self._api.requests
             self._on_progress(self.progress)
-        self.progress.stopped_reason = "no quedan jugadores por consultar"
+        self.progress.stopped_reason = NO_PLAYERS_LEFT
 
     def _should_stop(self) -> bool:
-        if self._max_matches is not None and self.progress.new_matches >= self._max_matches:
-            self.progress.stopped_reason = f"alcanzadas {self._max_matches} partidas"
+        if self._budget is not None and self._budget.spent:
+            self.progress.stopped_reason = f"alcanzadas {self._budget.total} partidas"
             return True
         return self._out_of_time()
 
@@ -120,7 +153,8 @@ class Crawler:
         if not patch:
             return
         self.progress.patch = patch
-        while pending := self._store.matches_without_loadout(patch):
+        prefix = match_prefix(self._region)  # cada región completa las suyas
+        while pending := self._store.matches_without_loadout(patch, prefix=prefix):
             for match_id in pending:
                 if self._out_of_time():  # el límite de partidas es para las nuevas
                     return
@@ -141,19 +175,19 @@ class Crawler:
                 self._on_progress(self.progress)
 
     async def _refresh_players(self) -> None:
-        last = float(self._store.get_meta("players_refreshed") or 0)
-        if self._store.player_count() and time.time() - last < PLAYERS_REFRESH_SECONDS:
+        meta = players_refreshed_key(self._region)
+        last = float(self._store.get_meta(meta) or 0)
+        if self._store.player_count(self._region) and time.time() - last < PLAYERS_REFRESH_SECONDS:
             return
         players: list[tuple[str, str]] = []
         for tier in self._tiers:
             try:
-                league = await self._api.league(tier)
+                entries = await self._league_entries(tier)
             except RiotApiKeyError:
                 raise
             except RiotApiError as exc:
-                log.warning("No se pudo leer la liga %s: %s", tier, exc)
+                log.warning("No se pudo leer la liga %s de %s: %s", tier, self._region, exc)
                 continue
-            entries = league.get("entries", []) if isinstance(league, dict) else []
             for entry in entries:
                 if not isinstance(entry, dict):
                     continue
@@ -161,9 +195,31 @@ class Crawler:
                     players.append((str(entry["puuid"]), tier))
                 elif entry.get("summonerId"):
                     players.append((f"sid:{entry['summonerId']}", tier))
-        added = self._store.add_players(players)
-        self._store.set_meta("players_refreshed", str(time.time()))
-        log.info("Jugadores de alto elo: %d (%d nuevos)", self._store.player_count(), added)
+        added = self._store.add_players(players, self._region)
+        if not self._leagues_cut_short:
+            self._store.set_meta(meta, str(time.time()))
+        log.info(
+            "Jugadores de alto elo de %s: %d (%d nuevos)",
+            self._region, self._store.player_count(self._region), added,
+        )  # fmt: skip
+
+    async def _league_entries(self, tier: str) -> list[object]:
+        """Los jugadores de una liga: entera (Maestro o más) o por páginas (Diamante I...)."""
+        if tier in APEX_TIERS:
+            league = await self._api.league(tier)
+            entries = league.get("entries", []) if isinstance(league, dict) else []
+            return list(entries) if isinstance(entries, list) else []
+        name, _, division = tier.partition(" ")
+        found: list[object] = []
+        for page in range(1, MAX_LEAGUE_PAGES + 1):
+            if self._out_of_time():
+                self._leagues_cut_short = True  # la siguiente tanda las vuelve a leer
+                break
+            entries = await self._api.league_entries(name, division, page)
+            if not entries:
+                break  # última página
+            found.extend(entries)
+        return found
 
     async def _crawl_player(self, player_id: str) -> None:
         puuid = player_id
@@ -221,6 +277,74 @@ class Crawler:
         self._store.add_match(match_id, patch, builds or None)
         if builds:
             self.progress.new_matches += 1
+            if self._budget is not None:
+                self._budget.left -= 1
         else:
             self.progress.skipped += 1
         return True
+
+
+@dataclass
+class RegionsResult:
+    """Lo que ha hecho cada región: su progreso y, si se cortó, por qué."""
+
+    progress: list[CrawlProgress]
+    errors: dict[str, RiotApiError]
+
+    @property
+    def new_matches(self) -> int:
+        return sum(p.new_matches for p in self.progress)
+
+    @property
+    def advanced(self) -> bool:
+        return any(p.new_matches or p.completed or p.players for p in self.progress)
+
+    @property
+    def patch(self) -> str:
+        return next((p.patch for p in self.progress if p.patch), "")
+
+    @property
+    def out_of_players(self) -> bool:
+        """Todas las regiones han consultado ya a todos sus jugadores."""
+        return all(p.stopped_reason == NO_PLAYERS_LEFT for p in self.progress)
+
+
+async def crawl_regions(
+    apis: Sequence[RiotApiClient],
+    store: MatchStore,
+    *,
+    patch: str | None = None,
+    max_matches: int | None = None,
+    max_seconds: float | None = None,
+    tiers: tuple[str, ...] = TIERS,
+    on_progress: Callable[[CrawlProgress], None] | None = None,
+) -> RegionsResult:
+    """Descarga de varias regiones a la vez, con un único tope de partidas para todas.
+
+    Una región sin conexión o con Riot caído no para a las demás (queda en ``errors``); una
+    clave rechazada sí lo para todo (``RiotApiKeyError``).
+    """
+    budget = MatchBudget(max_matches) if max_matches is not None else None
+    crawlers = [
+        Crawler(
+            api,
+            store,
+            patch=patch,
+            budget=budget,
+            max_seconds=max_seconds,
+            tiers=tiers,
+            on_progress=on_progress,
+        )
+        for api in apis
+    ]
+    outcomes = await asyncio.gather(*(c.run() for c in crawlers), return_exceptions=True)
+    errors: dict[str, RiotApiError] = {}
+    for crawler, outcome in zip(crawlers, outcomes, strict=True):
+        if isinstance(outcome, RiotApiKeyError):
+            raise outcome
+        if isinstance(outcome, RiotApiError):
+            errors[crawler.progress.region] = outcome
+            crawler.progress.stopped_reason = f"cortada: {outcome}"
+        elif isinstance(outcome, BaseException):
+            raise outcome
+    return RegionsResult([c.progress for c in crawlers], errors)

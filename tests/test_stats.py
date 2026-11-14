@@ -31,7 +31,7 @@ from lolcoach.stats.riot_api import (
 )
 from lolcoach.stats.service import prepare_stats
 from lolcoach.stats.source import StatsBuildSource
-from lolcoach.stats.store import MatchStore, is_corrupt
+from lolcoach.stats.store import MatchStore, is_corrupt, players_refreshed_key
 
 from .fake_riot_api import AHRI_RUNES, API_KEY, FakeRiotApi, build_match
 from .gamedata_fixture import FixtureClient, loaded_gamedata
@@ -326,7 +326,7 @@ async def test_players_saved_with_another_key_are_read_again(
     (antes se gastaba una petición por jugador, todas con HTTP 400, sin bajar nada)."""
     store = MatchStore(tmp_path / "matches.sqlite3")
     store.add_players([(f"puuid-de-otra-clave-{n}", "CHALLENGER") for n in range(50)])
-    store.set_meta("players_refreshed", str(time.time()))  # lista reciente: no tocaba releerla
+    store.set_meta(players_refreshed_key("euw1"), str(time.time()))  # lista reciente
     async with client(riot) as api:
         progress = await Crawler(api, store, patch="16.22", tiers=("CHALLENGER",)).run()
     assert progress.new_matches == 11

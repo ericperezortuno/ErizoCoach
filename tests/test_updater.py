@@ -51,7 +51,7 @@ def make_updater(
     statuses: list[StatsStatus] = []
     bus.subscribe(StatsStatus, statuses.append)
     refresher = Refresher()
-    values: dict[str, object] = {"stats_target_matches": 5} | settings
+    values: dict[str, object] = {"stats_target_matches": 5, "stats_regions": ("euw1",)} | settings
     updater = StatsUpdater(
         bus,
         None,

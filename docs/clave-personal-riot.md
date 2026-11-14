@@ -38,7 +38,8 @@ como LoL Coach:
      no input automation and no information that is not already visible in the game.
 
    How it uses the Riot API:
-   - league-v4: Challenger, Grandmaster and Master entries for EUW1, to find high-elo players.
+   - league-v4: Challenger, Grandmaster, Master and Diamond I-II entries for EUW1, KR and
+     NA1, to find high-elo players.
    - match-v5: their recent ranked solo matches (match details and timelines) for the current
      patch.
    - From each match it keeps only champion, position, win/loss, item purchase order, runes and
@@ -47,7 +48,7 @@ como LoL Coach:
      whose matches to request. Nothing leaves my PC and nothing is shown to other people.
 
    Rate limits: it follows the X-App-Rate-Limit headers (20/1s, 100/2min), honours 429
-   Retry-After, pauses while I am in champion select or in a game, and stops at about 3,000
+   Retry-After, pauses while I am in champion select or in a game, and stops at about 20,000
    matches per patch.
 
    The key is stored in Windows Credential Manager, never in code, files or logs.

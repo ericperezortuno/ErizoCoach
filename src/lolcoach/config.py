@@ -14,10 +14,11 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     window_mode = "escritorio" # "escritorio" (ventana propia) o "navegador" (Edge)
     window_on_top = false      # true = ventana siempre encima
     live_poll_interval = 3     # segundos entre lecturas de la partida (1-10)
-    riot_region = "euw1"       # región de las estadísticas (euw1, eun1, tr1, na1, kr)
+    riot_region = "euw1"       # tu región (euw1, eun1, tr1, na1, kr)
+    stats_regions = ["euw1", "kr", "na1"] # regiones de las que se descargan partidas
     stats_min_games = 20       # partidas mínimas para usar la build de estadísticas
     stats_auto_download = true # descargar estadísticas solo, con la app abierta
-    stats_target_matches = 3000 # partidas por parche a partir de las que se para
+    stats_target_matches = 20000 # partidas por parche a partir de las que se para
     stats_shared = true        # sin clave (o pocos datos): usar las estadísticas compartidas
 
 Para publicar tus estadísticas para los demás (ver ``stats/publish.py``)::
@@ -34,9 +35,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .stats.riot_api import REGIONS
+from .stats.riot_api import REGIONS, distinct_routes
 
 APP_DIR_NAME = "LoLCoach"
+DEFAULT_TARGET_MATCHES = 20_000
+# Una región por servidor de partidas (europe, asia, americas): cada una suma su propio límite
+DEFAULT_STATS_REGIONS = ("euw1", "kr", "na1")
 CONFIG_FILE_NAME = "config.toml"
 
 
@@ -59,10 +63,12 @@ class Settings:
     window_mode: str = "escritorio"  # "escritorio" (ventana propia) o "navegador" (Edge)
     window_on_top: bool = False  # mantener la ventana siempre encima
     live_poll_interval: float = 3.0  # segundos entre lecturas de la partida
-    riot_region: str = "euw1"  # región para descargar estadísticas (API de Riot)
+    riot_region: str = "euw1"  # tu región (API de Riot)
+    # Regiones de las que se descargan partidas a la vez (Riot limita cada una por separado)
+    stats_regions: tuple[str, ...] = DEFAULT_STATS_REGIONS
     stats_min_games: int = 20  # partidas mínimas para usar la build de estadísticas
     stats_auto_download: bool = True  # descargar en segundo plano (pausa al jugar)
-    stats_target_matches: int = 3000  # partidas por parche a partir de las que se para
+    stats_target_matches: int = DEFAULT_TARGET_MATCHES  # partidas por parche: luego se para
     stats_shared: bool = True  # usar las estadísticas compartidas si faltan las propias
     stats_publish_repo: str = ""  # publicar las propias (vacío = no se publica)
     stats_publish_key: Path | None = None  # clave SSH con escritura en ese repositorio
@@ -121,6 +127,7 @@ def load_settings(
             f"config.toml: 'riot_region' debe ser una de {sorted(REGIONS)}; se usa euw1."
         )
         region = "euw1"
+    stats_regions = _stats_regions(values, region, warnings)
     min_games = values.get("stats_min_games", 20)
     if isinstance(min_games, bool) or not isinstance(min_games, int) or not 5 <= min_games <= 500:
         warnings.append("config.toml: 'stats_min_games' debe estar entre 5 y 500; se usa 20.")
@@ -138,12 +145,13 @@ def load_settings(
             "'stats_publish_key'; no se publican."
         )
         publish_repo, publish_key = "", ""
-    target = values.get("stats_target_matches", 3000)
-    if isinstance(target, bool) or not isinstance(target, int) or not 200 <= target <= 50_000:
+    target = values.get("stats_target_matches", DEFAULT_TARGET_MATCHES)
+    if isinstance(target, bool) or not isinstance(target, int) or not 200 <= target <= 100_000:
         warnings.append(
-            "config.toml: 'stats_target_matches' debe estar entre 200 y 50000; se usa 3000."
+            "config.toml: 'stats_target_matches' debe estar entre 200 y 100000; se usa "
+            f"{DEFAULT_TARGET_MATCHES}."
         )
-        target = 3000
+        target = DEFAULT_TARGET_MATCHES
     poll = values.get("live_poll_interval", 3.0)
     if isinstance(poll, bool) or not isinstance(poll, int | float) or not 1 <= poll <= 10:
         warnings.append("config.toml: 'live_poll_interval' debe estar entre 1 y 10; se usa 3.")
@@ -173,6 +181,7 @@ def load_settings(
         window_on_top=window_on_top,
         live_poll_interval=float(poll),
         riot_region=region,
+        stats_regions=stats_regions,
         stats_min_games=min_games,
         stats_auto_download=auto_download,
         stats_target_matches=target,
@@ -181,6 +190,28 @@ def load_settings(
         stats_publish_key=Path(publish_key) if publish_key else None,
     )
     return settings, warnings
+
+
+def _stats_regions(values: dict[str, Any], home: str, warnings: list[str]) -> tuple[str, ...]:
+    """Las regiones de descarga: tu región primero y, si no se dice otra cosa, una de cada
+    servidor de partidas. Dos que comparten servidor (euw1 y eun1) se quedan en una."""
+    default = (home, *(r for r in DEFAULT_STATS_REGIONS if r != home))
+    raw = values.get("stats_regions")
+    if raw is None:
+        return distinct_routes(default)
+    if not isinstance(raw, list) or not raw or not all(r in REGIONS for r in raw):
+        warnings.append(
+            f"config.toml: 'stats_regions' debe ser una lista de {sorted(REGIONS)}; "
+            "se usan las de siempre."
+        )
+        return distinct_routes(default)
+    regions = distinct_routes(tuple(raw))
+    if len(regions) < len(set(raw)):
+        warnings.append(
+            "config.toml: 'stats_regions' tiene regiones que comparten servidor de partidas "
+            f"(p. ej., euw1 y eun1); se usan {list(regions)}."
+        )
+    return regions
 
 
 def _bool(values: dict[str, Any], key: str, default: bool, warnings: list[str]) -> bool:

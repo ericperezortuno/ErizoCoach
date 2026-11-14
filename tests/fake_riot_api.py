@@ -84,8 +84,12 @@ def build_match(
 
 
 class FakeRiotApi:
-    def __init__(self) -> None:
-        self.players = [f"puuid-{n}" for n in range(3)]
+    def __init__(self, region: str = "EUW1") -> None:
+        """``region``: prefijo de sus partidas (``EUW1_...``, ``KR_...``)."""
+        tag = "" if region == "EUW1" else f"{region.lower()}-"
+        self.players = [f"{tag}puuid-{n}" for n in range(3)]
+        # Diamante I: 2 páginas de jugadores (sin partidas propias, salvo que se añadan)
+        self.diamond_pages = [[f"{tag}diamante-{n}"] for n in range(2)]
         self.matches: dict[str, tuple[dict, dict]] = {}
         self.player_matches: dict[str, list[str]] = {}
         self.requests: list[str] = []
@@ -100,22 +104,27 @@ class FakeRiotApi:
         for n, puuid in enumerate(self.players):
             ids = []
             for k in range(5):
-                match_id = f"EUW1_{(n * 3 + k):04d}"  # se solapan entre jugadores
+                match_id = f"{region}_{(n * 3 + k):04d}"  # se solapan entre jugadores
                 ids.append(match_id)
                 self.matches.setdefault(
                     match_id, build_match(match_id, "16.22.834.8910", ahri_wins=k % 2 == 0)
                 )
-            old_id = f"EUW1_OLD{n}"
+            old_id = f"{region}_OLD{n}"
             ids.append(old_id)
             self.matches[old_id] = build_match(old_id, "16.21.700.1234")
             self.player_matches[puuid] = ids
         # Una partida demasiado corta (remake)
-        self.player_matches[self.players[0]].insert(0, "EUW1_SHORT")
-        self.matches["EUW1_SHORT"] = build_match("EUW1_SHORT", "16.22.834.8910", duration=200)
+        short = f"{region}_SHORT"
+        self.player_matches[self.players[0]].insert(0, short)
+        self.matches[short] = build_match(short, "16.22.834.8910", duration=200)
+        for page in self.diamond_pages:
+            for puuid in page:
+                self.player_matches[puuid] = []
 
         app = web.Application(middlewares=[self._auth])
         app.router.add_get("/lol/status/v4/platform-data", self._status)
         app.router.add_get("/lol/league/v4/{league}/by-queue/{queue}", self._league)
+        app.router.add_get("/lol/league/v4/entries/{queue}/{tier}/{division}", self._entries)
         app.router.add_get("/lol/match/v5/matches/by-puuid/{puuid}/ids", self._ids)
         app.router.add_get("/lol/match/v5/matches/{match_id}", self._match)
         app.router.add_get("/lol/match/v5/matches/{match_id}/timeline", self._timeline)
@@ -154,6 +163,14 @@ class FakeRiotApi:
             return web.json_response({"tier": "X", "entries": []})
         entries = [{"puuid": p, "leaguePoints": 1000} for p in self.players]
         return web.json_response({"tier": "CHALLENGER", "entries": entries})
+
+    async def _entries(self, request: web.Request) -> web.Response:
+        info = request.match_info
+        page = int(request.query.get("page", "1"))
+        if (info["tier"], info["division"]) != ("DIAMOND", "I") or page > len(self.diamond_pages):
+            return web.json_response([])
+        rows = [{"puuid": p, "tier": "DIAMOND", "rank": "I"} for p in self.diamond_pages[page - 1]]
+        return web.json_response(rows)
 
     async def _ids(self, request: web.Request) -> web.Response:
         puuid = request.match_info["puuid"]

@@ -3,6 +3,8 @@
 * Solo si hay clave de Riot guardada (y ``stats_auto_download`` no está desactivado).
 * Se pausa en la selección de campeones y durante la partida, para no gastar red
   mientras juegas; sigue sola al volver al menú.
+* Descarga de varias regiones a la vez (``stats_regions``: EUW, Corea y Norteamérica),
+  cada una con su propio límite de peticiones de Riot.
 * Descarga por tandas de unos minutos; tras cada tanda recalcula las estadísticas,
   así que las siguientes partidas ya usan los datos nuevos sin reiniciar la app.
 * Se detiene cuando el parche tiene ``stats_target_matches`` partidas (todas con
@@ -31,7 +33,7 @@ from ..logs import REDACTOR
 from ..models import ClientInfo, GameflowPhase
 from ..single_instance import SingleInstanceLock
 from . import keystore
-from .crawler import Crawler
+from .crawler import crawl_regions
 from .extract import patch_key
 from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
 from .store import DATABASE, MatchStore, is_corrupt, set_aside
@@ -143,9 +145,13 @@ class StatsUpdater:
         REDACTOR.add_secret(key)
         lock = download_lock(self._settings.stats_dir)
         told_waiting = False
-        # Un solo cliente para todas las tandas: así recuerda las peticiones recientes y nunca
-        # supera los límites de Riot al empezar una tanda nueva.
-        async with self._api_factory(key, self._settings.riot_region) as api:
+        # Un cliente por región para todas las tandas: así recuerda las peticiones recientes y
+        # nunca supera los límites de Riot al empezar una tanda nueva.
+        async with contextlib.AsyncExitStack() as stack:
+            apis = [
+                await stack.enter_async_context(self._api_factory(key, region))
+                for region in self._settings.stats_regions
+            ]
             while True:
                 if not lock.acquire():
                     if not told_waiting:
@@ -156,21 +162,21 @@ class StatsUpdater:
                     await asyncio.sleep(self._retry_seconds)
                     continue
                 try:
-                    done = await self._batch(api, patch)
+                    done = await self._batch(apis, patch)
                 finally:
                     lock.release()
                 if done:
                     self._finished_patch = patch
                     return
 
-    async def _batch(self, api: RiotApiClient, patch: str) -> bool:
+    async def _batch(self, apis: list[RiotApiClient], patch: str) -> bool:
         """Una tanda de descarga. Devuelve True si ya no hay que seguir con este parche.
 
         Un problema con la base no detiene la descarga: si está dañada se aparta (sin
         borrarla) y la siguiente tanda empieza con una nueva; si está ocupada, se reintenta.
         """
         try:
-            return await self._download(api, patch)
+            return await self._download(apis, patch)
         except sqlite3.DatabaseError as exc:
             if not is_corrupt(exc):
                 log.warning("Base de estadísticas ocupada o no disponible: %s", exc)
@@ -198,7 +204,7 @@ class StatsUpdater:
     def _database(self) -> Path:
         return self._settings.stats_dir / DATABASE
 
-    async def _download(self, api: RiotApiClient, patch: str) -> bool:
+    async def _download(self, apis: list[RiotApiClient], patch: str) -> bool:
         target = self._settings.stats_target_matches
         # Abrir (con su comprobación) y podar tardan: fuera del bucle, que la ventana y los
         # eventos del cliente no esperen. Si está dañada, la aparta y empieza otra.
@@ -220,11 +226,10 @@ class StatsUpdater:
                 self._announced = patch
                 await self._status(_summary(store, patch, "descargando"))
             try:
-                crawler = Crawler(
-                    api, store, patch=patch, max_matches=max(target - before, 0),
+                result = await crawl_regions(
+                    apis, store, patch=patch, max_matches=max(target - before, 0),
                     max_seconds=self._batch_seconds,
                 )  # fmt: skip
-                progress = await crawler.run()
             except RiotApiKeyError as exc:
                 await self._status(
                     f"La clave de Riot ha caducado o no es válida ({exc.riot_message or exc}): "
@@ -237,7 +242,9 @@ class StatsUpdater:
                 log.warning("Descarga de estadísticas interrumpida: %s", exc)
                 await asyncio.sleep(self._retry_seconds)
                 return False
-            finished = progress.stopped_reason == "no quedan jugadores por consultar" or (
+            for region, error in result.errors.items():
+                log.warning("Descarga de %s interrumpida: %s", region, error)
+            finished = (result.out_of_players and not result.errors) or (
                 store.match_count(patch) >= target
                 and not store.matches_without_loadout(patch, limit=1)
             )
@@ -248,7 +255,7 @@ class StatsUpdater:
         if finished:
             self._warning = ""  # base rehecha: ya no hace falta el aviso
         await self._status(summary)
-        if not finished and not (progress.new_matches or progress.completed or progress.players):
+        if not finished and not result.advanced:
             await asyncio.sleep(self._retry_seconds)  # tanda sin avances: no insistir en bucle
         return finished
 
@@ -266,9 +273,11 @@ def _log_failure(task: asyncio.Task[None]) -> None:
 
 def _summary(store: MatchStore, patch: str, state: str) -> str:
     total, with_runes = store.match_count(patch), store.loadout_count(patch)
+    regions = store.matches_by_region(patch)
+    split = " · ".join(f"{n} {region}" for region, n in regions.items())
     return (
         f"Estadísticas {state}: {total} partidas de alto elo del parche {patch} "
-        f"({with_runes} con runas y hechizos)."
+        f"({with_runes} con runas y hechizos{'; ' + split if len(regions) > 1 else ''})."
     )
 
 

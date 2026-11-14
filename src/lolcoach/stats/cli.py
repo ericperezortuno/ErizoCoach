@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import getpass
 import logging
 import time
@@ -15,7 +16,7 @@ from ..lcu.discovery import ClientLocator
 from ..lcu.tls import create_ssl_context
 from ..logs import REDACTOR
 from . import keystore
-from .crawler import Crawler, CrawlProgress
+from .crawler import CrawlProgress, RegionsResult, crawl_regions
 from .publish import PublishError, from_settings
 from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
 from .service import prepare_stats
@@ -124,7 +125,7 @@ async def _update(settings: Settings, key: str, hours: float, max_matches: int |
     patch, gamedata = await _client_patch_and_data(settings)
     ui.info(
         "Descargando partidas de alto elo (%s)%s durante %s... Ctrl+C para parar (se guarda todo).",
-        settings.riot_region.upper(),
+        ", ".join(r.upper() for r in settings.stats_regions),
         f" del parche {patch}" if patch else "",
         f"hasta {max_matches} partidas o {hours:g} h" if max_matches else f"{hours:g} h",
     )
@@ -138,40 +139,44 @@ async def _update(settings: Settings, key: str, hours: float, max_matches: int |
         last_report[0] = time.monotonic()
         completed = f" · {progress.completed} completadas con runas" if progress.completed else ""
         ui.info(
-            "  %d partidas nuevas del parche %s%s · %d jugadores · %d peticiones · %d min",
-            progress.new_matches, progress.patch or "?", completed, progress.players,
-            progress.requests, progress.elapsed // 60,
+            "  %s: %d partidas nuevas del parche %s%s · %d jugadores · %d peticiones · %d min",
+            progress.region.upper(), progress.new_matches, progress.patch or "?", completed,
+            progress.players, progress.requests, progress.elapsed // 60,
         )  # fmt: skip
 
-    progress = CrawlProgress()
+    outcome = RegionsResult([], {})
+    stopped = ""
     try:
-        async with RiotApiClient(key, settings.riot_region) as api:
-            crawler = Crawler(
-                api, store, patch=patch, max_matches=max_matches,
-                max_seconds=hours * 3600, on_progress=report,
-            )  # fmt: skip
+        async with contextlib.AsyncExitStack() as stack:
+            apis = [
+                await stack.enter_async_context(RiotApiClient(key, region))
+                for region in settings.stats_regions
+            ]
             try:
-                progress = await crawler.run()
+                outcome = await crawl_regions(
+                    apis, store, patch=patch, max_matches=max_matches,
+                    max_seconds=hours * 3600, on_progress=report,
+                )  # fmt: skip
             except RiotApiKeyError as exc:
                 ui.error("%s", exc)
-                progress = crawler.progress
-                progress.stopped_reason = "clave caducada"
-            except RiotApiError as exc:
-                ui.error("Sin conexión con Riot: %s. Lo descargado está guardado.", exc)
-                progress = crawler.progress
-                progress.stopped_reason = "sin conexión"
-        total = store.match_count(progress.patch) if progress.patch else 0
+                stopped = "clave caducada"
+        for region, error in outcome.errors.items():
+            ui.error("%s sin conexión con Riot: %s. Lo descargado está guardado.", region, error)
+        found_patch = patch or outcome.patch
+        total = store.match_count(found_patch) if found_patch else 0
     finally:
         store.close()
+    for progress in outcome.progress:
+        ui.info(
+            "%s (%s): %d partidas nuevas.", progress.region.upper(),
+            progress.stopped_reason or "completado", progress.new_matches,
+        )  # fmt: skip
     ui.info(
-        "Fin (%s): %d partidas nuevas; total del parche %s: %d partidas.",
-        progress.stopped_reason or "completado", progress.new_matches,
-        progress.patch or "?", total,
+        "Fin%s: %d partidas nuevas; total del parche %s: %d partidas.",
+        f" ({stopped})" if stopped else "", outcome.new_matches, found_patch or "?", total,
     )  # fmt: skip
-    if gamedata is not None and progress.patch:
-        result = await asyncio.to_thread(
-            prepare_stats, settings.stats_dir, progress.patch, gamedata
-        )
+    if gamedata is not None and found_patch:
+        result = await asyncio.to_thread(prepare_stats, settings.stats_dir, found_patch, gamedata)
         if result is not None:
             covered = sum(e.games >= settings.stats_min_games for e in result[2].values())
             ui.info("Builds listas: %d campeones/posiciones con datos suficientes.", covered)
@@ -238,11 +243,14 @@ def cmd_status(settings: Settings) -> int:
     store = MatchStore(database)
     _warn_if_set_aside(store)
     try:
-        ui.info("Jugadores de alto elo conocidos: %d", store.player_count())
+        regions = store.players_by_region()
+        split = ", ".join(f"{n} de {region.upper()}" for region, n in regions.items())
+        ui.info("Jugadores de alto elo conocidos: %d (%s)", store.player_count(), split or "-")
         for patch, count in store.patches()[:3]:
+            by_region = ", ".join(f"{n} {r}" for r, n in store.matches_by_region(patch).items())
             ui.info(
-                "Parche %s: %d partidas (unas %d builds de jugadores), %d con runas y hechizos",
-                patch, count, count * 10, store.loadout_count(patch),
+                "Parche %s: %d partidas (%s; unas %d builds de jugadores), %d con runas y "
+                "hechizos", patch, count, by_region, count * 10, store.loadout_count(patch),
             )  # fmt: skip
     finally:
         store.close()

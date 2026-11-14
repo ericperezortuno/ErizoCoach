@@ -34,6 +34,26 @@ REGIONS = {
     "na1": ("https://na1.api.riotgames.com", "https://americas.api.riotgames.com"),
     "kr": ("https://kr.api.riotgames.com", "https://asia.api.riotgames.com"),
 }
+
+
+def match_prefix(region: str) -> str:
+    """Las partidas llevan delante su región: ``EUW1_123``, ``KR_456``, ``NA1_789``."""
+    return f"{region.upper()}_"
+
+
+def distinct_routes(regions: tuple[str, ...]) -> tuple[str, ...]:
+    """Una región por enrutamiento regional: dos que comparten servidor de partidas (p. ej.,
+    euw1 y eun1 usan europe) comparten también su límite de peticiones."""
+    seen: set[str] = set()
+    kept: list[str] = []
+    for region in regions:
+        route = REGIONS[region][1]
+        if route not in seen:
+            seen.add(route)
+            kept.append(region)
+    return tuple(kept)
+
+
 DEFAULT_LIMITS = ((20, 1.0), (100, 120.0))  # claves de desarrollo y personales
 TIMEOUT = aiohttp.ClientTimeout(total=15)
 MAX_RETRIES = 4
@@ -143,6 +163,7 @@ class RiotApiClient:
             raise ValueError(f"Región no admitida: {region}")
         self._sleep = sleep
         self._api_key = api_key
+        self.region = region
         self.platform_host, self.regional_host = hosts or REGIONS[region]
         self._allowed = {urlsplit(self.platform_host).netloc, urlsplit(self.regional_host).netloc}
         self._limiters = {host: limiter_factory() for host in self._allowed}
@@ -177,6 +198,17 @@ class RiotApiClient:
             "MASTER": "masterleagues",
         }
         return await self._get(self.platform_host, f"/lol/league/v4/{paths[tier]}/by-queue/{queue}")
+
+    async def league_entries(
+        self, tier: str, division: str, page: int, queue: str = "RANKED_SOLO_5x5"
+    ) -> list[Any]:
+        """Una página (unos 200 jugadores) de una división, p. ej. Diamante I."""
+        data = await self._get(
+            self.platform_host,
+            f"/lol/league/v4/entries/{queue}/{tier}/{division}",
+            params={"page": page},
+        )
+        return data if isinstance(data, list) else []
 
     async def summoner_puuid(self, summoner_id: str) -> str:
         data = await self._get(self.platform_host, f"/lol/summoner/v4/summoners/{summoner_id}")

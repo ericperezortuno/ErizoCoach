@@ -43,7 +43,8 @@ nada más.
 ### Builds con estadísticas de alto elo
 
 No hay que hacer nada: LoL Coach descarga solo las **estadísticas compartidas** (builds,
-runas y hechizos de partidas reales de alto elo de EUW, sin datos de ningún jugador) y las
+runas y hechizos de partidas reales de Diamante II a Challenger de EUW, Corea y
+Norteamérica, sin datos de ningún jugador) y las
 actualiza cada pocas horas. Si un día no hay internet, usa la última copia; si nunca llegó
 a descargarla, las builds salen de reglas por tipo de campeón.
 
@@ -63,7 +64,8 @@ compartir):
    Pega la clave (no se ve al escribir) y pulsa Intro. Con LoL Coach abierto, las
    estadísticas se descargan solas en segundo plano.
 3. Si no juegas en EUW, crea `%LOCALAPPDATA%\LoLCoach\config.toml` con la línea
-   `riot_region = "na1"` (o `eun1`, `tr1`, `kr`).
+   `riot_region = "na1"` (o `eun1`, `tr1`, `kr`). Por defecto descarga de EUW, Corea y
+   Norteamérica a la vez; para cambiarlo, `stats_regions = ["euw1"]`.
 
 ### Actualizar y desinstalar
 

@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <img alt="Versión 0.14.2" src="https://img.shields.io/badge/versi%C3%B3n-0.14.2-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.15.0" src="https://img.shields.io/badge/versi%C3%B3n-0.15.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
-  <img alt="344 pruebas" src="https://img.shields.io/badge/pruebas-344-4fd6a2?style=for-the-badge&labelColor=0c1b35">
+  <img alt="357 pruebas" src="https://img.shields.io/badge/pruebas-357-4fd6a2?style=for-the-badge&labelColor=0c1b35">
   <img alt="Solo la API oficial de Riot" src="https://img.shields.io/badge/API-solo%20la%20oficial%20de%20Riot-c8aa6e?style=for-the-badge&labelColor=0c1b35">
 </p>
 
@@ -32,8 +32,8 @@
 ### 🎯 Runas y hechizos solos
 - **Preselecciona 5 segundos** y tus runas y hechizos ya están puestos en el cliente.
 - **Al último pick** se ajustan a los rivales que ya se ven (salvo lo que hayas cambiado tú).
-- **Base de alto elo**: lo que más se juega con tu campeón y posición en Challenger,
-  Gran Maestro y Maestro; si faltan datos, la recomendación de Riot.
+- **Base de alto elo**: lo que más se juega con tu campeón y posición de Diamante II a
+  Challenger, en EUW, Corea y Norteamérica; si faltan datos, la recomendación de Riot.
 - **Destello se queda en tu tecla** (D o F).
 
 ### 🔀 3 páginas para elegir
@@ -227,10 +227,12 @@ los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
    el Administrador de credenciales de Windows**. Nunca aparece en pantalla ni en los registros.
    La de desarrollo caduca cada 24 h; para no renovarla, pide una clave personal siguiendo
    [docs/clave-personal-riot.md](docs/clave-personal-riot.md).
-2. **Descarga automática**: con la app abierta, descarga sola en segundo plano (unas 1.500
-   partidas por hora) hasta tener 3.000 partidas del parche. **Se pausa en la selección de
-   campeones y durante la partida** y sigue al volver al menú. Recorre jugadores Challenger,
-   Gran Maestro y Maestro de tu región, toma sus partidas clasificatorias del parche actual y
+2. **Descarga automática**: con la app abierta, descarga sola en segundo plano hasta tener
+   20.000 partidas del parche. Descarga de **EUW, Corea y Norteamérica a la vez**: Riot limita
+   la clave en cada región por separado, así que salen unas 1.500 partidas por hora en cada
+   una. **Se pausa en la selección de campeones y durante la partida** y sigue al volver al
+   menú. Recorre jugadores Challenger, Gran Maestro, Maestro, Diamante I y Diamante II (primero
+   los de Maestro o más), toma sus partidas clasificatorias del parche actual y
    guarda de cada jugador solo campeón, posición, resultado, compras en orden, runas y hechizos
    (**sin nombres, Riot ID ni identificadores**). Respeta los límites de Riot y no repite
    partidas. Con un parche nuevo vuelve a empezar y borra los parches viejos. Si la clave
@@ -364,10 +366,11 @@ window_on_secondary = true  # false = abrir la ventana en el monitor principal
 window_mode = "escritorio"  # "navegador" = usar Edge en lugar de la ventana de escritorio
 window_on_top = false       # true = ventana siempre encima
 live_poll_interval = 3  # segundos entre lecturas de la partida (1-10)
-riot_region = "euw1"    # región de las estadísticas: euw1, eun1, tr1, na1, kr
+riot_region = "euw1"    # tu región: euw1, eun1, tr1, na1, kr
+stats_regions = ["euw1", "kr", "na1"]  # regiones de las que se descargan partidas
 stats_min_games = 20    # partidas mínimas para usar la build de estadísticas (5-500)
 stats_auto_download = true   # descargar estadísticas solo, con la app abierta
-stats_target_matches = 3000  # partidas por parche a partir de las que se para (200-50000)
+stats_target_matches = 20000 # partidas por parche a partir de las que se para (200-100000)
 stats_shared = true          # sin clave (o con pocos datos): usar las estadísticas compartidas
 ```
 

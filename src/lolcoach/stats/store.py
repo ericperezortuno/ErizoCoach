@@ -91,7 +91,8 @@ CREATE INDEX IF NOT EXISTS matches_patch ON matches(patch);
 CREATE TABLE IF NOT EXISTS players (
     player_id TEXT PRIMARY KEY,  -- PUUID (o "sid:<id>" si la liga no lo trae)
     tier TEXT NOT NULL,
-    crawled_at INTEGER  -- NULL: aún no consultado
+    crawled_at INTEGER,  -- NULL: aún no consultado
+    region TEXT NOT NULL DEFAULT 'euw1'  -- de qué región es (euw1, kr, na1...)
 );
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 """
@@ -114,6 +115,9 @@ def _connect(path: Path) -> sqlite3.Connection:
         if "detail" not in columns:  # bases de datos de la v0.5.0
             with db:
                 db.execute("ALTER TABLE matches ADD COLUMN detail INTEGER NOT NULL DEFAULT 1")
+        if "region" not in {row[1] for row in db.execute("PRAGMA table_info(players)")}:
+            with db:  # antes de la v0.15.0 solo se descargaba de EUW
+                db.execute("ALTER TABLE players ADD COLUMN region TEXT NOT NULL DEFAULT 'euw1'")
     except BaseException:
         db.close()
         raise
@@ -140,6 +144,11 @@ def _use_rollback_journal(db: sqlite3.Connection) -> None:
         log.debug("Diario de la base sin cambiar todavía: %s", exc)
     finally:
         db.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT * 1000}")
+
+
+def players_refreshed_key(region: str) -> str:
+    """Metadato con la última lectura de las ligas de una región."""
+    return f"players_refreshed:{region}"
 
 
 class MatchStore:
@@ -184,13 +193,19 @@ class MatchStore:
                 (match_id, patch, int(time.time()), payload, DETAIL_LOADOUT),
             )
 
-    def matches_without_loadout(self, patch: str, limit: int = 100) -> list[str]:
-        """Partidas del parche guardadas sin runas ni hechizos (descargadas con la v0.5.0)."""
+    def matches_without_loadout(
+        self, patch: str, limit: int = 100, *, prefix: str = ""
+    ) -> list[str]:
+        """Partidas del parche guardadas sin runas ni hechizos (descargadas con la v0.5.0).
+
+        ``prefix`` (p. ej. ``EUW1_``) se queda solo con las de una región.
+        """
         query = (
             "SELECT match_id FROM matches WHERE patch = ? AND builds IS NOT NULL "
-            "AND detail < ? LIMIT ?"
+            "AND detail < ? AND substr(match_id, 1, ?) = ? LIMIT ?"
         )
-        return [row[0] for row in self._db.execute(query, (patch, DETAIL_LOADOUT, limit))]
+        args = (patch, DETAIL_LOADOUT, len(prefix), prefix, limit)
+        return [row[0] for row in self._db.execute(query, args)]
 
     def match_builds(self, match_id: str) -> list[PlayerBuild]:
         row = self._db.execute(
@@ -242,6 +257,15 @@ class MatchStore:
         )
         return int(self._db.execute(query, (patch, DETAIL_LOADOUT)).fetchone()[0])
 
+    def matches_by_region(self, patch: str) -> dict[str, int]:
+        """Partidas del parche por región (``EUW1``, ``KR``...), según el prefijo de su id."""
+        query = (
+            "SELECT substr(match_id, 1, instr(match_id, '_') - 1) AS region, COUNT(*) "
+            "FROM matches WHERE patch = ? AND builds IS NOT NULL "
+            "GROUP BY region ORDER BY COUNT(*) DESC, region"
+        )
+        return {region: int(n) for region, n in self._db.execute(query, (patch,))}
+
     def patches(self) -> list[tuple[str, int]]:
         query = (
             "SELECT patch, COUNT(*) FROM matches WHERE builds IS NOT NULL "
@@ -251,38 +275,49 @@ class MatchStore:
 
     # --- Jugadores ---------------------------------------------------------------------
 
-    def add_players(self, players: list[tuple[str, str]]) -> int:
+    def add_players(self, players: list[tuple[str, str]], region: str = "euw1") -> int:
         with self._db:
             cursor = self._db.executemany(
-                "INSERT OR IGNORE INTO players (player_id, tier) VALUES (?, ?)", players
+                "INSERT OR IGNORE INTO players (player_id, tier, region) VALUES (?, ?, ?)",
+                [(player, tier, region) for player, tier in players],
             )
         return cursor.rowcount
 
-    def player_count(self) -> int:
-        return int(self._db.execute("SELECT COUNT(*) FROM players").fetchone()[0])
+    def player_count(self, region: str | None = None) -> int:
+        if region is None:
+            return int(self._db.execute("SELECT COUNT(*) FROM players").fetchone()[0])
+        query = "SELECT COUNT(*) FROM players WHERE region = ?"
+        return int(self._db.execute(query, (region,)).fetchone()[0])
 
-    def forget_players(self) -> int:
-        """Olvida los jugadores (p. ej., sus PUUID son de otra clave) para releer las ligas."""
+    def players_by_region(self) -> dict[str, int]:
+        query = "SELECT region, COUNT(*) FROM players GROUP BY region ORDER BY COUNT(*) DESC"
+        return {region: int(n) for region, n in self._db.execute(query)}
+
+    def forget_players(self, region: str = "euw1") -> int:
+        """Olvida los jugadores de una región (p. ej., sus PUUID son de otra clave) para
+        releer sus ligas."""
         with self._db:
-            cursor = self._db.execute("DELETE FROM players")
-            self._db.execute("DELETE FROM meta WHERE key = 'players_refreshed'")
+            cursor = self._db.execute("DELETE FROM players WHERE region = ?", (region,))
+            self._db.execute("DELETE FROM meta WHERE key = ?", (players_refreshed_key(region),))
         return cursor.rowcount
 
-    def players_to_crawl(self, limit: int = 100_000) -> list[str]:
-        """Primero los nunca consultados (en orden aleatorio), luego los más antiguos."""
+    def players_to_crawl(self, region: str = "euw1", limit: int = 100_000) -> list[str]:
+        """Primero los nunca consultados, luego los consultados hace más tiempo. Dentro de cada
+        grupo, antes Challenger, Gran Maestro y Maestro que Diamante (en orden aleatorio)."""
         query = (
-            "SELECT player_id FROM players "
-            "ORDER BY crawled_at IS NOT NULL, crawled_at, RANDOM() LIMIT ?"
+            "SELECT player_id FROM players WHERE region = ? "
+            "ORDER BY crawled_at IS NOT NULL, tier LIKE 'DIAMOND%', crawled_at, RANDOM() "
+            "LIMIT ?"
         )
-        return [row[0] for row in self._db.execute(query, (limit,))]
+        return [row[0] for row in self._db.execute(query, (region, limit))]
 
     def mark_crawled(self, player_id: str, new_id: str | None = None) -> None:
         with self._db:
-            if new_id and new_id != player_id:
-                self._db.execute("DELETE FROM players WHERE player_id = ?", (player_id,))
+            if new_id and new_id != player_id:  # «sid:...» resuelto a su PUUID
                 self._db.execute(
-                    "INSERT OR REPLACE INTO players VALUES (?, 'resolved', ?)",
-                    (new_id, int(time.time())),
+                    "UPDATE OR REPLACE players SET player_id = ?, tier = 'resolved', "
+                    "crawled_at = ? WHERE player_id = ?",
+                    (new_id, int(time.time()), player_id),
                 )
             else:
                 self._db.execute(
