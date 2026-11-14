@@ -658,31 +658,92 @@ main > .wide { grid-column: 1 / -1; }
   color: var(--muted);
 }
 
-.keystone {
-  font: 600 18px/1.25 var(--font-display);
+
+/* --- Runas: la página con sus imágenes ------------------------------------------------ */
+
+.status-line { color: var(--muted); margin: -4px 0 8px; }
+.status-line.applied { color: var(--green); }
+.problem { color: var(--red); margin: -2px 0 8px; }
+
+.rune { display: inline-grid; place-items: center; flex: none; }
+.rune img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .35);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .14);
+}
+.rune.keystone img {
+  width: 52px;
+  height: 52px;
+  background: radial-gradient(circle, rgba(200, 170, 110, .22), rgba(0, 0, 0, .35) 70%);
+  box-shadow: 0 0 0 1px rgba(242, 223, 174, .65), 0 0 14px -2px rgba(200, 170, 110, .55);
+}
+.rune.style img { width: 26px; height: 26px; background: none; box-shadow: none; }
+.rune.shard img { width: 22px; height: 22px; }
+.rune.spell img { width: 34px; height: 34px; border-radius: var(--r-icon); background: none; }
+
+.rune-page {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  align-items: center;
+}
+.rune-page .tree { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rune-page .tree:first-child { grid-row: span 2; }
+.rune-page .shards { display: inline-flex; gap: 6px; margin-left: 6px; }
+.keystone-name {
+  grid-column: 1 / -1;
+  font: 600 15px/1.25 var(--font-display);
   color: var(--text);
 }
 
-.keystone small {
-  display: block;
-  margin-top: 1px;
-  font: 400 12px/1.3 var(--font-small);
-  color: var(--muted);
+.spells { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.section-label.inline { margin: 0 4px 0 0; }
+
+.edit-toggle { margin-top: 12px; }
+
+/* --- Editor de runas ------------------------------------------------------------------- */
+
+.rune-editor {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--r-row);
+  background: rgba(0, 0, 0, .22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
 }
-
-.runes { display: grid; gap: 8px; }
-
-.runes .row {
+.editor-columns {
   display: grid;
-  grid-template-columns: 92px 1fr;
-  gap: 10px;
-  align-items: baseline;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 4px 18px;
 }
+.editor-tree .section-label { margin: 10px 0 6px; }
+.editor-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 
-.runes .row b {
-  font: 600 12px/1.4 var(--font-small);
-  color: var(--gold);
+.rune-option {
+  display: inline-grid;
+  place-items: center;
+  margin: 0;
+  padding: 2px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  opacity: .5;
+  filter: grayscale(.85);
+  transition: opacity .15s ease-out, filter .15s ease-out, transform .15s ease-out;
 }
+.rune-option .rune img { box-shadow: none; }
+.rune-option:hover { opacity: .85; filter: none; }
+.rune-option:active { transform: scale(.94); }
+.rune-option.selected { opacity: 1; filter: none; cursor: default; }
+.rune-option.selected .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 0 0 10px rgba(200, 170, 110, .55); }
+.rune-option:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+.rune-option.keystone-option .rune img { width: 40px; height: 40px; }
+.rune-option.minor-option .rune img { width: 30px; height: 30px; }
+.rune-option.shard-option .rune img { width: 24px; height: 24px; }
+.rune-option.tree-option .rune img { width: 26px; height: 26px; background: none; }
 
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
 
@@ -845,7 +906,7 @@ main > .wide { grid-column: 1 / -1; }
   .topbar { padding-left: 12px; }
   .card { padding: 12px 13px 14px; }
   .card.lens { padding: 14px 15px 16px; }
-  .runes .row { grid-template-columns: 80px 1fr; }
+  .rune.keystone img { width: 44px; height: 44px; }
 }
 
 /* Reducir movimiento: fuera desplazamientos (destello, onda, elevación); los fundidos
@@ -856,6 +917,7 @@ main > .wide { grid-column: 1 / -1; }
   .scene::after { animation: none; }
   .icon img { transition: none; }
   .icon:hover img { transform: none; }
+  .rune-option, .rune-option:active { transition: none; transform: none; }
   .ghost, .ghost:active { transition: none; transform: none; }
 }
 
@@ -874,6 +936,8 @@ main > .wide { grid-column: 1 / -1; }
   .topbar, .card { border: 1px solid CanvasText; }
   .topbar::before, .card::before, .scene { display: none; }
   .badge, .tag, .chip, .pill { border: 1px solid CanvasText; }
+  .rune-option { opacity: 1; filter: none; border: 1px solid transparent; }
+  .rune-option.selected { border: 2px solid Highlight; }
   .ghost { border: 1px solid ButtonText; color: ButtonText; background: ButtonFace; }
   .player::before { background: CanvasText; }
 }

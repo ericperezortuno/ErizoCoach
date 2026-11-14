@@ -4,8 +4,9 @@
   diseño que la versión web.
 * La ventana y la app se comunican directamente con el puente de pywebview: **no hay
   servidor ni puerto abierto** en tu PC.
-* La página solo puede pedir tres cosas a la app (``DesktopBridge``): el estado actual,
-  el icono de un objeto o campeón por su id numérico y pasar a segundo plano.
+* La página solo puede pedir cuatro cosas a la app (``DesktopBridge``): el estado actual,
+  el icono de un objeto, campeón, runa o hechizo por su id numérico, pasar a segundo
+  plano y poner otra página de runas (solo números, que la app valida antes de escribir).
 * Se carga con una política de seguridad estricta: solo su propio código (marcado con
   un *nonce* aleatorio en cada arranque), iconos incrustados y ninguna conexión de red.
 * Al cerrar la ventana se cierra LoL Coach.
@@ -149,6 +150,15 @@ class DesktopBridge:
         except Exception:
             return None
         return "data:image/png;base64," + base64.b64encode(body).decode("ascii") if body else None
+
+    def set_runes(self, page: Any) -> bool:
+        """Pone en el cliente la página de runas que has elegido en la ventana."""
+        future = asyncio.run_coroutine_threadsafe(self._presenter.request_runes(page), self._loop)
+        try:
+            return bool(future.result(timeout=ICON_TIMEOUT))
+        except Exception:
+            log.exception("No se pudieron cambiar las runas desde la ventana")
+            return False
 
     def background(self) -> bool:
         """Esconde la ventana; la app sigue funcionando. False si no se puede (sin bandeja)."""

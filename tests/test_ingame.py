@@ -51,7 +51,10 @@ def advice_for(plan: BuildPlan, data: dict):
     gd = loaded_gamedata()
     game, report = report_for(data)
     assert game.me is not None
-    return advise(plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name)
+    return advise(
+        plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
+        game_time=game.game_time,
+    )  # fmt: skip
 
 
 # --- Lectura -------------------------------------------------------------------------
@@ -169,50 +172,152 @@ def test_real_practice_tool_sample() -> None:
     assert report.enemies[0].champion_id == 85 and report.enemies[0].is_lane_opponent
 
 
+SHADOWFLAME, RABADON, MORELLO, STOPWATCH = 4645, 3089, 3165, 2420
+AHRI_CORE = (SORCERER, LUDEN, SHADOWFLAME, RABADON)  # botas + núcleo completo
+LANING, AFTER_LANING = 10 * 60, 20 * 60
+
+
+def feed(data: dict, alias: str, kda: tuple[int, int, int], items: tuple[int, ...]) -> None:
+    player = next(p for p in data["allPlayers"] if p["championName"] == alias)
+    player["scores"].update(kills=kda[0], deaths=kda[1], assists=kda[2])
+    player["items"] = [{"itemID": i, "count": 1, "slot": n} for n, i in enumerate(items)]
+    player["level"] = 13
+
+
+def fed_soraka(data: dict) -> None:
+    feed(data, "Soraka", (4, 0, 12), (3865, 3158, 6617, 3107))
+
+
 async def test_urgent_defense_against_a_fed_enemy() -> None:
     plan = await ahri_plan()
-    data = standard_game(zed_kda=(8, 1, 2), zed_items=FED_ZED_ITEMS, my_items=(1056, SORCERER))
+    data = standard_game(
+        zed_kda=(8, 1, 2), zed_items=FED_ZED_ITEMS, my_items=AHRI_CORE, game_time=AFTER_LANING
+    )
     purchase = advice_for(plan, data).next_purchase
     assert purchase is not None and purchase.item_id == ZHONYA
     assert "Zed" in purchase.reason and "físico" in purchase.reason
 
 
+async def test_the_core_comes_before_any_defense() -> None:
+    """Con el núcleo a medias, ni un Zed que va muy fuerte te desvía de él."""
+    plan = await ahri_plan()
+    data = standard_game(zed_kda=(10, 0, 3), zed_items=(*FED_ZED_ITEMS, 6694), my_items=(1056,))
+    advice = advice_for(plan, data)
+    assert advice.next_purchase is not None and advice.next_purchase.item_id == LUDEN
+    assert advice.threat_id == 0
+    data = standard_game(
+        zed_kda=(10, 0, 3), zed_items=(*FED_ZED_ITEMS, 6694), my_items=(SORCERER, LUDEN)
+    )
+    purchase = advice_for(plan, data).next_purchase
+    assert purchase is not None and purchase.item_id == SHADOWFLAME
+
+
 async def test_no_urgent_defense_if_you_already_have_it() -> None:
     plan = await ahri_plan()
     data = standard_game(
-        zed_kda=(8, 1, 2), zed_items=FED_ZED_ITEMS, my_items=(1056, SORCERER, ZHONYA)
+        zed_kda=(8, 1, 2), zed_items=FED_ZED_ITEMS, my_items=(*AHRI_CORE, ZHONYA),
+        game_time=AFTER_LANING,
+    )  # fmt: skip
+    purchase = advice_for(plan, data).next_purchase
+    assert purchase is not None and purchase.item_id == MORELLO
+
+
+async def test_a_started_item_is_finished_first() -> None:
+    """Si ya tienes el Reloj (componente de Zhonya), se termina Zhonya antes que Llamasombría."""
+    plan = await ahri_plan()
+    data = standard_game(my_items=(SORCERER, LUDEN, STOPWATCH))
+    purchase = advice_for(plan, data).next_purchase
+    assert purchase is not None and purchase.item_id == ZHONYA
+    assert "empezado" in purchase.reason
+
+
+async def test_a_started_item_is_finished_before_answering_a_threat() -> None:
+    plan = await ahri_plan()
+    rod = 1058  # Vara innecesariamente grande: va a Rabadon (el siguiente) y a Zhonya
+    data = standard_game(
+        zed_kda=(10, 0, 3), zed_items=(*FED_ZED_ITEMS, 6694),
+        my_items=(SORCERER, LUDEN, SHADOWFLAME, rod), game_time=AFTER_LANING,
+    )  # fmt: skip
+    purchase = advice_for(plan, data).next_purchase
+    assert purchase is not None and purchase.item_id == RABADON
+
+
+async def test_in_laning_phase_only_your_lane_matters() -> None:
+    """A los 10 minutos, con el núcleo hecho, un Darius (arriba) muy fuerte no te cambia la
+    build; tu rival de línea (Zed), sí."""
+    plan = await ahri_plan()
+    data = standard_game(my_items=AHRI_CORE, game_time=LANING)
+    feed(data, "Darius", (9, 0, 2), (3047, 3071, 3053, 6333))
+    purchase = advice_for(plan, data).next_purchase
+    assert purchase is not None and purchase.item_id == MORELLO  # sigue tu build
+    data = standard_game(
+        zed_kda=(8, 1, 2), zed_items=FED_ZED_ITEMS, my_items=AHRI_CORE, game_time=LANING
     )
     purchase = advice_for(plan, data).next_purchase
-    assert purchase is not None and purchase.item_id == LUDEN
+    assert purchase is not None and purchase.item_id == ZHONYA
 
 
 async def test_anti_heal_component_when_the_healer_is_strong() -> None:
     plan = await ahri_plan()
-    data = standard_game(my_items=(1056, SORCERER))
-    soraka = next(p for p in data["allPlayers"] if p["championName"] == "Soraka")
-    soraka["scores"].update(kills=4, deaths=0, assists=12)
-    soraka["items"] = [
-        {"itemID": i, "count": 1, "slot": n} for n, i in enumerate((3865, 3158, 6617, 3107))
-    ]
-    soraka["level"] = 11
+    data = standard_game(my_items=(1056, SORCERER), game_time=AFTER_LANING)
+    fed_soraka(data)
     purchase = advice_for(plan, data).next_purchase
-    # Soraka hace poco daño (1/3): no tiene sentido comprar resistencia mágica por ella
+    # Soraka hace poco daño (1/3): no tiene sentido comprar resistencia mágica por ella.
+    # Es la única excepción al núcleo, y solo el componente, no el Morellonomicón
     assert purchase is not None and purchase.item_id == OBLIVION_ORB
     assert "Soraka" in purchase.reason and "cura" in purchase.reason
+
+
+async def test_no_anti_heal_in_laning_phase_against_another_lane() -> None:
+    plan = await ahri_plan()
+    data = standard_game(my_items=(1056, SORCERER), game_time=LANING)
+    fed_soraka(data)  # Soraka juega abajo: Ahri (medio) no se cruza con ella
+    purchase = advice_for(plan, data).next_purchase
+    assert purchase is not None and purchase.item_id == LUDEN
+
+
+async def test_anti_heal_component_against_your_lane_in_laning_phase() -> None:
+    """Kai'Sa abajo contra Soraka: el Llamado del verdugo antes que el núcleo, aunque Soraka
+    no vaya fuerte (se cura muchísimo); luego vuelve al núcleo, no al Recordatorio letal."""
+    plan = await kaisa_plan()
+    gd = loaded_gamedata()
+    executioners, mortal_reminder = 3123, 3033
+    advice = bot_advice(plan, bot_game((1055,), gold=900, game_time=LANING), hidden=False)
+    assert advice.next_purchase is not None
+    assert advice.next_purchase.item_id == executioners
+    assert "en tu línea" in advice.next_purchase.reason
+    assert gd.item(executioners).price_total < 1000  # solo el componente
+    after = bot_advice(plan, bot_game((1055, executioners), gold=900, game_time=LANING), False)
+    assert after.next_purchase is not None and after.next_purchase.item_id == KRAKEN
+    assert after.next_purchase.item_id != mortal_reminder
+
+
+async def test_full_anti_heal_only_once_the_core_is_done() -> None:
+    plan = await ahri_plan()
+    data = standard_game(my_items=(*AHRI_CORE, OBLIVION_ORB), game_time=AFTER_LANING)
+    fed_soraka(data)
+    purchase = advice_for(plan, data).next_purchase
+    assert purchase is not None and purchase.item_id == MORELLO
+    assert "antisanación" in purchase.reason
 
 
 async def test_strongest_threat_decides_between_defense_and_anti_heal() -> None:
     plan = await ahri_plan()
     data = standard_game(
-        zed_kda=(10, 0, 3), zed_items=(*FED_ZED_ITEMS, 6694), my_items=(1056, SORCERER)
-    )
-    soraka = next(p for p in data["allPlayers"] if p["championName"] == "Soraka")
-    soraka["scores"].update(kills=2, deaths=0, assists=8)
-    soraka["items"] = [
-        {"itemID": i, "count": 1, "slot": n} for n, i in enumerate((3865, 3158, 6617))
-    ]
+        zed_kda=(10, 0, 3), zed_items=(*FED_ZED_ITEMS, 6694), my_items=AHRI_CORE,
+        game_time=AFTER_LANING,
+    )  # fmt: skip
+    feed(data, "Soraka", (2, 0, 8), (3865, 3158, 6617))
     purchase = advice_for(plan, data).next_purchase
     assert purchase is not None and purchase.item_id == ZHONYA  # Zed va mucho más fuerte
+
+
+def test_bottom_lane_has_two_enemies() -> None:
+    _, report = report_for(bot_game((1055,)), my_position=Position.BOTTOM)
+    in_lane = {e.player.champion_alias for e in report.enemies if e.in_lane}
+    assert in_lane == {"Jhin", "Soraka"}
+    _, report = report_for(standard_game())
+    assert {e.player.champion_alias for e in report.enemies if e.in_lane} == {"Zed"}
 
 
 async def test_affordability_and_components() -> None:
@@ -271,7 +376,7 @@ def bot_advice(plan: BuildPlan, data: dict, hidden: bool):
     assert game.me is not None
     return advise(
         plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
-        boots_out_of_sight=hidden,
+        game_time=game.game_time, boots_out_of_sight=hidden,
     )  # fmt: skip
 
 
@@ -338,10 +443,15 @@ async def test_urgent_defense_does_not_flip_while_the_threat_is_still_strong() -
     alternaba con la build cada pocos segundos)."""
     plan = await ahri_plan()
     gd = loaded_gamedata()
-    data = standard_game(zed_kda=(8, 1, 2), zed_items=FED_ZED_ITEMS, my_items=(1056, SORCERER))
+    data = standard_game(
+        zed_kda=(8, 1, 2), zed_items=FED_ZED_ITEMS, my_items=AHRI_CORE, game_time=AFTER_LANING
+    )
     game, report = report_for(data)
     assert game.me is not None
-    first = advise(plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name)
+    first = advise(
+        plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
+        game_time=game.game_time,
+    )  # fmt: skip
     assert first.next_purchase is not None and first.next_purchase.item_id == ZHONYA
     zed = next(e for e in report.enemies if e.player.champion_alias == "Zed")
     assert first.threat_id == zed.champion_id
@@ -354,9 +464,9 @@ async def test_urgent_defense_does_not_flip_while_the_threat_is_still_strong() -
         assert game.me is not None
         advice = advise(
             plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
-            keep_threat=keep,
+            game_time=game.game_time, keep_threat=keep,
         )  # fmt: skip
         return advice.next_purchase.item_id if advice.next_purchase else None
 
     assert again(first.threat_id) == ZHONYA  # sigue fuerte: se mantiene
-    assert again(0) == LUDEN  # sin el aviso anterior, «fuerte» no basta (no es tu rival)
+    assert again(0) == MORELLO  # sin el aviso anterior, «fuerte» no basta (no es tu rival)

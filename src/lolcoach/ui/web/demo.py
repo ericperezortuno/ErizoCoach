@@ -84,5 +84,8 @@ async def publish_demo(
         positions_for=gd.positions_for,
         my_position=Position.MIDDLE,
     )
-    advice = advise(plan, report, me.item_ids, game.current_gold, gd.item, gd.champion_name)
+    advice = advise(
+        plan, report, me.item_ids, game.current_gold, gd.item, gd.champion_name,
+        game_time=game.game_time,
+    )  # fmt: skip
     await bus.publish(LiveGameUpdated(game, report, advice, plan))

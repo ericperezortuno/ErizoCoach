@@ -2,15 +2,21 @@
 
 Orden de prioridad:
 
-1. **Respuesta a la mayor amenaza**:
+1. **Antisanación barata** (la única excepción al núcleo): si quien se cura mucho lo
+   pide, solo su componente (Orbe del olvido, Llamada del verdugo...), no el objeto
+   entero. En fase de líneas, solo si ese enemigo está en tu línea.
+2. **Termina lo que empezaste**: si ya tienes componentes de un objeto, se acaba ese
+   antes de pasar a otro (las botas básicas y el componente de antisanación no cuentan).
+3. **El núcleo de tu build** (con las botas tras el primer objeto), sin desvíos.
+4. Con el núcleo completo, **respuesta a la mayor amenaza**:
    * Defensa urgente si un enemigo que hace mucho daño va muy fuerte (o tu rival de
      línea va fuerte) y aún no tienes defensa contra su tipo de daño.
-   * Antisanación si quien se cura mucho va fuerte y aún no la tienes.
+   * Antisanación completa si quien se cura mucho va fuerte y aún no la tienes.
    Si se dan las dos, va primero la que responde al enemigo más fuerte (en empate,
-   la antisanación). Un aviso de defensa se mantiene mientras ese enemigo siga yendo
-   fuerte (``keep_threat``): así no alterna con tu build cada pocos segundos cuando
-   su puntuación ronda el límite de «muy fuerte».
-2. **Tu build**: el siguiente objeto que te falte, en orden (botas, núcleo, resto).
+   la antisanación). En fase de líneas solo cuentan los enemigos de tu línea. Un aviso
+   de defensa se mantiene mientras ese enemigo siga yendo fuerte (``keep_threat``): así
+   no alterna con tu build cada pocos segundos cuando su puntuación ronda el límite.
+5. **El resto de tu build**, en orden.
 
 Además calcula cuánto oro te falta (descontando los componentes que ya tienes,
 en cualquier nivel de la receta) y qué componentes puedes comprar ya.
@@ -19,19 +25,31 @@ en cualquier nivel de la receta) y qué componentes puedes comprar ya.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
-from ..builds.models import BuildPlan
-from ..builds.rules import ANTI_HEAL_ITEMS, HEALERS, MAGIC_DEFENSE, PHYSICAL_DEFENSE, item_for
+from ..builds.models import BuildPlan, SituationalItem
+from ..builds.rules import (
+    ANTI_HEAL_COMPONENTS,
+    ANTI_HEAL_ITEMS,
+    HEALERS,
+    MAGIC_DEFENSE,
+    PHYSICAL_DEFENSE,
+    STRONG_HEALERS,
+    item_for,
+)
 from ..gamedata.catalog import DamageType
 from ..gamedata.items import Item
 from .analysis import GameReport, PlayerReport, Strength
 
 BASIC_BOOTS = 1001
+LANING_PHASE_END = 14 * 60  # a los 14:00 caen las placas de las torres
 DEFENSIVE_ITEM_MIN_PRICE = 1000  # un componente pequeño no cuenta como "ya tengo defensa"
 MIN_THREAT_DAMAGE = 2  # nivel de daño (0-3) a partir del que compensa defenderse
 MAX_COMPONENTS = 3
+# Se compran sueltos a propósito: no cuentan como «objeto empezado»
+_LOOSE_COMPONENTS = frozenset({BASIC_BOOTS, *(c for c in ANTI_HEAL_COMPONENTS.values() if c)})
+STARTED = "termina el objeto que has empezado"
 
 
 @dataclass(frozen=True, slots=True)
@@ -76,13 +94,16 @@ def advise(
     item: ItemLookup,
     champion_name: Callable[[int], str],
     *,
+    game_time: float,
     boots_out_of_sight: bool = False,
     keep_threat: int = 0,
 ) -> Advice:
-    """``boots_out_of_sight``: tienes botas que la API no muestra (espacio de la misión de rol).
+    """``game_time``: segundos de partida (decide si sigue la fase de líneas).
+    ``boots_out_of_sight``: tienes botas que la API no muestra (espacio de la misión de rol).
     ``keep_threat``: campeón al que respondía el consejo anterior (``Advice.threat_id``)."""
     owned = set(owned_ids)
     has_boots = boots_out_of_sight or any(_is_upgraded_boots(item(i)) for i in owned)
+    laning = game_time < LANING_PHASE_END
 
     def is_owned(item_id: int) -> bool:
         if item_id in owned:
@@ -91,37 +112,55 @@ def advise(
         return found is not None and found.is_boots and has_boots
 
     build = tuple(BuildStep(i, is_owned(i)) for i in plan.full)
+    pending = [i for i in purchase_order(plan) if not is_owned(i)]
+    anti_heal = next((s for s in plan.situational if s.item_id in ANTI_HEAL_ITEMS), None)
 
+    def chosen(item_id: int, reason: str, threat_id: int = 0) -> Advice:
+        purchase = _purchase(item_id, reason, owned_ids, gold, item)
+        return Advice(purchase, build, threat_id=threat_id)
+
+    core_done = all(is_owned(i) for i in plan.core)
+
+    # 1) Antisanación barata: la única compra que se adelanta al núcleo
+    if not core_done:
+        cheap = _anti_heal_component(anti_heal, report, owned, champion_name, laning=laning)
+        if cheap is not None:
+            return chosen(cheap.item_id, cheap.reason, cheap.threat_id)
+
+    # 2) Lo que ya has empezado se termina (también la defensa de un aviso anterior)
+    defenses = [
+        d
+        for d in (
+            item_for(plan.archetype, MAGIC_DEFENSE),
+            item_for(plan.archetype, PHYSICAL_DEFENSE),
+        )
+        if d is not None and d not in owned
+    ]
+    started = _started([*pending, *(d for d in defenses if d not in pending)], owned_ids, item)
+    if started is not None:
+        return chosen(started, STARTED, keep_threat if started in defenses else 0)
+
+    # 3) El núcleo, sin desvíos
+    if not core_done:
+        return chosen(pending[0], _build_reason(plan, pending[0]))
+
+    # 4) Con el núcleo hecho, la respuesta a la mayor amenaza
     candidates = [
         c
         for c in (
-            _anti_heal(plan, report, owned, champion_name),
-            _urgent_defense(plan, report, owned, item, champion_name, keep_threat),
+            _anti_heal_item(anti_heal, report, owned, champion_name, laning=laning),
+            _urgent_defense(plan, report, owned, item, champion_name, keep_threat, laning=laning),
         )
         if c is not None
     ]
-    threat_id = 0
     if candidates:
         best = max(candidates, key=lambda c: c.threat_score)  # empate: la primera (antisanación)
-        chosen, threat_id = (best.item_id, best.reason), best.threat_id
-    else:
-        steps = {s.item_id: s for s in build}
-        next_step = next(
-            (steps[i] for i in purchase_order(plan) if i in steps and not steps[i].owned), None
-        )
-        if next_step is None:
-            return Advice(None, build, "Build completa: vende lo que no necesites o adapta.")
-        reason = (
-            "siguiente objeto del núcleo de tu build"
-            if next_step.item_id in plan.core
-            else "siguiente objeto de tu build"
-        )
-        if plan.boots is not None and next_step.item_id == plan.boots:
-            reason = "tus botas"
-        chosen = (next_step.item_id, reason)
+        return chosen(best.item_id, best.reason, best.threat_id)
 
-    item_id, reason = chosen
-    return Advice(_purchase(item_id, reason, owned_ids, gold, item), build, threat_id=threat_id)
+    # 5) El resto de la build
+    if not pending:
+        return Advice(None, build, "Build completa: vende lo que no necesites o adapta.")
+    return chosen(pending[0], _build_reason(plan, pending[0]))
 
 
 def purchase_order(plan: BuildPlan) -> list[int]:
@@ -134,6 +173,26 @@ def purchase_order(plan: BuildPlan) -> list[int]:
     return order
 
 
+def _build_reason(plan: BuildPlan, item_id: int) -> str:
+    if plan.boots is not None and item_id == plan.boots:
+        return "tus botas"
+    if item_id in plan.core:
+        return "siguiente objeto del núcleo de tu build"
+    return "siguiente objeto de tu build"
+
+
+def _started(candidates: Iterable[int], owned_ids: tuple[int, ...], item: ItemLookup) -> int | None:
+    """El primer objeto (en orden de compra) del que ya tienes algún componente."""
+    loose = Counter(i for i in owned_ids if i not in _LOOSE_COMPONENTS)
+    if not loose:
+        return None
+    for item_id in candidates:
+        target = item(item_id)
+        if target is not None and _owned_value(target, loose.copy(), item) > 0:
+            return item_id
+    return None
+
+
 def _urgent_defense(
     plan: BuildPlan,
     report: GameReport,
@@ -141,12 +200,15 @@ def _urgent_defense(
     item: ItemLookup,
     champion_name: Callable[[int], str],
     keep_threat: int = 0,
+    *,
+    laning: bool = False,
 ) -> _Candidate | None:
     threat = next(
         (
             e
             for e in report.enemies
             if e.damage_level >= MIN_THREAT_DAMAGE
+            and (e.in_lane or not laning)  # en fase de líneas, solo los de tu línea
             and (
                 e.strength == Strength.VERY_STRONG
                 or (e.threatening and (e.is_lane_opponent or e.champion_id == keep_threat))
@@ -173,25 +235,69 @@ def _urgent_defense(
     )
 
 
-def _anti_heal(
-    plan: BuildPlan,
+def _anti_heal_component(
+    need: SituationalItem | None,
     report: GameReport,
     owned: set[int],
     champion_name: Callable[[int], str],
+    *,
+    laning: bool,
 ) -> _Candidate | None:
-    need = next((s for s in plan.situational if s.item_id in ANTI_HEAL_ITEMS), None)
-    if need is None or need.item_id in owned or need.component_id in owned:
+    """El componente de antisanación, antes incluso que el núcleo.
+
+    En fase de líneas: si quien se cura está en tu línea y es de los que se curan
+    muchísimo (Aatrox, Soraka...) o va fuerte. Después: si va fuerte."""
+    if need is None or need.component_id is None:
+        return None
+    if need.item_id in owned or need.component_id in owned:
+        return None
+
+    def wanted(e: PlayerReport) -> bool:
+        if e.player.champion_alias not in HEALERS:
+            return False
+        if not laning:
+            return e.threatening
+        return e.in_lane and (e.threatening or e.player.champion_alias in STRONG_HEALERS)
+
+    healer = next((e for e in report.enemies if wanted(e)), None)
+    if healer is None:
+        return None
+    state = f"va {_strength_text(healer)}" if healer.threatening else "está"
+    where = " en tu línea" if laning else ""
+    return _Candidate(
+        need.component_id,
+        f"{_who(healer, champion_name)} {state}{where} y se cura mucho: "
+        "compra ya el componente de antisanación (el objeto entero, más adelante)",
+        healer.score,
+        healer.champion_id,
+    )
+
+
+def _anti_heal_item(
+    need: SituationalItem | None,
+    report: GameReport,
+    owned: set[int],
+    champion_name: Callable[[int], str],
+    *,
+    laning: bool,
+) -> _Candidate | None:
+    """El objeto de antisanación completo: solo con el núcleo hecho."""
+    if need is None or need.item_id in owned:
         return None
     healer = next(
-        (e for e in report.enemies if e.threatening and e.player.champion_alias in HEALERS), None
+        (
+            e
+            for e in report.enemies
+            if e.threatening and e.player.champion_alias in HEALERS and (e.in_lane or not laning)
+        ),
+        None,
     )
     if healer is None:
         return None
-    target = need.component_id if need.component_id is not None else need.item_id
     return _Candidate(
-        target,
+        need.item_id,
         f"{_who(healer, champion_name)} va {_strength_text(healer)} y se cura mucho: "
-        "antisanación cuanto antes",
+        "completa la antisanación",
         healer.score,
         healer.champion_id,
     )

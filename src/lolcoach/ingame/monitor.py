@@ -135,7 +135,8 @@ class LiveGameMonitor:
         if plan is not None and game.me is not None:
             advice = advise(
                 plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
-                boots_out_of_sight=hidden_boots, keep_threat=self._threat_id,
+                game_time=game.game_time, boots_out_of_sight=hidden_boots,
+                keep_threat=self._threat_id,
             )  # fmt: skip
             self._threat_id = advice.threat_id
         return LiveGameUpdated(game, report, advice, plan)

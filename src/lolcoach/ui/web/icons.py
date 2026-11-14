@@ -1,4 +1,4 @@
-"""Iconos de objetos y campeones, sacados del propio cliente de LoL (con caché).
+"""Iconos de objetos, campeones, runas y hechizos, sacados del propio cliente de LoL (con caché).
 
 Solo se piden por tipo e id numérico, y solo de los recursos del juego
 (``/lol-game-data/assets/``): no se puede usar para pedir otra cosa al cliente.
@@ -14,7 +14,7 @@ from ...lcu.connector import LcuConnector
 
 CACHE_SIZE = 400
 CHAMPION_ICON = "/lol-game-data/assets/v1/champion-icons/{champion_id}.png"
-KINDS = frozenset({"item", "champion"})
+KINDS = frozenset({"item", "champion", "perk", "style", "spell"})
 
 
 class IconProvider:
@@ -29,6 +29,8 @@ class IconProvider:
             return item.icon_path if item and item.icon_path else None
         if kind == "champion" and ident > 0:
             return CHAMPION_ICON.format(champion_id=ident)
+        if kind in KINDS:
+            return self._gamedata.icon_path(kind, ident)
         return None
 
     async def get(self, kind: str, ident: int) -> bytes | None:

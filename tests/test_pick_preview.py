@@ -97,7 +97,7 @@ async def test_presenter_shows_the_preview_until_the_real_loadout() -> None:
     state = presenter.state
     assert state["champion"]["name"] == "Ahri" and state["champion"]["preview"]
     assert state["champion"]["position"] and state["loadout"]["preview"]
-    assert state["loadout"]["keystone"] and len(state["loadout"]["spells"]) == 2
+    assert state["loadout"]["page"]["keystone"]["id"] and len(state["loadout"]["spells"]) == 2
 
     await bus.publish(LoadoutPreview(0, None))  # deja de mirar
     assert presenter.state["champion"] is None and presenter.state["loadout"] is None
@@ -110,7 +110,7 @@ async def test_presenter_shows_the_preview_until_the_real_loadout() -> None:
 # --- De punta a punta --------------------------------------------------------------------------
 
 
-async def test_preview_never_writes_to_the_client(
+async def test_a_quick_preview_writes_nothing_to_the_client(
     fake: FakeLcu, client_ssl: ssl.SSLContext
 ) -> None:
     async with Harness(credentials_for(fake), client_ssl) as app:

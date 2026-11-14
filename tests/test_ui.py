@@ -35,7 +35,12 @@ async def live_event(*, fed_zed: bool = True) -> LiveGameUpdated:
     )
     assert plan is not None
     data = (
-        standard_game(zed_kda=(8, 1, 2), zed_items=(1055, 3158, 3142, 6697))
+        # Con el núcleo hecho (Hechicero, Luden, Llamasombría, Rabadon) toca responder a Zed
+        standard_game(
+            zed_kda=(8, 1, 2),
+            zed_items=(1055, 3158, 3142, 6697),
+            my_items=(3020, 6655, 4645, 3089),
+        )
         if fed_zed
         else standard_game()
     )
@@ -49,7 +54,10 @@ async def live_event(*, fed_zed: bool = True) -> LiveGameUpdated:
         my_position=Position.MIDDLE,
     )
     assert game.me is not None
-    advice = advise(plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name)
+    advice = advise(
+        plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
+        game_time=game.game_time,
+    )  # fmt: skip
     return LiveGameUpdated(game, report, advice, plan)
 
 

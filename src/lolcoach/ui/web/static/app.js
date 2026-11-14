@@ -10,6 +10,8 @@ const token = new URLSearchParams(location.search).get("t") || "";
 const app = document.getElementById("app");
 const iconCache = new Map(); // escritorio: clave -> imagen incrustada (o promesa)
 let retries = 0;
+let socket = null;    // navegador: canal con la app (también para cambiar las runas)
+let lastState = null; // para repintar al tocar el editor de runas sin esperar a la app
 
 // La app llama a window.lolcoach.render(estado) cuando algo cambia (escritorio).
 window.lolcoach = { render: (state) => render(state) };
@@ -62,7 +64,7 @@ function setIcon(img, kind, id) {
 }
 
 function connect() {
-  const socket = new WebSocket(`ws://${location.host}/ws?t=${encodeURIComponent(token)}`);
+  socket = new WebSocket(`ws://${location.host}/ws?t=${encodeURIComponent(token)}`);
   socket.onopen = () => { retries = 0; setConnection(true); };
   socket.onmessage = (event) => {
     const message = JSON.parse(event.data);
@@ -129,7 +131,7 @@ function playEntrance() {
     const delay = index * 80;
     move(card, [{ opacity: 0, transform: "translateY(16px) scale(.98)" }, { opacity: 1, transform: "none" }],
       { duration: 560, delay, easing: EASE_OUT, fill: "backwards" });
-    const parts = card.querySelectorAll(".player, .runes > *, .icons > .icon, .situational .entry, .buy-body, .components, .hero > div, .empty > :not(.emblem)");
+    const parts = card.querySelectorAll(".player, .rune-page .tree, .spells, .icons > .icon, .situational .entry, .buy-body, .components, .hero > div, .empty > :not(.emblem)");
     parts.forEach((part, order) => move(part, [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }],
       { duration: 420, delay: delay + 140 + Math.min(order, 10) * 35, easing: EASE_OUT, fill: "backwards" }));
   });
@@ -215,6 +217,7 @@ function viewOf(state) {
 
 // `boot`: el estado provisional del arranque se pinta sin animar; la entrada la hace el primero real.
 function render(state, boot = false) {
+  lastState = state;
   const view = viewOf(state);
   const phase = state.phaseLabel || "";
   seen = { view: boot ? null : view, entering: !boot && view !== memory.view, phase, gold: null, buyId: null, canBuy: false, progress: 0, owned: new Set(), players: new Map() };
@@ -236,7 +239,14 @@ function render(state, boot = false) {
   if (state.stats && state.stats.problem) {
     sections.unshift(card("Aviso", [el("div", { text: state.stats.text })], { className: "notice wide" }));
   }
+  // Se repinta todo: el botón que tenías enfocado (teclado) recupera el foco.
+  const focused = document.activeElement && document.activeElement.dataset
+    ? document.activeElement.dataset.focusKey : null;
   app.replaceChildren(...sections.filter(Boolean));
+  if (focused) {
+    const again = app.querySelector(`[data-focus-key="${CSS.escape(focused)}"]`);
+    if (again) again.focus({ preventScroll: true });
+  }
 
   if (seen.entering) motion(playEntrance);
   for (const run of queue) run();
@@ -273,7 +283,7 @@ function renderIdle(state) {
 function renderChampSelect(state) {
   return [
     state.champion ? renderHero(state) : null,
-    state.loadout ? renderLoadout(state.loadout) : null,
+    state.loadout ? renderLoadout(state.loadout, state) : null,
     state.build ? renderBuild(state.build) : null,
   ];
 }
@@ -299,27 +309,218 @@ function renderHero(state) {
   ]);
 }
 
-function renderLoadout(loadout) {
-  const rows = [];
-  if (loadout.keystone) {
-    rows.push(el("div", { class: "keystone", text: loadout.keystone }));
-    rows.push(el("div", { class: "row" }, [el("b", { text: loadout.primaryStyle }), el("span", { text: loadout.primary.join(", ") })]));
-    rows.push(el("div", { class: "row" }, [el("b", { text: loadout.secondaryStyle }), el("span", { text: loadout.secondary.join(", ") })]));
-    rows.push(el("div", { class: "row" }, [el("b", { text: "Fragmentos" }), el("span", { text: loadout.shards.join(", ") })]));
+// --- Runas: la página con sus imágenes y el editor ------------------------------------
+// Al tocar una runa en el editor, la página se cambia aquí al momento (borrador) y se envía
+// a la app, que la valida y la escribe en tu página «LoL Coach» del cliente. El borrador se
+// enseña hasta que la app confirma (o 4 s, si algo falla: entonces vuelve lo que hay).
+
+const SEND_DELAY = 350; // varios clics seguidos = un solo envío
+const runeEditor = { open: false, pending: null, until: 0, timer: 0, problem: "" };
+
+function gameIcon(kind, id, name, className) {
+  const img = el("img", { alt: name || "" });
+  if (id) setIcon(img, kind, id);
+  return el("span", { class: classes("rune", className), title: name || "" }, [img]);
+}
+
+function samePerks(a, b) {
+  return a.primaryStyleId === b.primaryStyleId && a.subStyleId === b.subStyleId
+    && a.perkIds.length === b.perkIds.length && a.perkIds.every((id, i) => id === b.perkIds[i]);
+}
+
+function pageFromState(page) {
+  return { primaryStyleId: page.primaryStyle.id, subStyleId: page.subStyle.id, perkIds: page.perkIds.slice() };
+}
+
+// La página que se enseña: tu borrador mientras la app lo pone; si no, la del estado.
+function shownPage(loadout) {
+  if (!loadout.page) return null;
+  const real = pageFromState(loadout.page);
+  const draft = runeEditor.pending;
+  const failed = loadout.problem && loadout.problem !== runeEditor.problem;
+  if (draft && (samePerks(draft, real) || Date.now() > runeEditor.until || failed)) {
+    runeEditor.pending = null;
+  }
+  return runeEditor.pending || real;
+}
+
+function renderLoadout(loadout, state) {
+  const catalog = state.runeCatalog;
+  const page = shownPage(loadout);
+  const names = catalog ? catalog.names : {};
+  const name = (id) => names[id] || "";
+  const styleName = (id) => {
+    const style = catalog && catalog.styles.find((s) => s.id === id);
+    return style ? style.name : "";
+  };
+  const children = [
+    loadout.status ? el("div", { class: classes("small", "status-line", loadout.runesBy && "applied"), text: loadout.status }) : null,
+    loadout.problem ? el("div", { class: "small problem", role: "alert", text: loadout.problem }) : null,
+    originLine(loadout.source, "recomendación de Riot (aún sin datos suficientes de partidas reales)"),
+  ];
+  if (page && loadout.page) {
+    const perks = page.perkIds;
+    const fallback = loadout.page; // nombres por si aún no hay catálogo
+    const perkName = (index, fromState) => name(perks[index]) || fromState.name;
+    children.push(el("div", { class: "rune-page" }, [
+      el("div", { class: "tree" }, [
+        gameIcon("style", page.primaryStyleId, styleName(page.primaryStyleId) || fallback.primaryStyle.name, "style"),
+        gameIcon("perk", perks[0], perkName(0, fallback.keystone), "keystone"),
+        ...[1, 2, 3].map((i) => gameIcon("perk", perks[i], perkName(i, fallback.primary[i - 1] || {}), "minor")),
+      ]),
+      el("div", { class: "tree" }, [
+        gameIcon("style", page.subStyleId, styleName(page.subStyleId) || fallback.subStyle.name, "style"),
+        ...[4, 5].map((i) => gameIcon("perk", perks[i], perkName(i, fallback.secondary[i - 4] || {}), "minor")),
+        el("span", { class: "shards" }, [6, 7, 8].map((i) => gameIcon("perk", perks[i], perkName(i, fallback.shards[i - 6] || {}), "shard"))),
+      ]),
+      el("div", { class: "keystone-name", text: perkName(0, fallback.keystone) }),
+    ]));
   }
   if (loadout.spells.length) {
-    rows.push(el("div", { class: "row" }, [el("b", { text: "Hechizos" }),
-      el("span", { class: "chips" }, loadout.spells.map((s) => el("span", { class: "chip", text: s.name })))]));
+    children.push(el("div", { class: "spells" }, [
+      el("span", { class: "section-label inline", text: "Hechizos" }),
+      ...loadout.spells.map((s) => gameIcon("spell", s.id, s.name, "spell")),
+    ]));
   }
-  if (loadout.laneOpponent) rows.push(el("div", { class: "muted small", text: `Rival de línea probable: ${loadout.laneOpponent}` }));
+  if (loadout.laneOpponent) children.push(el("div", { class: "muted small", text: `Rival de línea probable: ${loadout.laneOpponent}` }));
+  const canEdit = Boolean(loadout.editable && catalog && page && state.connected && state.phase === "ChampSelect");
+  if (canEdit) {
+    const toggle = el("button", {
+      class: "ghost edit-toggle", type: "button", "data-focus-key": "edit-toggle",
+      "aria-expanded": runeEditor.open ? "true" : "false",
+      text: runeEditor.open ? "Cerrar el editor" : "Cambiar runas",
+    });
+    toggle.addEventListener("click", () => { runeEditor.open = !runeEditor.open; render(lastState); });
+    children.push(toggle);
+    if (runeEditor.open) children.push(renderRuneEditor(page, catalog));
+  } else if (!loadout.editable || state.phase !== "ChampSelect") {
+    runeEditor.open = false;
+  }
   const extra = [...loadout.adjustments, ...loadout.notes];
-  return card(loadout.preview ? "Runas y hechizos (previsión)" : "Runas y hechizos", [
-    loadout.preview
-      ? el("div", { class: "muted small", text: "Aún no se aplican: se pondrán solas al hacerse el último pick y pueden ajustarse a los rivales." })
-      : null,
-    originLine(loadout.source, "recomendación de Riot (aún sin datos suficientes de partidas reales)"),
-    el("div", { class: "runes" }, rows),
-    extra.length ? bulletList(extra) : null,
+  if (extra.length) children.push(bulletList(extra));
+  return card(loadout.preview && !loadout.runesBy ? "Runas y hechizos (previsión)" : "Runas y hechizos", children,
+    { className: "loadout" });
+}
+
+function styleOf(catalog, id) {
+  return catalog.styles.find((s) => s.id === id);
+}
+
+function rowIn(style, perkId) {
+  return style ? style.rows.findIndex((row) => row.includes(perkId)) : -1;
+}
+
+// Cambios del editor: siempre devuelven una página válida (como hace el cliente).
+function withPrimary(catalog, page, styleId) {
+  const style = styleOf(catalog, styleId);
+  if (!style || styleId === page.primaryStyleId) return page;
+  let sub = page.subStyleId;
+  const allowed = (id) => id !== styleId && styleOf(catalog, id) && (!style.allowedSub.length || style.allowedSub.includes(id));
+  if (!allowed(sub)) sub = (catalog.styles.find((s) => allowed(s.id)) || {}).id;
+  const subStyle = styleOf(catalog, sub);
+  if (!subStyle) return page;
+  const secondary = sub === page.subStyleId ? page.perkIds.slice(4, 6) : [subStyle.rows[1][0], subStyle.rows[2][0]];
+  return { primaryStyleId: styleId, subStyleId: sub, perkIds: [...style.rows.map((row) => row[0]), ...secondary, ...page.perkIds.slice(6)] };
+}
+
+function withSub(catalog, page, styleId) {
+  const style = styleOf(catalog, styleId);
+  if (!style || styleId === page.subStyleId || styleId === page.primaryStyleId) return page;
+  const perks = page.perkIds.slice();
+  perks[4] = style.rows[1][0];
+  perks[5] = style.rows[2][0];
+  return { ...page, subStyleId: styleId, perkIds: perks };
+}
+
+function withPrimaryRune(page, row, perkId) {
+  const perks = page.perkIds.slice();
+  perks[row] = perkId; // fila 0 = piedra angular (índice 0); filas 1-3 = índices 1-3
+  return { ...page, perkIds: perks };
+}
+
+function withSecondaryRune(catalog, page, perkId) {
+  const style = styleOf(catalog, page.subStyleId);
+  const picks = page.perkIds.slice(4, 6);
+  if (picks.includes(perkId)) return page;
+  const row = rowIn(style, perkId);
+  const sameRow = picks.findIndex((id) => rowIn(style, id) === row);
+  if (sameRow >= 0) picks[sameRow] = perkId;
+  else { picks.shift(); picks.push(perkId); } // como el cliente: se va la más antigua
+  const perks = page.perkIds.slice();
+  perks.splice(4, 2, ...picks);
+  return { ...page, perkIds: perks };
+}
+
+function withShard(page, row, perkId) {
+  const perks = page.perkIds.slice();
+  perks[6 + row] = perkId;
+  return { ...page, perkIds: perks };
+}
+
+function sendRunes(page) {
+  runeEditor.pending = page;
+  runeEditor.problem = (lastState && lastState.loadout && lastState.loadout.problem) || "";
+  runeEditor.until = Date.now() + 4000;
+  clearTimeout(runeEditor.timer);
+  runeEditor.timer = setTimeout(() => {
+    const draft = runeEditor.pending;
+    if (!draft) return;
+    runeEditor.until = Date.now() + 4000;
+    if (DESKTOP) {
+      const api = window.pywebview && window.pywebview.api;
+      if (api && api.set_runes) api.set_runes(draft).catch(() => {});
+    } else if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: "setRunes", page: draft }));
+    }
+  }, SEND_DELAY);
+  render(lastState);
+}
+
+function optionButton(kind, id, label, selected, onPick, size, group) {
+  const button = el("button", {
+    type: "button", class: classes("rune-option", size, selected && "selected"),
+    "aria-pressed": selected ? "true" : "false", "aria-label": label, title: label,
+    "data-focus-key": `${group}|${id}`,
+  }, [gameIcon(kind, id, "", "")]);
+  button.addEventListener("click", () => { if (!selected) onPick(); });
+  return button;
+}
+
+function optionRow(label, options) {
+  // options: [kind, id, etiqueta, elegida, al elegir, tamaño]
+  return el("div", { class: "editor-row", role: "group", "aria-label": label },
+    options.map((o) => optionButton(...o, label)));
+}
+
+function renderRuneEditor(page, catalog) {
+  const name = (id) => catalog.names[id] || `Runa ${id}`;
+  const primary = styleOf(catalog, page.primaryStyleId);
+  const sub = styleOf(catalog, page.subStyleId);
+  if (!primary || !sub) return null;
+  const perks = page.perkIds;
+  const pick = (next) => sendRunes(next);
+  const rowLabels = ["Piedra angular", "Fila 1", "Fila 2", "Fila 3"];
+
+  const primaryTrees = optionRow("Árbol principal", catalog.styles.map((s) =>
+    ["style", s.id, `Árbol principal: ${s.name}`, s.id === primary.id, () => pick(withPrimary(catalog, page, s.id)), "tree-option"]));
+  const primaryRows = primary.rows.map((row, r) => optionRow(`${primary.name}: ${rowLabels[r]}`, row.map((id) =>
+    ["perk", id, name(id), perks[r] === id, () => pick(withPrimaryRune(page, r, id)), r === 0 ? "keystone-option" : "minor-option"])));
+  const subTrees = optionRow("Árbol secundario", catalog.styles.filter((s) => s.id !== primary.id).map((s) =>
+    ["style", s.id, `Árbol secundario: ${s.name}`, s.id === sub.id, () => pick(withSub(catalog, page, s.id)), "tree-option"]));
+  const subRows = sub.rows.slice(1).map((row, r) => optionRow(`${sub.name}: ${rowLabels[r + 1]}`, row.map((id) =>
+    ["perk", id, name(id), perks[4] === id || perks[5] === id, () => pick(withSecondaryRune(catalog, page, id)), "minor-option"])));
+  const shardRows = catalog.shards.map((row, r) => optionRow(`Fragmentos: fila ${r + 1}`, row.map((id) =>
+    ["perk", id, name(id), perks[6 + r] === id, () => pick(withShard(page, r, id)), "shard-option"])));
+
+  return el("div", { class: "rune-editor" }, [
+    el("div", { class: "muted small", text: "Toca una runa: se cambia al momento en tu página «LoL Coach» del cliente." }),
+    el("div", { class: "editor-columns" }, [
+      el("div", { class: "editor-tree" }, [el("div", { class: "section-label", text: "Principal" }), primaryTrees, ...primaryRows]),
+      el("div", { class: "editor-tree" }, [
+        el("div", { class: "section-label", text: "Secundario (elige 2)" }), subTrees, ...subRows,
+        el("div", { class: "section-label", text: "Fragmentos" }), ...shardRows,
+      ]),
+    ]),
   ]);
 }
 
@@ -351,8 +552,9 @@ function renderGame(state) {
     renderPurchase(game),
     game.buildProgress.length ? renderProgress(game) : null,
     // Los dos equipos van por línea (superior → apoyo): cada fila frente a su rival.
-    game.enemies.length ? card("Rivales", [renderPlayers(game.enemies, null, "enemy")]) : null,
+    // Tu equipo a la izquierda y los rivales a la derecha.
     team.length ? card("Tu equipo", [renderPlayers(team, game.me, "ally")]) : null,
+    game.enemies.length ? card("Rivales", [renderPlayers(game.enemies, null, "enemy")]) : null,
   ];
 }
 

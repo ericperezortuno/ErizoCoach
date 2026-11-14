@@ -20,13 +20,22 @@ from ...events import (
     GameflowPhaseChanged,
     LiveGameEnded,
     LiveGameUpdated,
+    LoadoutInClient,
     LoadoutPreview,
     LoadoutReady,
     PicksFinalized,
+    RunesBy,
+    RunesEditRequested,
     StatsStatus,
 )
 from ...gamedata.catalog import DamageType, GameData
-from ...gamedata.runes import PRIMARY_INDEXES, SECONDARY_INDEXES, SHARD_INDEXES
+from ...gamedata.runes import (
+    PAGE_SIZE,
+    PRIMARY_INDEXES,
+    SECONDARY_INDEXES,
+    SHARD_INDEXES,
+    RunePage,
+)
 from ...ingame.analysis import STRENGTH_LABELS, PlayerReport
 from ...ingame.models import LivePlayer
 from ...loadout.models import LANE_CONFIDENCE, Loadout
@@ -35,6 +44,21 @@ from ..labels import GAMEFLOW_LABELS, POSITION_LABELS
 
 State = dict[str, Any]
 Listener = Callable[[State], Awaitable[None]]
+
+RUNES_STATUS = {
+    RunesBy.PREVIEW: (
+        "Puestas en tu cliente al mantener la preselección; al último pick se ajustan "
+        "a los rivales."
+    ),
+    RunesBy.COACH: "Puestas en tu cliente.",
+    RunesBy.YOU_IN_APP: (
+        "Tus cambios están puestos en el cliente. LoL Coach ya no las toca para este campeón."
+    ),
+    RunesBy.YOU_IN_CLIENT: (
+        "Las has cambiado en el cliente: LoL Coach no las toca para este campeón."
+    ),
+}
+PREVIEW_STATUS = "Previsión: si te quedas 5 segundos en este campeón, se ponen en tu cliente."
 
 DAMAGE_LABELS = {
     DamageType.MAGIC: "AP",
@@ -46,10 +70,15 @@ DAMAGE_LABELS = {
 
 class UiPresenter:
     def __init__(self, bus: EventBus, gamedata: GameData) -> None:
+        self._bus = bus
         self._gd = gamedata
         self._listeners: list[Listener] = []
         self._shown_plan: BuildPlan | None = None  # la build que enseña la tarjeta
         self._loadout_final = False  # ya están las runas de verdad: fuera previsiones
+        self._loadout: Loadout | None = None  # la recomendación que se enseña
+        self._loadout_preview = False
+        self._in_client: LoadoutInClient | None = None  # lo que hay en el cliente
+        self._catalog: tuple[str | None, State] | None = None  # (parche, árboles de runas)
         self._state: State = {
             "version": __version__,
             "connected": False,
@@ -60,6 +89,7 @@ class UiPresenter:
             "build": None,
             "game": None,
             "stats": None,  # estado de la descarga automática de estadísticas
+            "runeCatalog": None,  # árboles de runas, para cambiarlas desde la ventana
         }
         bus.subscribe(ClientConnected, self._on_connected)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -68,6 +98,7 @@ class UiPresenter:
         bus.subscribe(PicksFinalized, self._on_finalized)
         bus.subscribe(LoadoutPreview, self._on_preview)
         bus.subscribe(LoadoutReady, self._on_loadout)
+        bus.subscribe(LoadoutInClient, self._on_in_client)
         bus.subscribe(BuildReady, self._on_build)
         bus.subscribe(LiveGameUpdated, self._on_live)
         bus.subscribe(LiveGameEnded, self._on_live_ended)
@@ -107,6 +138,7 @@ class UiPresenter:
     async def _on_champ_select(self, _event: ChampSelectStarted) -> None:
         self._shown_plan = None
         self._loadout_final = False
+        self._loadout, self._in_client = None, None
         await self._set(champion=None, loadout=None, build=None, game=None)
 
     async def _on_finalized(self, event: PicksFinalized) -> None:
@@ -124,18 +156,36 @@ class UiPresenter:
             return
         loadout = event.loadout
         if not event.champion_id:
+            self._loadout = None
             await self._set(champion=None, loadout=None)
             return
         position = POSITION_LABELS.get(loadout.position, "") if loadout else ""
         shown = loadout is not None and (loadout.runes is not None or loadout.spells is not None)
+        self._loadout = loadout if shown else None
+        self._loadout_preview = True
         await self._set(
             champion=self._champion(event.champion_id, position) | {"preview": True},
-            loadout=self._loadout(loadout) | {"preview": True} if shown and loadout else None,
+            loadout=self._loadout_state(),
+            runeCatalog=self._rune_catalog(),
         )
 
     async def _on_loadout(self, event: LoadoutReady) -> None:
         self._loadout_final = True
-        await self._set(loadout=self._loadout(event.loadout))
+        self._loadout, self._loadout_preview = event.loadout, False
+        await self._set(loadout=self._loadout_state(), runeCatalog=self._rune_catalog())
+
+    async def _on_in_client(self, event: LoadoutInClient) -> None:
+        self._in_client = event
+        await self._set(loadout=self._loadout_state())
+
+    async def request_runes(self, raw: Any) -> bool:
+        """La ventana pide poner otra página de runas. Solo acepta números; la página se
+        vuelve a validar con los árboles del juego antes de escribirla en el cliente."""
+        page = _parse_page(raw)
+        if page is None:
+            return False
+        await self._bus.publish(RunesEditRequested(page))
+        return True
 
     async def _on_build(self, event: BuildReady) -> None:
         plan = event.plan
@@ -145,20 +195,31 @@ class UiPresenter:
             champion=self._champion(plan.champion_id, POSITION_LABELS.get(plan.position, "")),
         )
 
-    def _loadout(self, loadout: Loadout) -> State:
+    def _loadout_state(self) -> State | None:
+        """La tarjeta de runas: lo que hay en tu cliente si ya se ha puesto algo; si no, la
+        recomendación (previsión)."""
+        loadout = self._loadout
+        if loadout is None:
+            return None
         gd = self._gd
-        runes = loadout.runes
+        here = self._in_client
+        if here is not None and here.champion_id != loadout.champion_id:
+            here = None  # es de otro campeón que mirabas antes
+        runes = here.runes if here is not None and here.runes is not None else loadout.runes
+        spells = here.spells if here is not None and here.spells is not None else loadout.spells
+        runes_by = here.runes_by if here is not None else RunesBy.NOBODY
         guess = loadout.lane_guess
-        return {
-            "keystone": gd.perk_name(runes.keystone_id) if runes else None,
-            "primaryStyle": gd.style_name(runes.primary_style_id) if runes else None,
-            "primary": [gd.perk_name(runes.perk_ids[i]) for i in PRIMARY_INDEXES] if runes else [],
-            "secondaryStyle": gd.style_name(runes.sub_style_id) if runes else None,
-            "secondary": (
-                [gd.perk_name(runes.perk_ids[i]) for i in SECONDARY_INDEXES] if runes else []
-            ),
-            "shards": [gd.perk_name(runes.perk_ids[i]) for i in SHARD_INDEXES] if runes else [],
-            "spells": [{"id": s, "name": gd.spell_name(s)} for s in (loadout.spells or ())],
+        status = RUNES_STATUS.get(runes_by, PREVIEW_STATUS if self._loadout_preview else "")
+        if here is not None and here.page_name and runes_by.value:
+            status = f"{status} Página «{here.page_name}»."
+        state: State = {
+            "page": self._page(runes) if runes else None,
+            "spells": [self._spell(s) for s in (spells or ())],
+            "runesBy": runes_by.value,
+            "spellsBy": here.spells_by.value if here is not None else "",
+            "status": status,
+            "problem": here.problem if here is not None else "",
+            "editable": runes is not None,
             "laneOpponent": (
                 f"{gd.champion_name(guess.champion_id)} ({round(guess.probability * 100)} %)"
                 if guess and guess.probability >= LANE_CONFIDENCE
@@ -168,6 +229,63 @@ class UiPresenter:
             "notes": list(loadout.notes),
             "source": loadout.source,
         }
+        if self._loadout_preview:
+            state["preview"] = True
+        return state
+
+    def _perk(self, perk_id: int) -> State:
+        return {"id": perk_id, "name": self._gd.perk_name(perk_id)}
+
+    def _spell(self, spell_id: int) -> State:
+        return {"id": spell_id, "name": self._gd.spell_name(spell_id)}
+
+    def _style(self, style_id: int) -> State:
+        return {"id": style_id, "name": self._gd.style_name(style_id)}
+
+    def _page(self, runes: RunePage) -> State:
+        perks = runes.perk_ids
+        complete = len(perks) == PAGE_SIZE
+        return {
+            "primaryStyle": self._style(runes.primary_style_id),
+            "subStyle": self._style(runes.sub_style_id),
+            "keystone": self._perk(runes.keystone_id),
+            "primary": [self._perk(perks[i]) for i in PRIMARY_INDEXES] if complete else [],
+            "secondary": [self._perk(perks[i]) for i in SECONDARY_INDEXES] if complete else [],
+            "shards": [self._perk(perks[i]) for i in SHARD_INDEXES] if complete else [],
+            "perkIds": list(perks),
+        }
+
+    def _rune_catalog(self) -> State | None:
+        """Los árboles de runas (para cambiarlas en la ventana); una vez por parche."""
+        version = self._gd.version
+        if self._catalog is not None and self._catalog[0] == version:
+            return self._catalog[1]
+        styles = sorted(
+            (s for s in self._gd.styles.values() if len(s.rows) == 4 and len(s.shard_rows) == 3),
+            key=lambda s: s.id,
+        )
+        if not styles:
+            return None
+        catalog: State = {
+            "styles": [
+                {
+                    "id": s.id,
+                    "name": s.name,
+                    "rows": [list(row) for row in s.rows],
+                    "allowedSub": sorted(s.allowed_sub_styles),
+                }
+                for s in styles
+            ],
+            "shards": [list(row) for row in styles[0].shard_rows],
+            "names": {
+                str(perk): self._gd.perk_name(perk)
+                for s in styles
+                for row in (*s.rows, *s.shard_rows)
+                for perk in row
+            },
+        }
+        self._catalog = (version, catalog)
+        return catalog
 
     def _build(self, plan: BuildPlan) -> State:
         item = self._item
@@ -286,3 +404,21 @@ def _by_lane(reports: Iterable[PlayerReport], order: Sequence[LivePlayer]) -> li
             seat.get(id(r.player), len(seat)),
         ),
     )
+
+
+MAX_ID = 100_000
+
+
+def _parse_page(raw: Any) -> RunePage | None:
+    """``{"primaryStyleId": n, "subStyleId": n, "perkIds": [9 números]}`` o None."""
+    if not isinstance(raw, dict):
+        return None
+    perks = raw.get("perkIds")
+    if not isinstance(perks, list) or len(perks) != PAGE_SIZE:
+        return None
+    primary, sub = raw.get("primaryStyleId"), raw.get("subStyleId")
+    numbers = [primary, sub, *perks]
+    # type() y no isinstance(): True/False no deben pasar por números
+    if not all(type(n) is int and 0 < n < MAX_ID for n in numbers):
+        return None
+    return RunePage(int(primary), int(sub), tuple(int(p) for p in perks))  # type: ignore[arg-type]

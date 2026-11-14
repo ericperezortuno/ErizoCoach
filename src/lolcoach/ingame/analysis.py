@@ -39,6 +39,8 @@ STRENGTH_LABELS = {
     Strength.BEHIND: "Por detrás",
 }
 VERY_STRONG_SCORE, STRONG_SCORE, BEHIND_SCORE = 0.30, 0.12, -0.15
+# En la línea inferior se juega en pareja: el apoyo enemigo también está en tu línea
+DUO_PARTNER = {Position.BOTTOM: Position.UTILITY, Position.UTILITY: Position.BOTTOM}
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,6 +53,7 @@ class PlayerReport:
     strength: Strength
     damage_type: DamageType
     is_lane_opponent: bool = False
+    in_lane: bool = False  # juega en tu línea (en la inferior: el tirador y el apoyo)
     damage_level: int = 2  # 0-3 según su perfil: un apoyo encantador no es una amenaza de daño
 
     @property
@@ -91,7 +94,10 @@ def analyze(
     scale = max(average_gold, MIN_GOLD_SCALE)
     early = game.game_time < EARLY_GAME_SECONDS
 
-    lane_rival = _lane_rival(game, champion_id, positions_for, my_position)
+    position = game.me.position if game.me and game.me.position else my_position
+    lane_rival = _enemy_at(game, champion_id, positions_for, position)
+    duo = _enemy_at(game, champion_id, positions_for, DUO_PARTNER.get(position, Position.NONE))
+    in_lane = {id(p) for p in (lane_rival, duo) if p is not None}
 
     def report(player: LivePlayer) -> PlayerReport:
         cid = champion_id(player.champion_alias)
@@ -123,6 +129,7 @@ def analyze(
             strength=strength,
             damage_type=profile.damage_type if profile else DamageType.UNKNOWN,
             is_lane_opponent=player is lane_rival,
+            in_lane=id(player) in in_lane,
             damage_level=profile.damage if profile else 2,
         )
 
@@ -131,14 +138,13 @@ def analyze(
     return GameReport(report(game.me) if game.me else None, allies, tuple(enemies))
 
 
-def _lane_rival(
+def _enemy_at(
     game: LiveGame,
     champion_id: Callable[[str], int],
     positions_for: Callable[[int], tuple[Position, ...]],
-    my_position: Position,
+    position: Position,
 ) -> LivePlayer | None:
-    """Tu rival de línea: el que el juego dice que juega en tu posición; si no, por probabilidad."""
-    position = game.me.position if game.me and game.me.position else my_position
+    """El enemigo que el juego dice que juega en ``position``; si no lo dice, por probabilidad."""
     if position == Position.NONE:
         return None
     same = [p for p in game.enemies if p.position == position]

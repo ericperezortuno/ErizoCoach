@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.10.2 (previsión de runas al preseleccionar, builds de alto elo también sin clave)
+## Estado: v0.11.1 (runas con imágenes y editables en la ventana, se ponen al mantener la preselección 5 s, compras con el núcleo primero)
 
 ### Lo que hace
 
@@ -12,6 +12,12 @@ dice en tu segundo monitor qué comprar y quién va fuerte.
   vuelvas a abrir) y se conecta de forma **segura**, verificada con el certificado oficial de Riot.
 - **Sigue la selección de campeones en tiempo real**: tu posición, quién bloquea qué campeón,
   baneos, intercambios, dodges y el momento en que **se hace el último pick**.
+- **Preselección mantenida**: si te quedas **5 segundos** en un campeón, sus runas y hechizos
+  se ponen ya en el cliente (provisionales: al último pick se ajustan a los rivales, salvo lo
+  que hayas cambiado tú).
+- **Cambia las runas desde la ventana**: la página se ve con sus imágenes y, con «Cambiar
+  runas», eliges otras como en el cliente; se escriben al momento en tu página «LoL Coach».
+  Lo que cambies tú (en la ventana o en el cliente) no se vuelve a tocar para ese campeón.
 - **Previsión al preseleccionar**: en cuanto preseleccionas o miras un campeón, la ventana
   enseña las runas y hechizos que le pondrá (para tu posición asignada), sin tocar nada aún.
 - **Al hacerse el último pick, te pone las runas y los hechizos** (en el mismo segundo):
@@ -133,9 +139,8 @@ Muestra:
   - **Compra ahora**: el siguiente objeto, el porqué, cuánto oro te falta y qué
     componentes ya te puedes comprar (bajando por la receta si hace falta).
   - **Tu build**: lo que ya tienes marcado y lo siguiente resaltado.
-  - **Rivales**: KDA, súbditos, nivel, tipo de daño, «Tu rival» y una etiqueta
-    **Muy fuerte / Fuerte / Normal / Por detrás**.
-  - **Tu equipo**, con la misma información.
+  - **Tu equipo** (a la izquierda) y **Rivales** (a la derecha): KDA, súbditos, nivel, tipo
+    de daño, «Tu rival» y una etiqueta **Muy fuerte / Fuerte / Normal / Por detrás**.
   - Los dos equipos van **por línea** (superior, jungla, medio, inferior, apoyo), así que
     cada fila enfrenta a los dos jugadores de esa línea.
 
@@ -150,11 +155,16 @@ cerrarlo. La primera vez que lo escondes, Windows te avisa de que sigue en march
 de sus objetos (60 %), su KDA (25 %) y su nivel (15 %) frente a la media de la partida. En los
 primeros 3 minutos no se etiqueta a nadie.
 
-**Qué comprar**: tu build (primer objeto del núcleo, botas, resto) con dos excepciones:
-- Si un enemigo que **hace mucho daño** va muy fuerte (o tu rival de línea va fuerte) y no
-  tienes defensa contra su tipo de daño, el objeto defensivo de tu tipo de campeón va primero.
-- Si alguien que **se cura mucho** va fuerte, la antisanación (su componente barato) va primero.
-- Si se dan las dos, manda la que responde al enemigo más fuerte.
+**Qué comprar**, por este orden:
+1. **Antisanación barata**, la única que se adelanta al núcleo: solo el componente (Orbe del
+   olvido, Llamada del verdugo...), nunca el objeto entero. En fase de líneas (hasta el
+   14:00), solo si quien se cura está en tu línea.
+2. **Termina lo que empezaste**: si ya tienes componentes de un objeto, se acaba ese.
+3. **El núcleo de tu build** (con las botas tras el primer objeto), sin desvíos.
+4. Con el núcleo hecho, la respuesta a la mayor amenaza: defensa si un enemigo que hace mucho
+   daño va muy fuerte (o tu rival de línea va fuerte), o la antisanación completa. En fase
+   de líneas solo cuentan los enemigos de tu línea (en la inferior, tirador y apoyo).
+5. El resto de tu build.
 
 **Diseño**: estilo *liquid glass* con los colores de League (dorado y azul marino):
 tarjetas translúcidas con desenfoque y brillo en los bordes sobre un fondo con profundidad.

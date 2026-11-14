@@ -158,7 +158,13 @@ class ConsoleReporter:
             done.append(f"runas en la página «{event.page_name}»")
         if event.spells_applied:
             done.append("hechizos")
-        if done:
+        if done and event.provisional:
+            log.info(
+                "Preselección mantenida, aplicado: %s. Al último pick se ajustan a los rivales "
+                "(salvo lo que cambies tú).",
+                " y ".join(done),
+            )
+        elif done:
             log.info(
                 "Aplicado: %s. Puedes cambiarlos a mano; no se volverán a tocar.", " y ".join(done)
             )

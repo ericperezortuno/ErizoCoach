@@ -77,6 +77,7 @@ class Application:
         self.loadout = LoadoutService(
             self.bus, self.connector, self.gamedata, settings,
             position_hint=hint, stats=self.build_source,
+            current_snapshot=lambda: self.tracker.snapshot,
         )  # fmt: skip
         # Sin clave de Riot, las estadísticas compartidas por quien sí la tiene.
         shared = None

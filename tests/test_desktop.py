@@ -99,9 +99,26 @@ def test_bridge_rejects_anything_else(
     assert icons.calls == []  # ni siquiera se intenta
 
 
-def test_bridge_exposes_only_three_methods() -> None:
+def test_bridge_exposes_only_four_methods() -> None:
     public = [name for name in dir(DesktopBridge) if not name.startswith("_")]
-    assert public == ["background", "get_state", "icon"]
+    assert public == ["background", "get_state", "icon", "set_runes"]
+
+
+def test_bridge_set_runes_only_passes_a_rune_page(
+    running_loop: asyncio.AbstractEventLoop,
+) -> None:
+    from lolcoach.events import RunesEditRequested
+
+    bus = EventBus()
+    seen: list[RunesEditRequested] = []
+    bus.subscribe(RunesEditRequested, seen.append)
+    bridge = DesktopBridge(UiPresenter(bus, loaded_gamedata()), FakeIcons(), running_loop)  # type: ignore[arg-type]
+    perks = [8112, 8139, 8140, 8106, 8226, 8210, 5005, 5008, 5011]
+    assert not bridge.set_runes({"primaryStyleId": 8100, "subStyleId": 8200, "perkIds": "x"})
+    assert not bridge.set_runes(None)
+    assert seen == []
+    assert bridge.set_runes({"primaryStyleId": 8100, "subStyleId": 8200, "perkIds": perks})
+    assert len(seen) == 1 and list(seen[0].page.perk_ids) == perks
 
 
 def test_bridge_background_calls_the_window_and_never_raises(

@@ -9,10 +9,13 @@ Seguridad:
   ``Origin`` del websocket: una web abierta en tu navegador no puede leer la ventana.
 * Cabeceras estrictas (CSP sin recursos externos, sin incrustar en otras webs).
 * Los iconos solo se piden por id numérico y solo de los recursos del juego.
+* Por el canal, la ventana solo puede pedir otra página de runas (números que se validan
+  con los árboles del juego antes de escribirlos, y solo en la página de LoL Coach).
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import secrets
 from importlib.resources import files
@@ -27,6 +30,7 @@ from .presenter import State, UiPresenter
 
 log = logging.getLogger(__name__)
 
+MAX_COMMAND_SIZE = 2048  # una página de runas ocupa ~150 bytes
 STATIC_FILES = {"app.js": "text/javascript", "style.css": "text/css"}
 SECURITY_HEADERS = {
     "Content-Security-Policy": (
@@ -66,6 +70,7 @@ class UiServer:
         app.router.add_get("/ws", self._websocket)
         app.router.add_get(r"/icon/item/{item_id:\d{1,6}}.png", self._item_icon)
         app.router.add_get(r"/icon/champion/{champion_id:\d{1,6}}.png", self._champion_icon)
+        app.router.add_get(r"/icon/{kind:perk|style|spell}/{ident:\d{1,6}}.png", self._game_icon)
         self._app = app
         presenter.add_listener(self._broadcast)
 
@@ -136,9 +141,22 @@ class UiServer:
             async for message in ws:
                 if message.type == WSMsgType.ERROR:
                     break
+                if message.type == WSMsgType.TEXT:
+                    await self._command(message.data)
         finally:
             self._sockets.discard(ws)
         return ws
+
+    async def _command(self, data: str) -> None:
+        """Lo único que la ventana puede pedir por el canal: otra página de runas."""
+        if len(data) > MAX_COMMAND_SIZE:
+            return
+        try:
+            command = json.loads(data)
+        except ValueError:
+            return
+        if isinstance(command, dict) and command.get("type") == "setRunes":
+            await self._presenter.request_runes(command.get("page"))
 
     async def _broadcast(self, state: State) -> None:
         for ws in list(self._sockets):
@@ -154,6 +172,9 @@ class UiServer:
 
     async def _champion_icon(self, request: web.Request) -> web.Response:
         return await self._icon("champion", int(request.match_info["champion_id"]))
+
+    async def _game_icon(self, request: web.Request) -> web.Response:
+        return await self._icon(request.match_info["kind"], int(request.match_info["ident"]))
 
     async def _icon(self, kind: str, ident: int) -> web.Response:
         body = await self._icons.get(kind, ident)

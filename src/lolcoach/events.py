@@ -15,6 +15,7 @@ from enum import StrEnum
 
 from .builds.models import BuildPlan
 from .champselect.models import ChampSelectSnapshot, PlayerSlot
+from .gamedata.runes import RunePage
 from .ingame.advisor import Advice
 from .ingame.analysis import GameReport
 from .ingame.models import LiveGame
@@ -149,3 +150,38 @@ class LoadoutApplied:
     runes_applied: bool
     spells_applied: bool
     problems: tuple[str, ...] = ()
+    provisional: bool = False  # puestas al preseleccionar: al último pick se ajustan a los rivales
+
+
+class RunesBy(StrEnum):
+    """Quién ha puesto las runas (o los hechizos) que tienes ahora en el cliente."""
+
+    NOBODY = ""
+    PREVIEW = "preview"  # LoL Coach, al preseleccionar (provisionales)
+    COACH = "coach"  # LoL Coach, al hacerse el último pick
+    YOU_IN_APP = "you_in_app"  # tú, desde la ventana de LoL Coach
+    YOU_IN_CLIENT = "you_in_client"  # tú, en el cliente de LoL (se respetan)
+
+    @property
+    def is_yours(self) -> bool:
+        return self in (RunesBy.YOU_IN_APP, RunesBy.YOU_IN_CLIENT)
+
+
+@dataclass(frozen=True, slots=True)
+class LoadoutInClient:
+    """Lo que hay ahora en el cliente (lo que se ha escrito o lo que has cambiado tú)."""
+
+    champion_id: int
+    runes: RunePage | None
+    spells: tuple[int, int] | None
+    runes_by: RunesBy = RunesBy.NOBODY
+    spells_by: RunesBy = RunesBy.NOBODY
+    page_name: str | None = None
+    problem: str = ""
+
+
+@dataclass(frozen=True, slots=True)
+class RunesEditRequested:
+    """Desde la ventana: pon esta página de runas en el cliente."""
+
+    page: RunePage

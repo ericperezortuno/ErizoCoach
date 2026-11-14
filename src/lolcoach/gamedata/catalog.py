@@ -30,6 +30,7 @@ log = logging.getLogger(__name__)
 
 LOAD_ATTEMPTS = 3  # recién abierto, el cliente puede tardar en servir alguna lista
 LOAD_RETRY_DELAY = 2.0
+GAME_ASSETS = "/lol-game-data/assets/"  # solo iconos de los recursos del juego
 # Lo que se carga al conectar: (ruta, nombre para los avisos)
 STATIC_DATA = (
     (endpoints.CHAMPION_SUMMARY, "campeones"),
@@ -136,6 +137,7 @@ class GameData:
         self._perks: dict[int, str] = {}
         self._styles: dict[int, PerkStyle] = {}
         self._spells: dict[int, SummonerSpell] = {}
+        self._icons: dict[tuple[str, int], str] = {}  # ("perk"|"style"|"spell", id) -> ruta
         self._positions: dict[int, tuple[Position, ...]] = {}
         self._items: dict[int, Item] = {}
         self._alias_index: dict[str, int] = {}
@@ -203,6 +205,7 @@ class GameData:
                 for p in as_list(perks)
                 if isinstance(p, dict)
             }
+            self._set_icons("perk", perks)
         if (styles := loaded.get(endpoints.PERK_STYLES)) is not None:
             self._styles = {
                 style.id: style
@@ -212,8 +215,10 @@ class GameData:
                     if isinstance(s, dict)
                 )
             }
+            self._set_icons("style", as_dict(styles).get("styles"))
         if (spells := loaded.get(endpoints.SUMMONER_SPELLS)) is not None:
             self._spells = _parse_spells(spells)
+            self._set_icons("spell", spells)
         if (positions := loaded.get(endpoints.RECOMMENDED_POSITIONS)) is not None:
             self._positions = _parse_positions(positions)
         if (items := loaded.get(endpoints.ITEMS)) is not None:
@@ -229,6 +234,10 @@ class GameData:
             for s in (PerkStyle.from_json(x) for x in as_dict(data.get("perkstyles"))["styles"])
         }
         self._spells = _parse_spells(data.get("summonerSpells"))
+        self._icons = {}
+        self._set_icons("perk", data.get("perks"))
+        self._set_icons("style", as_dict(data.get("perkstyles")).get("styles"))
+        self._set_icons("spell", data.get("summonerSpells"))
         self._positions = _parse_positions(data.get("recommendedPositions"))
         self._items = _parse_items(data.get("items"))
         self._profiles = {
@@ -237,7 +246,21 @@ class GameData:
         }
         self._version = version
 
+    def _set_icons(self, kind: str, entries: Any) -> None:
+        """Rutas de los iconos; solo se aceptan recursos del juego."""
+        self._icons = {key: path for key, path in self._icons.items() if key[0] != kind}
+        for entry in as_list(entries):
+            if not isinstance(entry, dict):
+                continue
+            ident, path = as_int(entry.get("id")), as_str(entry.get("iconPath"))
+            if ident > 0 and path.startswith(GAME_ASSETS):
+                self._icons[(kind, ident)] = path
+
     # --- Consultas inmediatas ---------------------------------------------------
+
+    def icon_path(self, kind: str, ident: int) -> str | None:
+        """Ruta en el cliente del icono de una runa (``perk``), árbol (``style``) o hechizo."""
+        return self._icons.get((kind, ident))
 
     def champion(self, champion_id: int) -> Champion | None:
         return self._champions.get(champion_id)

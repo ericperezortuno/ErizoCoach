@@ -23,6 +23,7 @@ from lolcoach.events import (
     ClientDisconnected,
     GameflowPhaseChanged,
     LoadoutApplied,
+    LoadoutInClient,
     LoadoutPreview,
     LoadoutReady,
     MyChampionChanged,
@@ -54,6 +55,7 @@ EVENT_TYPES = (
     LoadoutReady,
     LoadoutApplied,
     LoadoutPreview,
+    LoadoutInClient,
     MyPickPreviewChanged,
 )
 
@@ -75,6 +77,7 @@ class Harness:
         client_ssl: ssl.SSLContext,
         *,
         settings: Settings | None = None,
+        hover_apply_delay: float = 30.0,  # en las pruebas, solo cuando se busca
     ) -> None:
         self.bus = EventBus()
         self.events: list[object] = []
@@ -99,6 +102,8 @@ class Harness:
             settings,
             page_check_delay=0.05,
             preview_delay=0.01,
+            hover_apply_delay=hover_apply_delay,
+            current_snapshot=lambda: self.tracker.snapshot,
         )
         self.builds = BuildService(self.bus, self.connector, self.gamedata, settings)
         self._task: asyncio.Task[None] | None = None
