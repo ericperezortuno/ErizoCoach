@@ -62,6 +62,15 @@ class MatchContext:
 
 
 @dataclass(frozen=True, slots=True)
+class RuneOption:
+    """Una de las páginas que se ofrecen para elegir (piedras angulares distintas)."""
+
+    page: RunePage
+    detail: str  # p. ej. "La más jugada · 412 partidas · 53 % de victorias"
+    recommended: bool = False  # la que LoL Coach pone por defecto
+
+
+@dataclass(frozen=True, slots=True)
 class Loadout:
     """Runas y hechizos recomendados, con la explicación de cada decisión."""
 
@@ -74,6 +83,14 @@ class Loadout:
     adjustments: tuple[str, ...] = ()  # cambios sobre la base y su motivo
     notes: tuple[str, ...] = ()  # avisos (enemigos desconocidos, rival dudoso...)
     source: str = ""  # de dónde sale la base: estadísticas o recomendación de Riot
+    options: tuple[RuneOption, ...] = ()  # hasta 3 páginas para elegir (la 1.ª, la recomendada)
+
+
+@dataclass(frozen=True, slots=True)
+class StatsRuneOption:
+    page: RunePage
+    games: int
+    wins: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,3 +105,7 @@ class StatsLoadout:
 
 class LoadoutStats(Protocol):
     def loadout_for(self, champion_id: int, position: Position) -> StatsLoadout | None: ...
+
+    def rune_options_for(
+        self, champion_id: int, position: Position
+    ) -> tuple[StatsRuneOption, ...]: ...

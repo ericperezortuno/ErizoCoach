@@ -27,7 +27,7 @@ from ..gamedata.runes import (
 )
 from ..lcu.client import LcuClient
 from ..models import Position, QueueInfo
-from .models import LANE_CONFIDENCE, Loadout, LoadoutStats, MatchContext
+from .models import LANE_CONFIDENCE, Loadout, LoadoutStats, MatchContext, RuneOption
 from .positions import (
     SUMMONERS_RIFT,
     PositionHint,
@@ -38,6 +38,8 @@ from .positions import (
 from .rules import adjust_runes, adjust_spells, keep_flash_key
 
 log = logging.getLogger(__name__)
+
+RUNE_OPTIONS = 3  # páginas para elegir en la ventana
 
 
 class LoadoutRecommender:
@@ -146,7 +148,46 @@ class LoadoutRecommender:
             adjustments=(*rune_reasons, *spell_reasons),
             notes=_notes(ctx, gd),
             source=source,
+            options=self._options(runes, pages, ctx) if runes is not None else (),
         )
+
+    def _options(
+        self, chosen: RunePage, pages: tuple[RecommendedPage, ...], ctx: MatchContext
+    ) -> tuple[RuneOption, ...]:
+        """Hasta 3 páginas con piedras angulares distintas: la recomendada y las siguientes más
+        jugadas en alto elo; si faltan, las recomendaciones de Riot. Todas con los mismos
+        ajustes a los rivales y validadas."""
+        gd = self._gamedata
+        candidates: list[tuple[RunePage, str]] = []
+        if ctx.on_summoners_rift and self._stats is not None:
+            for found in self._stats.rune_options_for(ctx.champion_id, ctx.position):
+                rate = round(100 * found.wins / found.games) if found.games else 0
+                candidates.append(
+                    (found.page, f"{found.games} partidas de alto elo · {rate} % de victorias")
+                )
+        mine = [p for p in pages if p.position == ctx.position] or list(pages)
+        for recommended in mine:
+            label = f" · {recommended.descriptor}" if recommended.descriptor else ""
+            candidates.append((recommended.page, f"Recomendación de Riot{label}"))
+
+        def key(page: RunePage) -> tuple[int, int]:
+            return page.primary_style_id, page.keystone_id
+
+        first = next((d for p, d in candidates if key(p) == key(chosen)), "")
+        options = [RuneOption(chosen, f"Recomendada · {first}" if first else "Recomendada", True)]
+        seen = {key(chosen)}
+        for page, detail in candidates:
+            if len(options) >= RUNE_OPTIONS or key(page) in seen:
+                continue
+            page = _secondary_in_row_order(page, gd.styles)
+            adjusted, _ = adjust_runes(page, ctx, gd)
+            if validate_page(adjusted, gd.styles):
+                adjusted = page  # el ajuste no encaja en esta página: tal cual
+            if validate_page(adjusted, gd.styles):
+                continue  # p. ej., runas de un parche anterior
+            seen.add(key(page))
+            options.append(RuneOption(adjusted, detail))
+        return tuple(options)
 
     def _stats_base(
         self, champion_id: int, position: Position

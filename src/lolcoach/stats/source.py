@@ -13,7 +13,7 @@ from ..builds.archetypes import SUMMONERS_RIFT, BuildSource, RuleBasedSource
 from ..builds.models import BaseBuild
 from ..gamedata.catalog import Champion, ChampionProfile
 from ..gamedata.runes import RunePage
-from ..loadout.models import StatsLoadout
+from ..loadout.models import StatsLoadout, StatsRuneOption
 from ..models import Position
 from .aggregate import ChampionStats
 from .extract import RUNE_FIELDS
@@ -71,6 +71,17 @@ class StatsBuildSource:
         page = RunePage(entry.runes[0], entry.runes[1], tuple(entry.runes[2:]))
         spells = (entry.spells[0], entry.spells[1])
         return StatsLoadout(page, spells, entry.loadout_games, self.patch)
+
+    def rune_options_for(self, champion_id: int, position: Position) -> tuple[StatsRuneOption, ...]:
+        """Las páginas de las piedras angulares más jugadas (vacío sin partidas suficientes)."""
+        entry = self.entry_for(champion_id, position)
+        if entry is None or entry.loadout_games < self._min_games:
+            return ()
+        return tuple(
+            StatsRuneOption(RunePage(o[2], o[3], tuple(o[4:])), games=o[0], wins=o[1])
+            for o in entry.rune_options
+            if len(o) == 2 + RUNE_FIELDS
+        )
 
     def base_build(
         self,

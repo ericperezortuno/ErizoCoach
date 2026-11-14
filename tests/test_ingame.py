@@ -470,3 +470,42 @@ async def test_urgent_defense_does_not_flip_while_the_threat_is_still_strong() -
 
     assert again(first.threat_id) == ZHONYA  # sigue fuerte: se mantiene
     assert again(0) == MORELLO  # sin el aviso anterior, «fuerte» no basta (no es tu rival)
+
+
+# --- Objetos que se transforman (mejoras sin comprar) ---------------------------------------
+# El Bastón del arcángel se convierte en Abrazo del serafín al cargarse de maná: el juego
+# solo enseña el nuevo, y antes LoL Coach seguía pidiendo el Bastón.
+
+ARCHANGEL, SERAPH, MANAMUNE, MURAMANA = 3003, 3040, 3004, 3042
+
+
+async def test_an_upgraded_item_counts_as_its_base_item() -> None:
+    plan = dataclasses.replace(
+        await ahri_plan(),
+        core=(ARCHANGEL, SHADOWFLAME, RABADON),
+        full=(SORCERER, ARCHANGEL, SHADOWFLAME, RABADON, MORELLO, ZHONYA),
+    )
+    advice = advice_for(plan, standard_game(my_items=(SORCERER, SERAPH)))
+    assert [s.owned for s in advice.build][:3] == [True, True, False]
+    assert advice.next_purchase is not None and advice.next_purchase.item_id == SHADOWFLAME
+
+
+def test_upgrade_chains_are_followed() -> None:
+    from lolcoach.gamedata.items import with_upgraded
+
+    gd = loaded_gamedata()
+    assert gd.item(SERAPH).upgraded_from == ARCHANGEL  # type: ignore[union-attr]
+    assert gd.item(MURAMANA).upgraded_from == MANAMUNE  # type: ignore[union-attr]
+    assert with_upgraded((SERAPH, 1056), gd.item) == {SERAPH, ARCHANGEL, 1056}
+    # Objeto de apoyo: Botín universal ← Brújula rúnica ← Atlas mundial
+    assert with_upgraded((3867,), gd.item) == {3867, 3866, 3865}
+    assert with_upgraded((ARCHANGEL,), gd.item) == {ARCHANGEL}  # el de base no es el mejorado
+
+
+def test_a_broken_upgrade_loop_in_the_data_does_not_hang() -> None:
+    from lolcoach.gamedata.items import Item, with_upgraded
+
+    def fake(item_id: int) -> Item:  # 1 ← 2 ← 1: datos rotos
+        return Item(item_id, "x", 0, (), (), frozenset(), False, False, "", "", "", 3 - item_id)
+
+    assert with_upgraded((1,), fake) == {1, 2}

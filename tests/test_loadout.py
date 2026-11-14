@@ -9,7 +9,7 @@ from lolcoach.champselect.parser import parse_session
 from lolcoach.gamedata.catalog import ChampionProfile, SummonerSpell
 from lolcoach.gamedata.runes import RecommendedPage, RunePage, validate_page
 from lolcoach.loadout import recommender as recommender_module
-from lolcoach.loadout.models import Loadout, MatchContext, StatsLoadout
+from lolcoach.loadout.models import Loadout, MatchContext, StatsLoadout, StatsRuneOption
 from lolcoach.loadout.positions import infer_positions, lane_opponent, resolve_my_position
 from lolcoach.loadout.recommender import LoadoutRecommender
 from lolcoach.loadout.rules import (
@@ -263,6 +263,18 @@ class FakeStats:
         page = RunePage(8200, 8100, (8992, 8226, 8210, 8237, 8106, 8139, 5005, 5008, 5001))
         return StatsLoadout(page, (4, 12), 80, "16.22")
 
+    def rune_options_for(self, champion_id: int, position: Position) -> tuple:
+        if champion_id != AHRI:
+            return ()
+        comet = RunePage(8200, 8100, (8992, 8226, 8210, 8237, 8106, 8139, 5005, 5008, 5001))
+        electrocute = RunePage(8100, 8200, (8112, 8139, 8140, 8106, 8226, 8210, 5005, 5008, 5001))
+        stale = RunePage(8200, 8200, (8214,) * 9)  # de un parche anterior: se descarta
+        return (
+            StatsRuneOption(comet, 50, 27),
+            StatsRuneOption(stale, 20, 10),
+            StatsRuneOption(electrocute, 30, 14),
+        )
+
 
 async def test_stats_runes_and_spells_are_the_base_when_available() -> None:
     stats = FakeStats()
@@ -283,6 +295,9 @@ async def test_riot_page_is_used_without_stats_or_with_invalid_stats() -> None:
         def loadout_for(self, _champion: int, _position: Position) -> StatsLoadout:
             page = RunePage(8200, 8200, (8992,) * 9)  # runas que ya no existen
             return StatsLoadout(page, (4, 12), 80, "16.21")
+
+        def rune_options_for(self, _champion: int, _position: Position) -> tuple:
+            return ()
 
     recommender = LoadoutRecommender(loaded_gamedata(), stats=BrokenStats())
     loadout = await recommender.recommend(FixtureClient(), game(AHRI, "middle", []), SR)

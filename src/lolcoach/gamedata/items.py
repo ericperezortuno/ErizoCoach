@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -25,6 +25,8 @@ class Item:
     required_champion: str
     required_ally: str
     icon_path: str = ""  # ruta del icono en el cliente (/lol-game-data/assets/...)
+    # Objeto del que sale al transformarse (Abrazo del serafín ← Bastón del arcángel); 0 = ninguno
+    upgraded_from: int = 0
 
     @classmethod
     def from_json(cls, data: Mapping[str, Any]) -> Item:
@@ -40,6 +42,7 @@ class Item:
             required_champion=as_str(data.get("requiredChampion")),
             required_ally=as_str(data.get("requiredAlly")),
             icon_path=as_str(data.get("iconPath")),
+            upgraded_from=as_int(data.get("specialRecipe")),
         )
 
     @property
@@ -56,3 +59,21 @@ class Item:
     @property
     def is_boots(self) -> bool:
         return "Boots" in self.categories
+
+
+MAX_UPGRADE_CHAIN = 5  # Atlas mundial → Brújula rúnica → Botín universal... (y contra bucles)
+
+
+def with_upgraded(owned: Iterable[int], item: Callable[[int], Item | None]) -> set[int]:
+    """Lo que tienes, contando también los objetos de los que salen tus objetos mejorados:
+    con el Abrazo del serafín ya tienes tu Bastón del arcángel (se transformó)."""
+    result: set[int] = set()
+    for item_id in owned:
+        current: int = item_id
+        for _ in range(MAX_UPGRADE_CHAIN + 1):
+            if current <= 0 or current in result:
+                break
+            result.add(current)
+            found = item(current)
+            current = found.upgraded_from if found is not None else 0
+    return result

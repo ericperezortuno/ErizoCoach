@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.11.1 (runas con imágenes y editables en la ventana, se ponen al mantener la preselección 5 s, compras con el núcleo primero)
+## Estado: v0.12.1 (3 páginas de runas para elegir, objetos mejorados reconocidos, runas editables en la ventana, preselección de 5 s)
 
 ### Lo que hace
 
@@ -18,6 +18,11 @@ dice en tu segundo monitor qué comprar y quién va fuerte.
 - **Cambia las runas desde la ventana**: la página se ve con sus imágenes y, con «Cambiar
   runas», eliges otras como en el cliente; se escriben al momento en tu página «LoL Coach».
   Lo que cambies tú (en la ventana o en el cliente) no se vuelve a tocar para ese campeón.
+- **3 páginas de runas para elegir**: la recomendada y las otras piedras angulares más jugadas
+  en alto elo con tu campeón y posición (con sus partidas y % de victorias); si faltan datos,
+  las recomendaciones de Riot. Tocar una la pone en el cliente.
+- **Objetos mejorados**: si tu Bastón del arcángel ya es Abrazo del serafín (o tu Manamune,
+  Muramana, etc.), cuenta como comprado y no te lo vuelve a pedir.
 - **Previsión al preseleccionar**: en cuanto preseleccionas o miras un campeón, la ventana
   enseña las runas y hechizos que le pondrá (para tu posición asignada), sin tocar nada aún.
 - **Al hacerse el último pick, te pone las runas y los hechizos** (en el mismo segundo):

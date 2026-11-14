@@ -8829,7 +8829,8 @@
    "inStore": false,
    "displayInItemSets": true,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 2526
   },
   {
    "id": 3001,
@@ -9298,7 +9299,8 @@
    "inStore": false,
    "displayInItemSets": true,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3003
   },
   {
    "id": 3041,
@@ -9336,7 +9338,8 @@
    "inStore": false,
    "displayInItemSets": true,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3004
   },
   {
    "id": 3044,
@@ -10425,7 +10428,8 @@
    "inStore": false,
    "displayInItemSets": true,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3119
   },
   {
    "id": 3123,
@@ -11772,7 +11776,8 @@
    "inStore": false,
    "displayInItemSets": false,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3850
   },
   {
    "id": 3853,
@@ -11790,7 +11795,8 @@
    "inStore": false,
    "displayInItemSets": false,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3851
   },
   {
    "id": 3854,
@@ -11828,7 +11834,8 @@
    "inStore": false,
    "displayInItemSets": false,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3854
   },
   {
    "id": 3857,
@@ -11846,7 +11853,8 @@
    "inStore": false,
    "displayInItemSets": false,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3855
   },
   {
    "id": 3858,
@@ -11884,7 +11892,8 @@
    "inStore": false,
    "displayInItemSets": false,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3858
   },
   {
    "id": 3860,
@@ -11902,7 +11911,8 @@
    "inStore": false,
    "displayInItemSets": false,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3859
   },
   {
    "id": 3862,
@@ -11940,7 +11950,8 @@
    "inStore": false,
    "displayInItemSets": false,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3862
   },
   {
    "id": 3864,
@@ -11958,7 +11969,8 @@
    "inStore": false,
    "displayInItemSets": false,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3863
   },
   {
    "id": 3865,
@@ -11996,7 +12008,8 @@
    "inStore": false,
    "displayInItemSets": true,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3865
   },
   {
    "id": 3867,
@@ -12021,7 +12034,8 @@
    "inStore": false,
    "displayInItemSets": true,
    "requiredChampion": "",
-   "requiredAlly": ""
+   "requiredAlly": "",
+   "specialRecipe": 3866
   },
   {
    "id": 3869,

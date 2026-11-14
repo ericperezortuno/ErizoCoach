@@ -25,7 +25,7 @@ from pathlib import Path
 import aiohttp
 
 from ..models import LANE_POSITIONS
-from .aggregate import ChampionStats, Stats, parse_payload, stats_payload
+from .aggregate import RUNE_OPTIONS, ChampionStats, Stats, parse_payload, stats_payload
 from .extract import RUNE_FIELDS
 
 log = logging.getLogger(__name__)
@@ -100,6 +100,18 @@ def is_sane(entry: ChampionStats) -> bool:
         and all(0 < r < MAX_ID for r in entry.runes)
         and len(entry.spells) in (0, 2)
         and all(0 < s < MAX_ID for s in entry.spells)
+        and len(entry.rune_options) <= RUNE_OPTIONS
+        and all(_sane_option(option, entry.loadout_games) for option in entry.rune_options)
+    )
+
+
+def _sane_option(option: tuple[int, ...], loadout_games: int) -> bool:
+    """(partidas, victorias, 11 campos de runas)."""
+    return (
+        len(option) == 2 + RUNE_FIELDS
+        and 0 < option[0] <= loadout_games
+        and 0 <= option[1] <= option[0]
+        and all(0 < r < MAX_ID for r in option[2:])
     )
 
 

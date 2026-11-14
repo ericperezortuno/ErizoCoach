@@ -39,7 +39,7 @@ from ..builds.rules import (
     item_for,
 )
 from ..gamedata.catalog import DamageType
-from ..gamedata.items import Item
+from ..gamedata.items import Item, with_upgraded
 from .analysis import GameReport, PlayerReport, Strength
 
 BASIC_BOOTS = 1001
@@ -101,7 +101,8 @@ def advise(
     """``game_time``: segundos de partida (decide si sigue la fase de líneas).
     ``boots_out_of_sight``: tienes botas que la API no muestra (espacio de la misión de rol).
     ``keep_threat``: campeón al que respondía el consejo anterior (``Advice.threat_id``)."""
-    owned = set(owned_ids)
+    # Un objeto mejorado cuenta como el suyo de base (Abrazo del serafín = Bastón del arcángel)
+    owned = with_upgraded(owned_ids, item)
     has_boots = boots_out_of_sight or any(_is_upgraded_boots(item(i)) for i in owned)
     laning = game_time < LANING_PHASE_END
 

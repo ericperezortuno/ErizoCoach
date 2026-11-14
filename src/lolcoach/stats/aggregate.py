@@ -36,6 +36,12 @@ TRINKETS = frozenset({3340, 3363, 3364})  # guardianes/lentes: no forman parte d
 LEGENDARY_MIN_PRICE = 2200
 CHAIN_MIN_SUPPORT = 5  # partidas mínimas para fiarse de la cadena del núcleo
 FORMAT_VERSION = 2  # 2: con runas y hechizos
+# Las opciones de runas son un campo nuevo dentro del formato 2: las versiones anteriores de
+# la app lo ignoran (el paquete compartido les sigue valiendo). Esta marca solo sirve para
+# recalcular una caché local hecha antes de que existieran.
+RUNE_OPTIONS_VERSION = 1
+RUNE_OPTIONS = 3  # piedras angulares distintas que se ofrecen
+MIN_OPTION_GAMES = 5  # menos partidas que esto con una piedra angular es ruido
 
 ItemLookup = Callable[[int], Item | None]
 
@@ -54,6 +60,9 @@ class ChampionStats:
     loadout_games: int = 0  # partidas con runas y hechizos (las antiguas no los tienen)
     runes: tuple[int, ...] = ()  # (árbol principal, secundario, 9 runas); () = sin datos
     spells: tuple[int, ...] = ()  # (hechizo D, hechizo F)
+    # Hasta 3 páginas con piedras angulares distintas, de más a menos jugada:
+    # (partidas, victorias, árbol principal, secundario, 9 runas)
+    rune_options: tuple[tuple[int, ...], ...] = ()
 
 
 def is_legendary(item: Item | None) -> bool:
@@ -128,6 +137,7 @@ def _summarize(key: tuple[int, str], games: list[PlayerBuild], item: ItemLookup)
         loadout_games=len(with_loadout),
         runes=_rune_page(with_loadout),
         spells=_spell_pair(with_loadout),
+        rune_options=_rune_options(with_loadout),
     )
 
 
@@ -141,8 +151,28 @@ def _rune_page(games: list[PlayerBuild]) -> tuple[int, ...]:
     if not games:
         return ()
     # runes = (principal, secundario, angular, fila 1, fila 2, fila 3, sec. 1, sec. 2, 3 fragmentos)
-    keystone = _most_common((g.runes[0], g.runes[2]) for g in games)
-    same = [g for g in games if (g.runes[0], g.runes[2]) == keystone]
+    keystone = _most_common(_keystone(g) for g in games)
+    return _page_with_keystone([g for g in games if _keystone(g) == keystone], keystone)
+
+
+def _keystone(game: PlayerBuild) -> tuple[int, int]:
+    return game.runes[0], game.runes[2]  # (árbol principal, piedra angular)
+
+
+def _rune_options(games: list[PlayerBuild]) -> tuple[tuple[int, ...], ...]:
+    """Las páginas de las piedras angulares más jugadas, con sus partidas y victorias."""
+    options: list[tuple[int, ...]] = []
+    for keystone, count in Counter(_keystone(g) for g in games).most_common(RUNE_OPTIONS):
+        if count < MIN_OPTION_GAMES:
+            break
+        same = [g for g in games if _keystone(g) == keystone]
+        wins = sum(g.win for g in same)
+        options.append((count, wins, *_page_with_keystone(same, keystone)))
+    return tuple(options)
+
+
+def _page_with_keystone(same: list[PlayerBuild], keystone: tuple[int, int]) -> tuple[int, ...]:
+    """La página más habitual entre las partidas que llevan esa piedra angular."""
     rows = [_most_common(g.runes[i] for g in same) for i in (3, 4, 5)]
     sub = _most_common(g.runes[1] for g in same)
     with_sub = [g for g in same if g.runes[1] == sub]
@@ -197,6 +227,7 @@ def stats_payload(
         "patch": patch,
         "matches": matches,
         "loadouts": loadouts,  # partidas con runas y hechizos (para saber si hay que recalcular)
+        "rune_options": RUNE_OPTIONS_VERSION,
         "generated": int(time.time()),
         "builds": {
             f"{champion}:{position}": {
@@ -247,6 +278,7 @@ def is_fresh(path: Path, matches: int, loadouts: int) -> bool:
         payload.get("format") == FORMAT_VERSION
         and as_int(payload.get("matches")) == matches
         and as_int(payload.get("loadouts")) == loadouts
+        and payload.get("rune_options") == RUNE_OPTIONS_VERSION
     )
 
 
@@ -279,4 +311,9 @@ def _entry(raw: Mapping[str, Any]) -> ChampionStats:
         loadout_games=as_int(raw.get("loadout_games")),
         runes=tuple(as_int(r) for r in as_list(raw.get("runes"))),
         spells=tuple(as_int(s) for s in as_list(raw.get("spells"))),
+        rune_options=tuple(
+            tuple(as_int(n) for n in option)
+            for option in as_list(raw.get("rune_options"))
+            if isinstance(option, list)
+        ),
     )

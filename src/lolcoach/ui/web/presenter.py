@@ -220,6 +220,14 @@ class UiPresenter:
             "status": status,
             "problem": here.problem if here is not None else "",
             "editable": runes is not None,
+            "options": [
+                {
+                    "page": self._page(option.page),
+                    "detail": option.detail,
+                    "recommended": option.recommended,
+                }
+                for option in loadout.options
+            ],
             "laneOpponent": (
                 f"{gd.champion_name(guess.champion_id)} ({round(guess.probability * 100)} %)"
                 if guess and guess.probability >= LANE_CONFIDENCE

@@ -384,6 +384,7 @@ function renderLoadout(loadout, state) {
   }
   if (loadout.laneOpponent) children.push(el("div", { class: "muted small", text: `Rival de línea probable: ${loadout.laneOpponent}` }));
   const canEdit = Boolean(loadout.editable && catalog && page && state.connected && state.phase === "ChampSelect");
+  if (loadout.options && loadout.options.length > 1) children.push(renderRuneOptions(loadout.options, page, canEdit));
   if (canEdit) {
     const toggle = el("button", {
       class: "ghost edit-toggle", type: "button", "data-focus-key": "edit-toggle",
@@ -400,6 +401,33 @@ function renderLoadout(loadout, state) {
   if (extra.length) children.push(bulletList(extra));
   return card(loadout.preview && !loadout.runesBy ? "Runas y hechizos (previsión)" : "Runas y hechizos", children,
     { className: "loadout" });
+}
+
+// Hasta 3 páginas con piedras angulares distintas: tocar una la pone en el cliente.
+function renderRuneOptions(options, page, canEdit) {
+  const buttons = options.map((option, index) => {
+    const choice = pageFromState(option.page);
+    const selected = Boolean(page && samePerks(choice, page));
+    const keystone = option.page.keystone;
+    const button = el("button", {
+      type: "button", class: classes("rune-choice", selected && "selected"),
+      "aria-pressed": selected ? "true" : "false", disabled: canEdit ? null : "true",
+      "data-focus-key": `option:${index}`,
+      title: canEdit ? `Poner ${keystone.name} en el cliente` : keystone.name,
+    }, [
+      gameIcon("perk", keystone.id, "", "choice-keystone"),
+      el("span", { class: "choice-text" }, [
+        el("span", { class: "choice-name", text: keystone.name }),
+        el("span", { class: "choice-detail", text: option.detail }),
+      ]),
+    ]);
+    if (canEdit) button.addEventListener("click", () => { if (!selected) sendRunes(choice); });
+    return button;
+  });
+  return el("div", { class: "rune-choices" }, [
+    el("div", { class: "section-label", text: canEdit ? "Elige una de estas páginas" : "Otras páginas posibles" }),
+    el("div", { class: "choice-row", role: "group", "aria-label": "Páginas de runas para elegir" }, buttons),
+  ]);
 }
 
 function styleOf(catalog, id) {
