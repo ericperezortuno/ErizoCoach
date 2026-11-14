@@ -622,7 +622,11 @@ function renderPurchase(game) {
     setText("announce", `Compra ahora: ${next.name}. ${next.canBuy ? "Te llega el oro." : `Te faltan ${next.remaining} de oro.`}`);
   }
 
-  const icon = itemIcon(next, { big: true });
+  // Objetos iniciales: el principal en grande y lo demás (pociones...) al lado, con su cantidad.
+  const icon = next.starting && next.starting.length > 1
+    ? el("span", { class: "starting-icons" },
+      next.starting.map((s, i) => itemIcon(s, { big: i === 0, count: s.count })))
+    : itemIcon(next, { big: true });
   const name = el("div", { class: "name", text: next.name });
   const verdict = next.canBuy
     ? el("div", { class: "verdict ok", text: "Te llega el oro: ¡cómpralo!" })
@@ -711,14 +715,23 @@ function renderPlayers(players, me, side) {
       el("span", { text: `Nv ${p.level}` }),
       p.dead && p.respawn ? el("span", { class: "respawn", text: `reaparece en ${p.respawn} s` }) : null,
     ]);
-    const goldClass = p.goldDiff > 400 ? "gold up" : p.goldDiff < -400 ? "gold down" : "gold";
+    // Frente a su rival de posición; si no se sabe quién es (otro modo), frente a la media.
+    const vsLane = p.laneGoldDiff !== null && p.laneGoldDiff !== undefined;
+    const diff = vsLane ? p.laneGoldDiff : p.goldDiff;
+    const goldClass = diff > 400 ? "gold up" : diff < -400 ? "gold down" : "gold";
+    const goldTitle = vsLane
+      ? `Oro en objetos frente a ${p.laneRival}, su rival de posición`
+      : "Oro en objetos frente a la media de la partida";
     const badge = el("span", { class: `badge ${p.strength}`, text: p.strengthLabel });
     const row = el("li", { class: classes("player", p.strength, p.dead && "dead") }, [
       championIcon(p.championId, p.name),
       el("div", { class: "who" }, [el("div", { class: "title" }, [p.name, ...tags]), stats]),
       el("div", { class: "right" }, [
         badge,
-        el("span", { class: goldClass, title: "Oro en objetos frente a la media de la partida", text: `${goldText(p.goldDiff)} oro` }),
+        el("span", { class: goldClass, title: goldTitle }, [
+          `${goldText(diff)} oro`,
+          vsLane ? el("small", { class: "versus", text: ` vs ${p.laneRival}` }) : null,
+        ]),
       ]),
     ]);
 

@@ -451,6 +451,7 @@ main > .wide { grid-column: 1 / -1; }
 }
 
 .buy { display: flex; gap: 14px; align-items: flex-start; }
+.starting-icons { display: flex; align-items: flex-end; gap: 8px; flex: none; }
 .buy-body { flex: 1; min-width: 0; max-width: 620px; }
 
 .buy .name,
@@ -615,6 +616,7 @@ main > .wide { grid-column: 1 / -1; }
 }
 .gold.up { color: var(--orange); }
 .gold.down { color: var(--blue-text); }
+.gold .versus { font: 400 11px/1.2 var(--font-small); color: var(--muted); }
 
 .tag {
   font: 600 11px/1 var(--font-small);

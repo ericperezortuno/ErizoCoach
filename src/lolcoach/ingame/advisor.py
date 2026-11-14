@@ -2,6 +2,8 @@
 
 Orden de prioridad:
 
+0. **Objetos iniciales**: al empezar la partida, con el inventario vacío, todo lo que se
+   compra de inicio (Anillo de Doran + 2 pociones...), según tu build.
 1. **Antisanación barata** (la única excepción al núcleo): si quien se cura mucho lo
    pide, solo su componente (Orbe del olvido, Llamada del verdugo...), no el objeto
    entero. En fase de líneas, solo si ese enemigo está en tu línea.
@@ -28,7 +30,7 @@ from collections import Counter
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
-from ..builds.models import BuildPlan, SituationalItem
+from ..builds.models import BuildPlan, ItemCount, SituationalItem
 from ..builds.rules import (
     ANTI_HEAL_COMPONENTS,
     ANTI_HEAL_ITEMS,
@@ -50,6 +52,10 @@ MAX_COMPONENTS = 3
 # Se compran sueltos a propósito: no cuentan como «objeto empezado»
 _LOOSE_COMPONENTS = frozenset({BASIC_BOOTS, *(c for c in ANTI_HEAL_COMPONENTS.values() if c)})
 STARTED = "termina el objeto que has empezado"
+# Hasta aquí, con el inventario vacío, toca comprar lo inicial (luego ya no tiene sentido:
+# quien no compra al empezar es que ha vendido todo o no ha podido)
+STARTING_WINDOW = 150
+STARTING_REASON = "objetos iniciales: cómpralos antes de salir de la base"
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +65,9 @@ class PurchaseAdvice:
     remaining_gold: int  # lo que te falta, con tu oro actual
     can_buy_now: bool
     affordable_components: tuple[int, ...] = ()  # componentes que ya te puedes comprar
+    # Al empezar la partida: todo lo que se compra de inicio (Anillo de Doran + 2 pociones...).
+    # ``item_id`` es el principal; ``remaining_gold`` y ``can_buy_now``, del conjunto.
+    starting: tuple[ItemCount, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -119,6 +128,10 @@ def advise(
     def chosen(item_id: int, reason: str, threat_id: int = 0) -> Advice:
         purchase = _purchase(item_id, reason, owned_ids, gold, item)
         return Advice(purchase, build, threat_id=threat_id)
+
+    # 0) Al empezar la partida, con el inventario vacío: los objetos iniciales
+    if plan.starting and game_time < STARTING_WINDOW and not _has_bought(owned_ids, item):
+        return Advice(_starting(plan.starting, gold, item), build)
 
     core_done = all(is_owned(i) for i in plan.core)
 
@@ -318,6 +331,27 @@ def _purchase(
         remaining_gold=max(round(cost - gold), 0),
         can_buy_now=gold >= cost,
         affordable_components=_affordable_components(target, set(owned_ids), gold, item),
+    )
+
+
+def _has_bought(owned_ids: tuple[int, ...], item: ItemLookup) -> bool:
+    """¿Tienes algo comprado? El abalorio (gratis) no cuenta."""
+    return any((found := item(i)) is not None and found.price_total > 0 for i in owned_ids)
+
+
+def _starting(starting: tuple[ItemCount, ...], gold: float, item: ItemLookup) -> PurchaseAdvice:
+    def price(entry: ItemCount) -> int:
+        found = item(entry.item_id)
+        return found.price_total if found is not None else 0
+
+    main = max(starting, key=price)  # el Anillo de Doran, no las pociones
+    total = sum(price(entry) * entry.count for entry in starting)
+    return PurchaseAdvice(
+        item_id=main.item_id,
+        reason=STARTING_REASON,
+        remaining_gold=max(round(total - gold), 0),
+        can_buy_now=gold >= total,
+        starting=starting,
     )
 
 

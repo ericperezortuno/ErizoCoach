@@ -344,7 +344,17 @@ class UiPresenter:
                     "remaining": purchase.remaining_gold,
                     "canBuy": purchase.can_buy_now,
                     "components": [self._item(c) for c in purchase.affordable_components],
+                    "starting": [
+                        self._item(s.item_id) | {"count": s.count} for s in purchase.starting
+                    ],
                 }
+                if purchase.starting:  # el precio y el nombre son los del conjunto
+                    starting = state["next"]["starting"]
+                    state["next"]["price"] = sum(s["price"] * s["count"] for s in starting)
+                    state["next"]["name"] = " + ".join(
+                        f"{s['count']} × {s['name']}" if s["count"] > 1 else s["name"]
+                        for s in starting
+                    )
         changes: State = {"game": state}
         # Sin selección (app abierta a mitad) o recalculada (llegan las estadísticas)
         if event.plan is not None and event.plan is not self._shown_plan:
@@ -387,11 +397,16 @@ class UiPresenter:
             "level": p.level,
             "itemGold": report.item_gold,
             "goldDiff": report.gold_vs_average,
+            # Frente a su rival de posición (el de su línea en el otro equipo)
+            "laneGoldDiff": report.gold_vs_lane_rival,
+            "laneRival": self._gd.champion_name(report.lane_rival_id)
+            if report.lane_rival_id
+            else "",
             "strength": report.strength.value,
             "strengthLabel": STRENGTH_LABELS[report.strength],
             "damage": DAMAGE_LABELS[report.damage_type],
             "lane": report.is_lane_opponent,
-            "position": POSITION_LABELS.get(p.position, ""),
+            "position": POSITION_LABELS.get(report.position, ""),
             "dead": p.is_dead,
             "respawn": round(p.respawn_timer),
             "items": [i.item_id for i in p.items],
@@ -408,7 +423,7 @@ def _by_lane(reports: Iterable[PlayerReport], order: Sequence[LivePlayer]) -> li
     return sorted(
         reports,
         key=lambda r: (
-            _LANE_RANK.get(r.player.position, len(LANE_POSITIONS)),
+            _LANE_RANK.get(r.position, len(LANE_POSITIONS)),
             seat.get(id(r.player), len(seat)),
         ),
     )

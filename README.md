@@ -4,7 +4,7 @@ Asistente local para League of Legends que te pone las runas, los hechizos de
 invocador y la build en la tienda, adaptados a cada partida, y durante la partida te
 dice en tu segundo monitor qué comprar y quién va fuerte.
 
-## Estado: v0.12.1 (3 páginas de runas para elegir, objetos mejorados reconocidos, runas editables en la ventana, preselección de 5 s)
+## Estado: v0.13.1 (objetos iniciales al empezar, oro frente a tu rival de posición, 3 páginas de runas para elegir, objetos mejorados reconocidos)
 
 ### Lo que hace
 
@@ -146,6 +146,10 @@ Muestra:
   - **Tu build**: lo que ya tienes marcado y lo siguiente resaltado.
   - **Tu equipo** (a la izquierda) y **Rivales** (a la derecha): KDA, súbditos, nivel, tipo
     de daño, «Tu rival» y una etiqueta **Muy fuerte / Fuerte / Normal / Por detrás**.
+  - **Oro frente a su rival de posición**: cada jugador muestra cuánto oro lleva en objetos
+    más o menos que el de su misma línea en el otro equipo (p. ej. «−3,1k oro vs Zed»). Si el
+    juego no dice las líneas (a ciegas, práctica), se deducen por campeón; fuera de la Grieta,
+    frente a la media de la partida.
   - Los dos equipos van **por línea** (superior, jungla, medio, inferior, apoyo), así que
     cada fila enfrenta a los dos jugadores de esa línea.
 
@@ -161,6 +165,8 @@ de sus objetos (60 %), su KDA (25 %) y su nivel (15 %) frente a la media de la p
 primeros 3 minutos no se etiqueta a nadie.
 
 **Qué comprar**, por este orden:
+0. **Objetos iniciales**: al empezar la partida, con el inventario vacío, todo lo de inicio
+   junto (p. ej. Anillo de Doran + 2 pociones), según tu build.
 1. **Antisanación barata**, la única que se adelanta al núcleo: solo el componente (Orbe del
    olvido, Llamada del verdugo...), nunca el objeto entero. En fase de líneas (hasta el
    14:00), solo si quien se cura está en tu línea.

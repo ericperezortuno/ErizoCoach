@@ -119,7 +119,12 @@ async def test_players_without_a_lane_go_last_in_game_order() -> None:
 
     game = dataclasses.replace(event.game, enemies=tuple(map(without_lane, event.game.enemies)))
     enemies = tuple(
-        dataclasses.replace(r, player=without_lane(r.player)) for r in event.report.enemies
+        dataclasses.replace(
+            r,
+            player=without_lane(r.player),
+            position=Position.NONE if r.player.champion_alias in unknown else r.position,
+        )
+        for r in event.report.enemies
     )
     report = dataclasses.replace(event.report, enemies=enemies)
     presenter = UiPresenter(EventBus(), loaded_gamedata())
@@ -238,3 +243,32 @@ async def test_icons_only_by_numeric_id(server: tuple[UiServer, EventBus]) -> No
         assert (await http.get(base + "/icon/item/..%2Fsecret.png")).status == 404
         # Sin cliente de LoL conectado no hay iconos (pero tampoco errores)
         assert (await http.get(base + "/icon/item/3157.png")).status == 404
+
+
+async def test_starting_items_are_shown_together() -> None:
+    gd = loaded_gamedata()
+    bus = EventBus()
+    presenter = UiPresenter(bus, gd)
+    plan = await BuildRecommender(gd).recommend_for(
+        FixtureClient(), 103, Position.MIDDLE, [122, 104, 238, 145, 16], 11
+    )
+    assert plan is not None
+    game = parse_all_game_data(standard_game(my_items=(), gold=500, game_time=3))
+    report = analyze(
+        game,
+        champion_id=gd.champion_id_by_alias,
+        item_price=lambda i: item.price_total if (item := gd.item(i)) else 0,
+        profiles=gd._profiles,
+        positions_for=gd.positions_for,
+        my_position=Position.MIDDLE,
+    )
+    assert game.me is not None
+    advice = advise(
+        plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
+        game_time=game.game_time,
+    )  # fmt: skip
+    await bus.publish(LiveGameUpdated(game, report, advice, plan))
+    shown = presenter.state["game"]["next"]
+    assert [s["id"] for s in shown["starting"]] == [s.item_id for s in plan.starting]
+    assert shown["price"] == sum(s["price"] * s["count"] for s in shown["starting"])
+    assert " + " in shown["name"] or len(plan.starting) == 1

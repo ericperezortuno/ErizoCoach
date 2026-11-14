@@ -509,3 +509,71 @@ def test_a_broken_upgrade_loop_in_the_data_does_not_hang() -> None:
         return Item(item_id, "x", 0, (), (), frozenset(), False, False, "", "", "", 3 - item_id)
 
     assert with_upgraded((1,), fake) == {1, 2}
+
+
+# --- Objetos iniciales --------------------------------------------------------------------
+
+TRINKET = 3340
+
+
+async def test_at_the_start_it_recommends_the_starting_items() -> None:
+    plan = await ahri_plan()
+    assert plan.starting
+    gd = loaded_gamedata()
+    total = sum(gd.item(s.item_id).price_total * s.count for s in plan.starting)  # type: ignore[union-attr]
+    for items in ((), (TRINKET,)):  # el abalorio es gratis: no cuenta como compra
+        advice = advice_for(plan, standard_game(my_items=items, gold=500, game_time=5))
+        purchase = advice.next_purchase
+        assert purchase is not None and purchase.starting == plan.starting
+        assert purchase.item_id == plan.starting[0].item_id  # el principal, no las pociones
+        assert "iniciales" in purchase.reason
+        assert purchase.can_buy_now == (total <= 500)
+        assert purchase.remaining_gold == max(total - 500, 0)
+
+
+async def test_after_the_start_the_build_takes_over() -> None:
+    plan = await ahri_plan()
+    bought = advice_for(plan, standard_game(my_items=(plan.starting[0].item_id,), game_time=40))
+    assert bought.next_purchase is not None and not bought.next_purchase.starting
+    late = advice_for(plan, standard_game(my_items=(), game_time=600))  # lo ha vendido todo
+    assert late.next_purchase is not None and not late.next_purchase.starting
+
+
+# --- Oro frente al rival de posición --------------------------------------------------------
+
+
+def test_each_player_is_compared_with_their_positional_rival() -> None:
+    _, report = report_for(standard_game(zed_kda=(5, 1, 2), zed_items=FED_ZED_ITEMS))
+    gd = loaded_gamedata()
+    players = [report.me, *report.allies, *report.enemies]
+    by_name = {r.player.champion_alias: r for r in players if r is not None}
+    pairs = [("Garen", "Darius"), ("LeeSin", "Graves"), ("Ahri", "Zed"),
+             ("Jinx", "Kaisa"), ("Thresh", "Soraka")]  # fmt: skip
+    for ally, enemy in pairs:
+        a, e = by_name[ally], by_name[enemy]
+        assert a.lane_rival_id == e.champion_id and e.lane_rival_id == a.champion_id
+        assert a.gold_vs_lane_rival == a.item_gold - e.item_gold
+        assert e.gold_vs_lane_rival == -a.gold_vs_lane_rival  # type: ignore[operator]
+    assert by_name["Zed"].gold_vs_lane_rival > 0  # type: ignore[operator]
+    assert gd.champion_name(by_name["Ahri"].lane_rival_id) == "Zed"
+
+
+def test_without_positions_from_the_game_they_are_deduced() -> None:
+    """A ciegas o en la práctica el juego no da líneas: se deducen por campeón."""
+    data = standard_game()
+    for player in data["allPlayers"]:
+        player["position"] = ""
+    _, report = report_for(data, my_position=Position.NONE)
+    by_name = {
+        r.player.champion_alias: r for r in [report.me, *report.allies, *report.enemies] if r
+    }
+    assert by_name["Garen"].position == Position.TOP
+    assert by_name["Jinx"].position == Position.BOTTOM
+    assert by_name["Thresh"].lane_rival_id == by_name["Soraka"].champion_id
+
+
+def test_other_modes_have_no_positional_rival() -> None:
+    data = standard_game()
+    data["gameData"]["mapNumber"] = 12  # ARAM: todos en la misma línea
+    _, report = report_for(data)
+    assert report.me is not None and report.me.gold_vs_lane_rival is None
