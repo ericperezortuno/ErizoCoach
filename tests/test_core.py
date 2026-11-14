@@ -107,6 +107,21 @@ def test_redacting_filter_hides_secrets() -> None:
     assert record.getMessage() == "token *** y cabecera Basic ***"
 
 
+def test_redacting_filter_also_hides_secrets_in_tracebacks() -> None:
+    """El texto del error (Traceback) se escribe aparte del mensaje: también se oculta."""
+    redactor = RedactingFilter()
+    redactor.add_secret("RGAPI-secreta")
+    try:
+        raise ValueError("fallo con RGAPI-secreta dentro")
+    except ValueError:
+        import sys
+
+        record = logging.LogRecord("x", logging.ERROR, __file__, 1, "error", (), sys.exc_info())
+    redactor.filter(record)
+    text = logging.Formatter().format(record)
+    assert "RGAPI-secreta" not in text and "***" in text and "ValueError" in text
+
+
 # --- Modelos ---------------------------------------------------------------------
 
 

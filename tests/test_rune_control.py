@@ -303,6 +303,15 @@ def test_rune_and_spell_icons_come_only_from_the_game() -> None:
     assert icons.path_for("spell", 4) == "/lol-game-data/assets/DATA/Flash.png"
     assert icons.path_for("perk", 4) is None  # cada tipo, por separado
     assert icons.path_for("evil", 8112) is None
+    # Rutas que intentan salir de los recursos del juego
+    gd._set_icons(
+        "perk",
+        [
+            {"id": 8112, "iconPath": "/lol-game-data/assets/../../lol-summoner/v1/x"},
+            {"id": 8139, "iconPath": "/lol-game-data/assets/x.png?redirect=/lol-login"},
+        ],
+    )
+    assert icons.path_for("perk", 8112) is None and icons.path_for("perk", 8139) is None
 
 
 # --- Cambiar los hechizos desde la ventana ---------------------------------------------------

@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <img alt="Versión 0.18.0" src="https://img.shields.io/badge/versi%C3%B3n-0.18.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.18.1" src="https://img.shields.io/badge/versi%C3%B3n-0.18.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
-  <img alt="396 pruebas" src="https://img.shields.io/badge/pruebas-396-4fd6a2?style=for-the-badge&labelColor=0c1b35">
+  <img alt="398 pruebas" src="https://img.shields.io/badge/pruebas-398-4fd6a2?style=for-the-badge&labelColor=0c1b35">
   <img alt="Solo la API oficial de Riot" src="https://img.shields.io/badge/API-solo%20la%20oficial%20de%20Riot-c8aa6e?style=for-the-badge&labelColor=0c1b35">
 </p>
 

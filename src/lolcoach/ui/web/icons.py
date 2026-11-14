@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
-from ...gamedata.catalog import GameData
+from ...gamedata.catalog import GameData, is_game_asset
 from ...lcu.client import LcuError
 from ...lcu.connector import LcuConnector
 
@@ -26,7 +26,8 @@ class IconProvider:
     def path_for(self, kind: str, ident: int) -> str | None:
         if kind == "item":
             item = self._gamedata.item(ident)
-            return item.icon_path if item and item.icon_path else None
+            path = item.icon_path if item else ""
+            return path if is_game_asset(path) else None
         if kind == "champion" and ident > 0:
             return CHAMPION_ICON.format(champion_id=ident)
         if kind in KINDS:

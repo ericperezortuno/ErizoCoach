@@ -262,3 +262,20 @@ async def test_the_window_shows_the_counters() -> None:
 
     await presenter._on_counters(CountersUpdated(Position.NONE, 0, ()))
     assert presenter.state["counters"] is None
+
+
+async def test_counters_survive_the_start_of_champ_select() -> None:
+    """Como en la app: el módulo de counters se avisa antes que la ventana. Si al empezar
+    (app abierta a mitad de selección) el rival ya había elegido, la ventana los borraba."""
+    bus = EventBus()
+    CounterService(
+        bus,
+        None,
+        positions_for,
+        zed_matchups(),
+        client=lambda: FakeClient(None),  # type: ignore[arg-type]
+    )
+    presenter = UiPresenter(bus, loaded_gamedata())
+    await bus.publish(ChampSelectStarted(draft(DARIUS, ZED), RANKED))
+    assert presenter.state["counters"] is not None
+    assert presenter.state["counters"]["enemy"]["name"] == "Zed"

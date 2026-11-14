@@ -31,13 +31,23 @@ class RedactingFilter(logging.Filter):
         if not self._secrets:
             return True
         message = record.getMessage()
-        redacted = message
-        for secret in self._secrets:
-            redacted = redacted.replace(secret, "***")
+        redacted = self._redact(message)
         if redacted != message:
             record.msg = redacted
             record.args = None
+        # También el texto del error (Traceback), que se escribe aparte del mensaje
+        if record.exc_info and not record.exc_text:
+            record.exc_text = logging.Formatter().formatException(record.exc_info)
+        if record.exc_text:
+            record.exc_text = self._redact(record.exc_text)
+        if record.stack_info:
+            record.stack_info = self._redact(record.stack_info)
         return True
+
+    def _redact(self, text: str) -> str:
+        for secret in self._secrets:
+            text = text.replace(secret, "***")
+        return text
 
 
 REDACTOR = RedactingFilter()

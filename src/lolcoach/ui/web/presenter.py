@@ -152,8 +152,10 @@ class UiPresenter:
         me = event.snapshot.me
         map_id = event.queue.map_id if event.queue and event.queue.map_id else SUMMONERS_RIFT
         rule = smite_rule(me.position if me else Position.NONE, map_id)
+        # Los counters no se borran aquí: el módulo de counters ya ha publicado los de esta
+        # selección (se le avisa antes; si ya había rival de línea, se perderían).
         await self._set(
-            champion=None, loadout=None, build=None, game=None, counters=None,
+            champion=None, loadout=None, build=None, game=None,
             spellCatalog=spells, spellRule=rule.value, smiteId=SMITE,
         )  # fmt: skip
 

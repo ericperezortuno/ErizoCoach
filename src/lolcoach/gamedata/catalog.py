@@ -31,6 +31,19 @@ log = logging.getLogger(__name__)
 LOAD_ATTEMPTS = 3  # recién abierto, el cliente puede tardar en servir alguna lista
 LOAD_RETRY_DELAY = 2.0
 GAME_ASSETS = "/lol-game-data/assets/"  # solo iconos de los recursos del juego
+
+
+def is_game_asset(path: str) -> bool:
+    """Ruta dentro de los recursos del juego (sin «..» para salir de ellos ni nada raro)."""
+    return (
+        path.startswith(GAME_ASSETS)
+        and ".." not in path
+        and "\\" not in path
+        and "?" not in path
+        and "#" not in path
+    )
+
+
 # Lo que se carga al conectar: (ruta, nombre para los avisos)
 STATIC_DATA = (
     (endpoints.CHAMPION_SUMMARY, "campeones"),
@@ -253,7 +266,7 @@ class GameData:
             if not isinstance(entry, dict):
                 continue
             ident, path = as_int(entry.get("id")), as_str(entry.get("iconPath"))
-            if ident > 0 and path.startswith(GAME_ASSETS):
+            if ident > 0 and is_game_asset(path):
                 self._icons[(kind, ident)] = path
 
     # --- Consultas inmediatas ---------------------------------------------------
