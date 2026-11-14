@@ -12,7 +12,7 @@ from lolcoach.gamedata.catalog import DamageType
 from lolcoach.ingame.advisor import advise, purchase_order
 from lolcoach.ingame.analysis import GameReport, Strength, analyze
 from lolcoach.ingame.models import LiveGame, parse_all_game_data
-from lolcoach.ingame.role_slot import RoleSlotBoots
+from lolcoach.ingame.role_slot import HiddenBoots, RoleSlotBoots
 from lolcoach.models import Position
 
 from .gamedata_fixture import FixtureClient, loaded_gamedata
@@ -348,6 +348,7 @@ async def test_other_boots_count_as_your_boots() -> None:
 # la partida en vivo no publica (solo da los espacios 0-6): desaparecen de la lista de objetos.
 
 KRAKEN, BERSERKER, BASIC_BOOTS, PICKAXE = 6672, 3006, 1001, 1037
+MAGICAL_FOOTWEAR = 2422  # Calzado ligeramente mágico (runa)
 
 
 async def kaisa_plan() -> BuildPlan:
@@ -358,10 +359,10 @@ async def kaisa_plan() -> BuildPlan:
     return plan
 
 
-def follow(*snapshots: dict) -> tuple[LiveGame, bool]:
-    """Pasa las lecturas en orden, como el monitor; devuelve la última y si hay botas ocultas."""
+def follow(*snapshots: dict) -> tuple[LiveGame, HiddenBoots]:
+    """Pasa las lecturas en orden, como el monitor; devuelve la última y las botas ocultas."""
     tracker = RoleSlotBoots(loaded_gamedata().item)
-    hidden = False
+    hidden = HiddenBoots.NONE
     game = parse_all_game_data(snapshots[0])
     for data in snapshots:
         game = parse_all_game_data(data)
@@ -370,13 +371,15 @@ def follow(*snapshots: dict) -> tuple[LiveGame, bool]:
     return game, hidden
 
 
-def bot_advice(plan: BuildPlan, data: dict, hidden: bool):
+def bot_advice(plan: BuildPlan, data: dict, hidden: HiddenBoots | bool):
+    """Como el monitor: unas botas de base ocultas cuentan como el componente."""
     gd = loaded_gamedata()
     game, report = report_for(data, my_position=Position.BOTTOM)
     assert game.me is not None
+    owned = game.me.item_ids + ((BASIC_BOOTS,) if hidden == HiddenBoots.BASIC else ())
     return advise(
-        plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
-        game_time=game.game_time, boots_out_of_sight=hidden,
+        plan, report, owned, game.current_gold, gd.item, gd.champion_name,
+        game_time=game.game_time, boots_out_of_sight=hidden in (True, HiddenBoots.UPGRADED),
     )  # fmt: skip
 
 
@@ -386,7 +389,7 @@ async def test_boots_moved_to_the_role_quest_slot_still_count() -> None:
     before = bot_game((1055, KRAKEN, BERSERKER), gold=400)
     after = bot_game((1055, KRAKEN), gold=700)  # misión completada: +300 de oro, botas fuera
     _, hidden = follow(before, after)
-    assert hidden
+    assert hidden == HiddenBoots.UPGRADED
     advice = bot_advice(plan, after, hidden)
     assert next(s for s in advice.build if s.item_id == BERSERKER).owned
     assert advice.next_purchase is not None and advice.next_purchase.item_id != BERSERKER
@@ -395,23 +398,73 @@ async def test_boots_moved_to_the_role_quest_slot_still_count() -> None:
     assert wrong.next_purchase is not None and wrong.next_purchase.item_id == BERSERKER
 
 
-async def test_basic_boots_moved_to_the_slot_count_as_your_boots() -> None:
-    """Con las botas básicas en ese espacio, la mejora también se compra allí, sin verse."""
-    _, hidden = follow(bot_game((1055, BASIC_BOOTS), gold=200), bot_game((1055,), gold=500))
-    assert hidden
+async def test_basic_boots_moved_to_the_slot_are_not_your_boots_yet() -> None:
+    """Unas Botas en ese espacio no completan tus botas (lo que pasaba): falta mejorarlas.
+    La mejora también se compra allí, sin verse: un gasto sin objeto nuevo la delata."""
+    plan = await kaisa_plan()
+    before, after = bot_game((1055, BASIC_BOOTS), gold=200), bot_game((1055,), gold=500)
+    _, hidden = follow(before, after)
+    assert hidden == HiddenBoots.BASIC
+    advice = bot_advice(plan, bot_game((1055, KRAKEN), gold=500), hidden)
+    assert not next(s for s in advice.build if s.item_id == BERSERKER).owned
+    berserker = loaded_gamedata().item(BERSERKER)
+    assert berserker is not None
+    boots = bot_advice(plan, bot_game((1055,), gold=0), hidden).next_purchase
+    if boots is not None and boots.item_id == BERSERKER:  # las Botas ya pagadas se descuentan
+        assert boots.remaining_gold == berserker.price_total - 300
+    # Luego mejora en ese espacio: el oro baja sin ningún objeto nuevo
+    upgraded = bot_game((1055,), gold=500 - (berserker.price_total - 300))
+    _, hidden = follow(before, after, upgraded)
+    assert hidden == HiddenBoots.UPGRADED
+
+
+async def test_magical_footwear_boots_are_not_your_boots() -> None:
+    """El Calzado ligeramente mágico de la runa contaba como tus botas mejoradas."""
+    plan = await kaisa_plan()
+    gd = loaded_gamedata()
+    footwear = gd.item(MAGICAL_FOOTWEAR)
+    assert footwear is not None and footwear.is_boots and not footwear.is_upgraded_boots
+    data = bot_game((1055, KRAKEN, MAGICAL_FOOTWEAR), gold=0)
+    advice = bot_advice(plan, data, HiddenBoots.NONE)
+    assert not next(s for s in advice.build if s.item_id == BERSERKER).owned
+    # No es un «objeto empezado» que haya que terminar antes que el núcleo
+    assert (
+        advice.next_purchase is not None
+        and advice.next_purchase.reason != "termina el objeto que has empezado"
+    )
+    boots = advise(plan, report_for(data, Position.BOTTOM)[1], (MAGICAL_FOOTWEAR,), 0, gd.item,
+                   gd.champion_name, game_time=900)  # fmt: skip
+    berserker = gd.item(BERSERKER)
+    assert berserker is not None
+    remaining = {s.item_id: s for s in boots.build}
+    assert not remaining[BERSERKER].owned
+    # Al comprarlas se mejora como unas Botas: su valor se descuenta
+    from lolcoach.ingame.advisor import _purchase
+
+    purchase = _purchase(BERSERKER, "", (MAGICAL_FOOTWEAR,), 0, gd.item)
+    assert purchase.remaining_gold == berserker.price_total - 300
+    assert BASIC_BOOTS not in purchase.affordable_components
+
+
+async def test_basic_boots_in_the_inventory_are_not_your_boots() -> None:
+    plan = await kaisa_plan()
+    advice = bot_advice(plan, bot_game((1055, KRAKEN, BASIC_BOOTS), gold=0), HiddenBoots.NONE)
+    assert not next(s for s in advice.build if s.item_id == BERSERKER).owned
 
 
 async def test_boots_bought_straight_into_the_role_quest_slot() -> None:
     """Botas compradas después de la misión: el oro baja y no aparece ningún objeto."""
     _, hidden = follow(bot_game((1055, KRAKEN), gold=1200), bot_game((1055, KRAKEN), gold=100))
-    assert hidden
+    assert hidden == HiddenBoots.UPGRADED  # 1100 de golpe: ya mejoradas
+    _, cheap = follow(bot_game((1055, KRAKEN), gold=400), bot_game((1055, KRAKEN), gold=100))
+    assert cheap == HiddenBoots.BASIC  # 300: unas Botas
 
 
 def test_visible_purchases_are_not_mistaken_for_hidden_boots() -> None:
     _, bought_pickaxe = follow(bot_game((1055,), gold=1000), bot_game((1055, PICKAXE), gold=125))
     _, small_spend = follow(bot_game((1055,), gold=300), bot_game((1055,), gold=225))  # guardián
     _, nothing = follow(bot_game((1055,), gold=300), bot_game((1055,), gold=320))
-    assert not bought_pickaxe and not small_spend and not nothing
+    assert bought_pickaxe == small_spend == nothing == HiddenBoots.NONE
 
 
 def test_the_role_quest_slot_is_only_for_the_bottom_lane() -> None:
@@ -419,7 +472,7 @@ def test_the_role_quest_slot_is_only_for_the_bottom_lane() -> None:
         bot_game((1055, BERSERKER), gold=400, position="MIDDLE"),
         bot_game((1055,), gold=1170, position="MIDDLE"),  # en otra línea: las ha vendido
     )
-    assert not sold
+    assert sold == HiddenBoots.NONE
 
 
 async def test_complete_build() -> None:
@@ -435,7 +488,7 @@ def test_a_second_identical_item_is_not_mistaken_for_hidden_boots() -> None:
     _, hidden = follow(
         bot_game((1055, long_sword), gold=700), bot_game((1055, long_sword, long_sword), gold=350)
     )
-    assert not hidden
+    assert hidden == HiddenBoots.NONE
 
 
 async def test_urgent_defense_does_not_flip_while_the_threat_is_still_strong() -> None:

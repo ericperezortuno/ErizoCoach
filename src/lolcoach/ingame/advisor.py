@@ -49,7 +49,8 @@ LANING_PHASE_END = 14 * 60  # a los 14:00 caen las placas de las torres
 DEFENSIVE_ITEM_MIN_PRICE = 1000  # un componente pequeño no cuenta como "ya tengo defensa"
 MIN_THREAT_DAMAGE = 2  # nivel de daño (0-3) a partir del que compensa defenderse
 MAX_COMPONENTS = 3
-# Se compran sueltos a propósito: no cuentan como «objeto empezado»
+# Se compran sueltos a propósito: no cuentan como «objeto empezado» (tampoco unas botas de
+# base, compradas o el Calzado ligeramente mágico de la runa)
 _LOOSE_COMPONENTS = frozenset({BASIC_BOOTS, *(c for c in ANTI_HEAL_COMPONENTS.values() if c)})
 STARTED = "termina el objeto que has empezado"
 # Hasta aquí, con el inventario vacío, toca comprar lo inicial (luego ya no tiene sentido:
@@ -197,7 +198,9 @@ def _build_reason(plan: BuildPlan, item_id: int) -> str:
 
 def _started(candidates: Iterable[int], owned_ids: tuple[int, ...], item: ItemLookup) -> int | None:
     """El primer objeto (en orden de compra) del que ya tienes algún componente."""
-    loose = Counter(i for i in owned_ids if i not in _LOOSE_COMPONENTS)
+    loose = Counter(
+        i for i in owned_ids if i not in _LOOSE_COMPONENTS and not _is_basic_boots(item(i))
+    )
     if not loose:
         return None
     for item_id in candidates:
@@ -323,14 +326,16 @@ def _purchase(
     target = item(item_id)
     if target is None:
         return PurchaseAdvice(item_id, reason, 0, False)
-    inventory = Counter(owned_ids)
+    # El Calzado ligeramente mágico de la runa se mejora como unas Botas: cuenta como ellas
+    as_boots = [BASIC_BOOTS if _is_basic_boots(item(i)) else i for i in owned_ids]
+    inventory = Counter(as_boots)
     cost = max(target.price_total - _owned_value(target, inventory, item), 0)
     return PurchaseAdvice(
         item_id=item_id,
         reason=reason,
         remaining_gold=max(round(cost - gold), 0),
         can_buy_now=gold >= cost,
-        affordable_components=_affordable_components(target, set(owned_ids), gold, item),
+        affordable_components=_affordable_components(target, set(as_boots), gold, item),
     )
 
 
@@ -390,7 +395,11 @@ def _affordable_components(
 
 
 def _is_upgraded_boots(found: Item | None) -> bool:
-    return found is not None and found.is_boots and found.id != BASIC_BOOTS
+    return found is not None and found.is_upgraded_boots
+
+
+def _is_basic_boots(found: Item | None) -> bool:
+    return found is not None and found.is_basic_boots
 
 
 def _gives(found: Item | None, category: str) -> bool:

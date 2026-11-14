@@ -9,11 +9,14 @@ Principios:
   los hechizos solo por otros disponibles en el modo de juego.
 * **Sin enemigos conocidos** (selección a ciegas) **no se ajusta nada**: se usa la
   recomendación por defecto para tu campeón.
+* **Aplastar, siempre en la Grieta**: obligatorio yendo a la jungla y prohibido en
+  cualquier otra posición (``smite_rule``), se vean o no los rivales.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable
+from enum import StrEnum
 from typing import Protocol
 
 from ..gamedata.catalog import SummonerSpell
@@ -31,6 +34,37 @@ DEFENSE_SHARD_INDEX = SHARD_INDEXES[2]
 # Fila 2 del árbol Valor: Condicionamiento, Fuerzas renovadas, Revestimiento de huesos
 CONDITIONING, SECOND_WIND, BONE_PLATING = 8429, 8444, 8473
 RESOLVE_ROW_2 = frozenset({CONDITIONING, SECOND_WIND, BONE_PLATING})
+
+
+SUMMONERS_RIFT = 11
+# Sin Aplastar fuera de la jungla: lo que se lleva en su lugar en cada posición, por orden
+INSTEAD_OF_SMITE = {
+    Position.TOP: (TELEPORT, IGNITE),
+    Position.MIDDLE: (IGNITE, TELEPORT),
+    Position.BOTTOM: (HEAL, BARRIER),
+    Position.UTILITY: (IGNITE, EXHAUST),
+}
+
+
+class SmiteRule(StrEnum):
+    FREE = ""  # sin posición (a ciegas, práctica) o fuera de la Grieta: lo decides tú
+    REQUIRED = "required"  # en la jungla: Aplastar en la D o en la F
+    FORBIDDEN = "forbidden"  # en cualquier otra posición: sin Aplastar
+
+
+def smite_rule(position: Position, map_id: int) -> SmiteRule:
+    if map_id != SUMMONERS_RIFT or position == Position.NONE:
+        return SmiteRule.FREE
+    return SmiteRule.REQUIRED if position == Position.JUNGLE else SmiteRule.FORBIDDEN
+
+
+def smite_problem(spells: tuple[int, int], rule: SmiteRule) -> str:
+    """Por qué esos hechizos no valen con esa regla ("" si valen)."""
+    if rule == SmiteRule.REQUIRED and SMITE not in spells:
+        return "En la jungla Aplastar es obligatorio: tiene que ir en la D o en la F."
+    if rule == SmiteRule.FORBIDDEN and SMITE in spells:
+        return "Aplastar solo se puede llevar yendo a la jungla."
+    return ""
 
 
 class Names(Protocol):
@@ -145,6 +179,30 @@ def adjust_spells(
             "y tú tienes poca movilidad",
         )
     return spells, reasons
+
+
+def enforce_smite(
+    spells: tuple[int, int], ctx: MatchContext, names: Names
+) -> tuple[tuple[int, int], list[str]]:
+    """Aplastar en la jungla y sin Aplastar en las demás posiciones (aunque no se vean rivales)."""
+    rule = smite_rule(ctx.position, ctx.map_id)
+    available = _availability(ctx, names)
+    if rule == SmiteRule.REQUIRED and SMITE not in spells and available(SMITE):
+        keep = FLASH if FLASH in spells else spells[0]
+        result = (keep, SMITE)
+        old = spells[1] if spells[0] == keep else spells[0]
+        return result, [f"{names.spell_name(SMITE)} en lugar de {names.spell_name(old)}: "
+                        "imprescindible en la jungla"]  # fmt: skip
+    if rule == SmiteRule.FORBIDDEN and SMITE in spells:
+        other = spells[1] if spells[0] == SMITE else spells[0]
+        options = (FLASH, *INSTEAD_OF_SMITE.get(ctx.position, ()), IGNITE, TELEPORT, HEAL)
+        new = next((s for s in options if s != other and available(s)), None)
+        if new is None:
+            return spells, []
+        result = (new, other) if spells[0] == SMITE else (other, new)
+        return result, [f"{names.spell_name(new)} en lugar de {names.spell_name(SMITE)}: "
+                        "Aplastar solo sirve en la jungla"]  # fmt: skip
+    return spells, []
 
 
 def keep_flash_key(spells: tuple[int, int], current: tuple[int, int]) -> tuple[int, int]:

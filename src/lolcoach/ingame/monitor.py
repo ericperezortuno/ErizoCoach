@@ -23,12 +23,12 @@ from ..lcu.client import LcuError
 from ..lcu.connector import LcuConnector
 from ..loadout.positions import PositionHint
 from ..models import GameflowPhase, Position
-from .advisor import advise
+from .advisor import BASIC_BOOTS, advise
 from .analysis import analyze, item_value
 from .client import LiveClient, LiveClientUnavailable
 from .gold import GoldTracker
 from .models import LiveGame, parse_all_game_data
-from .role_slot import RoleSlotBoots
+from .role_slot import HiddenBoots, RoleSlotBoots
 
 log = logging.getLogger(__name__)
 
@@ -130,16 +130,19 @@ class LiveGameMonitor:
             my_position=plan.position if plan else Position.NONE,
             total_gold=self._gold.update(game),
         )
-        hidden_boots = False
+        hidden = HiddenBoots.NONE
         if game.me is not None:
             if self._role_boots is None:
                 self._role_boots = RoleSlotBoots(gd.item)
-            hidden_boots = self._role_boots.update(game.me, game.current_gold)
+            hidden = self._role_boots.update(game.me, game.current_gold)
         advice = None
         if plan is not None and game.me is not None:
+            owned = game.me.item_ids
+            if hidden == HiddenBoots.BASIC:  # unas Botas ocultas: el componente de tus botas
+                owned = (*owned, BASIC_BOOTS)
             advice = advise(
-                plan, report, game.me.item_ids, game.current_gold, gd.item, gd.champion_name,
-                game_time=game.game_time, boots_out_of_sight=hidden_boots,
+                plan, report, owned, game.current_gold, gd.item, gd.champion_name,
+                game_time=game.game_time, boots_out_of_sight=hidden == HiddenBoots.UPGRADED,
                 keep_threat=self._threat_id,
             )  # fmt: skip
             self._threat_id = advice.threat_id

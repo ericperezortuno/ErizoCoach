@@ -45,7 +45,7 @@ class LivePlayer:
     is_dead: bool = False
     respawn_timer: float = 0.0
     is_bot: bool = False
-    has_smite: bool = False  # lleva Golpe: es el jungla
+    has_smite: bool = False  # lleva Aplastar: es el jungla
 
     @property
     def kda(self) -> str:
@@ -119,7 +119,7 @@ def _destroyed_turrets(data: Mapping[str, Any]) -> tuple[str, ...]:
 
 
 def _has_smite(raw: Mapping[str, Any]) -> bool:
-    """Golpe en cualquiera de sus formas (``SummonerSmite``, y sus mejoras al jugar)."""
+    """Aplastar en cualquiera de sus formas (``SummonerSmite``, y sus mejoras al jugar)."""
     spells = as_dict(raw.get("summonerSpells"))
     return any(
         "SummonerSmite" in as_str(as_dict(spells.get(slot)).get("rawDisplayName"))

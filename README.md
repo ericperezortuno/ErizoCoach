@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <img alt="Versión 0.17.0" src="https://img.shields.io/badge/versi%C3%B3n-0.17.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.18.0" src="https://img.shields.io/badge/versi%C3%B3n-0.18.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
-  <img alt="387 pruebas" src="https://img.shields.io/badge/pruebas-387-4fd6a2?style=for-the-badge&labelColor=0c1b35">
+  <img alt="396 pruebas" src="https://img.shields.io/badge/pruebas-396-4fd6a2?style=for-the-badge&labelColor=0c1b35">
   <img alt="Solo la API oficial de Riot" src="https://img.shields.io/badge/API-solo%20la%20oficial%20de%20Riot-c8aa6e?style=for-the-badge&labelColor=0c1b35">
 </p>
 
@@ -35,6 +35,8 @@
 - **Base de alto elo**: lo que más se juega con tu campeón y posición de Diamante II a
   Challenger, en EUW, Corea y Norteamérica; si faltan datos, la recomendación de Riot.
 - **Destello se queda en tu tecla** (D o F).
+- **Aplastar solo en la jungla**: yendo a la jungla es obligatorio (en la D o en la F) y en
+  cualquier otra posición no se puede poner, tampoco desde la ventana.
 
 ### 🔀 3 páginas para elegir
 La recomendada y las otras piedras angulares más jugadas, con sus partidas y su
@@ -286,7 +288,7 @@ da oro y se puede ver (valores oficiales de los parches 26.01-26.03):
 | --- | --- |
 | Inicial y pasivo | 500 de oro y 20,4 cada 10 s desde el 1:05 (igual para todos) |
 | Súbditos | 18,7 de media por súbdito hasta el 15:00 y hasta 21,5 desde el 25:00 (más cañones) |
-| Monstruos de la jungla | 24 por monstruo para quien lleva Golpe |
+| Monstruos de la jungla | 24 por monstruo para quien lleva Aplastar |
 | Asesinatos | 300 (rival de nivel 1-6) a 420 (nivel 18), +100 la primera sangre |
 | Asistencias | La mitad de la recompensa, repartida entre los que ayudan |
 | Torres | El oro global para todo el equipo (50 exteriores y del nexo, 25 interiores e inhibidores) |
@@ -491,4 +493,5 @@ cliente abierto.
 13. **Más partidas de alto elo (Diamante II+, EUW, KR y NA)** ✅
 14. **Oro total en directo, como en las retransmisiones** ✅
 15. **Counters contra tu rival de línea en la selección** ✅
-16. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
+16. **Aplastar obligatorio en la jungla y prohibido en las demás posiciones** ✅
+17. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.

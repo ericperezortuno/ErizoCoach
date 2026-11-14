@@ -35,7 +35,7 @@ from .positions import (
     lane_opponent,
     resolve_my_position,
 )
-from .rules import adjust_runes, adjust_spells, keep_flash_key
+from .rules import adjust_runes, adjust_spells, enforce_smite, keep_flash_key
 
 log = logging.getLogger(__name__)
 
@@ -136,6 +136,8 @@ class LoadoutRecommender:
         spell_reasons: list[str] = []
         if len(base.spells) == 2:
             adjusted, spell_reasons = adjust_spells((base.spells[0], base.spells[1]), ctx, gd)
+            adjusted, smite_reasons = enforce_smite(adjusted, ctx, gd)
+            spell_reasons += smite_reasons
             spells = keep_flash_key(adjusted, ctx.current_spells)
 
         return Loadout(

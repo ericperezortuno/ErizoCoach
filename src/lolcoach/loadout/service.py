@@ -49,12 +49,13 @@ from ..gamedata.runes import RunePage, validate_page
 from ..lcu import endpoints
 from ..lcu.client import LcuClient, LcuError
 from ..lcu.connector import LcuConnector
-from ..models import QueueInfo
+from ..models import Position, QueueInfo
 from ..util import as_dict, as_int, as_list
 from .applier import LoadoutApplier, NoRunePageSlot, PageInfo, page_title
 from .models import Loadout, LoadoutStats
 from .positions import PositionHint
 from .recommender import LoadoutRecommender
+from .rules import SUMMONERS_RIFT, SmiteRule, smite_problem, smite_rule
 
 log = logging.getLogger(__name__)
 
@@ -244,6 +245,8 @@ class LoadoutService:
             problem = "Los hechizos se cambian durante la selección, con un campeón elegido."
         elif first == second or first not in allowed or second not in allowed:
             problem = "Esos hechizos no se pueden llevar juntos en este modo."
+        else:  # Aplastar: obligatorio en la jungla, prohibido en las demás posiciones
+            problem = smite_problem(event.spells, self._smite_rule())
         if problem or client is None:
             await self._publish_state(champion, problem=problem)
             return
@@ -389,6 +392,13 @@ class LoadoutService:
         snapshot = self._snapshot()
         me = snapshot.me if snapshot else None
         return (me.spell1_id, me.spell2_id) if me is not None else None
+
+    def _smite_rule(self) -> SmiteRule:
+        """La regla de Aplastar con tu posición asignada (a ciegas no hay: la decides tú)."""
+        snapshot = self._snapshot()
+        me = snapshot.me if snapshot else None
+        map_id = self._queue.map_id if self._queue and self._queue.map_id else SUMMONERS_RIFT
+        return smite_rule(me.position if me else Position.NONE, map_id)
 
     def _target_champion(self) -> int:
         """El campeón para el que son las runas ahora: el bloqueado o el que miras."""

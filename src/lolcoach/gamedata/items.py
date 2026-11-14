@@ -60,6 +60,16 @@ class Item:
     def is_boots(self) -> bool:
         return "Boots" in self.categories
 
+    @property
+    def is_upgraded_boots(self) -> bool:
+        """Botas mejoradas (salen de otras). Las Botas y el Calzado ligeramente mágico de la
+        runa no tienen receta: son las de base, aún sin mejorar."""
+        return self.is_boots and bool(self.from_ids)
+
+    @property
+    def is_basic_boots(self) -> bool:
+        return self.is_boots and not self.from_ids
+
 
 MAX_UPGRADE_CHAIN = 5  # Atlas mundial → Brújula rúnica → Botín universal... (y contra bucles)
 

@@ -474,6 +474,15 @@ function sendSpells(ids) {
   render(lastState);
 }
 
+// Aplastar: obligatorio en la jungla y prohibido en las demás posiciones (lo comprueba también
+// la app antes de escribir nada en el cliente).
+function smiteProblem(spells, state) {
+  const hasSmite = spells.includes(state.smiteId);
+  if (state.spellRule === "required" && !hasSmite) return "en la jungla Aplastar es obligatorio";
+  if (state.spellRule === "forbidden" && hasSmite) return "Aplastar solo yendo a la jungla";
+  return "";
+}
+
 function renderSpells(loadout, state, canEdit) {
   const ids = shownSpells(loadout);
   const names = {};
@@ -504,22 +513,29 @@ function renderSpells(loadout, state, canEdit) {
     parts.push(el("div", { class: "spell-picker", role: "group", "aria-label": `Elige el hechizo de la ${SPELL_KEYS[slot]}` },
       state.spellCatalog.map((s) => {
         const selected = ids[slot] === s.id;
+        const next = ids.slice();
+        const other = 1 - slot;
+        if (next[other] === s.id) next[other] = next[slot]; // ya estaba en la otra tecla: se cambian
+        next[slot] = s.id;
+        const why = selected ? "" : smiteProblem(next, state);
         const button = el("button", {
-          type: "button", class: classes("rune-option", "spell-option", selected && "selected"),
-          "aria-pressed": selected ? "true" : "false", "aria-label": s.name, title: s.name,
+          type: "button", class: classes("rune-option", "spell-option", selected && "selected", why && "blocked"),
+          "aria-pressed": selected ? "true" : "false", "aria-disabled": why ? "true" : null,
+          "aria-label": why ? `${s.name}: ${why}` : s.name, title: why ? `${s.name}: ${why}` : s.name,
           "data-focus-key": `spell:${s.id}`,
         }, [gameIcon("spell", s.id, "", "")]);
         button.addEventListener("click", () => {
-          if (selected) return;
-          const next = ids.slice();
-          const other = 1 - slot;
-          if (next[other] === s.id) next[other] = next[slot]; // ya estaba en la otra tecla: se cambian
-          next[slot] = s.id;
+          if (selected || why) return;
           spellEditor.slot = -1;
           sendSpells(next);
         });
         return button;
       })));
+    if (state.spellRule) {
+      parts.push(el("div", { class: "small muted", text: state.spellRule === "required"
+        ? "Vas a la jungla: Aplastar tiene que ir en la D o en la F."
+        : "No vas a la jungla: sin Aplastar." }));
+    }
   }
   return parts;
 }

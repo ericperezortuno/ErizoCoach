@@ -41,7 +41,8 @@ from ...gamedata.runes import (
 from ...ingame.analysis import STRENGTH_LABELS, GameReport, PlayerReport
 from ...ingame.models import LivePlayer
 from ...loadout.models import LANE_CONFIDENCE, CounterPick, Loadout
-from ...models import LANE_POSITIONS, GameflowPhase
+from ...loadout.rules import SMITE, SUMMONERS_RIFT, smite_rule
+from ...models import LANE_POSITIONS, GameflowPhase, Position
 from ..labels import GAMEFLOW_LABELS, POSITION_LABELS
 
 State = dict[str, Any]
@@ -94,6 +95,8 @@ class UiPresenter:
             "counters": None,  # counters contra tu rival de línea (selección)
             "runeCatalog": None,  # árboles de runas, para cambiarlas desde la ventana
             "spellCatalog": [],  # hechizos que se pueden elegir en este modo
+            "spellRule": "",  # Aplastar: "required" (jungla), "forbidden" (otra posición) o libre
+            "smiteId": SMITE,
         }
         bus.subscribe(ClientConnected, self._on_connected)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -146,9 +149,12 @@ class UiPresenter:
         self._loadout, self._in_client = None, None
         mode = event.queue.game_mode if event.queue else ""
         spells = [self._spell(s.id) for s in self._gd.spells_for(mode)]
+        me = event.snapshot.me
+        map_id = event.queue.map_id if event.queue and event.queue.map_id else SUMMONERS_RIFT
+        rule = smite_rule(me.position if me else Position.NONE, map_id)
         await self._set(
             champion=None, loadout=None, build=None, game=None, counters=None,
-            spellCatalog=spells,
+            spellCatalog=spells, spellRule=rule.value, smiteId=SMITE,
         )  # fmt: skip
 
     async def _on_finalized(self, event: PicksFinalized) -> None:

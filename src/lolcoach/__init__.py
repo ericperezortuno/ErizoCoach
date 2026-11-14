@@ -1,3 +1,3 @@
 """LoL Coach: asistente local para League of Legends."""
 
-__version__ = "0.17.0"
+__version__ = "0.18.0"

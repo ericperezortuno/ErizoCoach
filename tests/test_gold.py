@@ -25,7 +25,7 @@ from .live_factories import ME_RIOT_ID, all_game_data, live_player
 PRICES = {1055: 450, 1056: 400, 3158: 900, 6655: 2900, 3031: 3450}
 SMITE = {
     "summonerSpellOne": {
-        "displayName": "Golpe",
+        "displayName": "Aplastar",
         "rawDisplayName": "GeneratedTip_SummonerSpell_SummonerSmite_DisplayName",
     },
     "summonerSpellTwo": {
