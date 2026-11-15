@@ -1053,16 +1053,147 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
 .cta:disabled { cursor: default; filter: saturate(.6); opacity: .8; transform: none; }
 .cta .glyph { width: 14px; height: 14px; flex: none; fill: currentColor; }
 
-.spinner {
-  width: 14px;
-  height: 14px;
-  flex: none;
-  border-radius: 50%;
-  border: 2px solid rgba(26, 18, 6, .25);
-  border-top-color: #1a1206;
-  animation: spin .9s linear infinite;
+/* «LEAGUE OF LEGENDS» mientras se abre: las letras llegan una a una, un destello las
+   recorre, los anillos hextech giran y un haz va y viene. Todo con `--since` (cuánto lleva,
+   en negativo) para que un repintado de la ventana no la reinicie. */
+.launch-show {
+  --since: 0s;
+  --ease-ls: cubic-bezier(.16, 1, .3, 1);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  margin: 6px auto 0;
+  padding: 10px 8px 2px;
 }
+
+.ls-rings {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 60px; /* centrados en «LEAGUE OF LEGENDS», sin salirse de la tarjeta */
+  width: 150px;
+  height: 150px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle closest-side, rgba(200, 170, 110, .2), rgba(200, 170, 110, .05) 55%, transparent 72%);
+  animation: ls-glow 3.2s ease-in-out infinite var(--since);
+}
+.ls-rings::before,
+.ls-rings::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+.ls-rings::before {
+  inset: 0;
+  background: repeating-conic-gradient(rgba(242, 223, 174, .5) 0 1.2deg, transparent 1.2deg 12deg);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 0 94%, #000 95% 100%);
+  mask: radial-gradient(circle closest-side, transparent 0 94%, #000 95% 100%);
+  animation: spin 40s linear infinite var(--since);
+}
+.ls-rings::after {
+  inset: 14px;
+  border: 2px solid transparent;
+  border-top-color: rgba(242, 223, 174, .75);
+  border-bottom-color: rgba(200, 170, 110, .3);
+  animation: spin 3.4s linear infinite reverse var(--since);
+}
+
+.ls-eyebrow {
+  margin-bottom: 10px;
+  padding-left: .45em; /* compensa el espaciado de la última letra */
+  font: 600 11px/1 var(--font-small);
+  letter-spacing: .45em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0;
+  animation: ls-fade .6s var(--ease-ls) forwards var(--since);
+}
+
+.ls-line {
+  position: relative;
+  white-space: nowrap;
+  font-kerning: none; /* el destello (::after) tiene que caer justo encima de las letras */
+}
+.ls-big { padding-left: .14em; font: 800 46px/1 var(--font-display); letter-spacing: .14em; }
+.ls-small { margin-top: 6px; padding-left: .52em; font: 700 16px/1 var(--font-display); letter-spacing: .52em; }
+
+.ls-ch {
+  display: inline-block;
+  color: var(--gold-bright);
+  text-shadow: 0 0 22px rgba(200, 170, 110, .5), 0 2px 0 rgba(0, 0, 0, .35);
+  opacity: 0;
+  animation: ls-letter .9s var(--ease-ls) forwards;
+  animation-delay: calc(var(--since) + .2s + var(--i) * 60ms);
+}
+
+/* El destello: el mismo texto encima, transparente salvo una franja clara que lo cruza. */
+.ls-line::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  padding-left: inherit;
+  color: transparent;
+  background: linear-gradient(105deg, transparent 0 42%, rgba(255, 250, 235, .95) 50%, transparent 58% 100%) no-repeat;
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: ls-shine 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--since) + 1.3s);
+}
+
+.ls-bar {
+  position: relative;
+  width: min(250px, 70%);
+  height: 2px;
+  margin: 16px 0 12px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(200, 170, 110, .5), transparent);
+  opacity: 0;
+  animation: ls-fade .5s ease forwards;
+  animation-delay: calc(var(--since) + .8s);
+}
+.ls-bar::before,
+.ls-bar::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  translate: 0 -50%;
+  rotate: 45deg;
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(200, 170, 110, .7);
+}
+.ls-bar::before { left: -12px; }
+.ls-bar::after { right: -12px; }
+.ls-bar > span { position: absolute; inset: -2px 0; overflow: hidden; }
+.ls-bar > span::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, #fff6dc, transparent);
+  animation: ls-beam 1.8s ease-in-out infinite alternate var(--since);
+}
+
+.ls-note { max-width: 40ch; margin-top: 8px; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes ls-fade { to { opacity: 1; } }
+@keyframes ls-glow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes ls-letter {
+  from { opacity: 0; transform: translateY(16px) scale(1.3); filter: blur(6px); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes ls-shine { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0% 0; } }
+@keyframes ls-beam { from { transform: translateX(-100%); } to { transform: translateX(285%); } }
 
 .empty .stats {
   margin-top: 18px;
@@ -1133,6 +1264,8 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
 
 /* Estrecha: el botón se queda en su icono (su nombre se sigue leyendo en voz). */
 @media (max-width: 440px) {
+  .ls-big { font-size: 36px; }
+  .ls-small { font-size: 13px; }
   .ghost { padding: 7px; }
   .ghost .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
@@ -1156,7 +1289,10 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
   button.spell-slot, button.spell-slot:hover { transition: none; transform: none; }
   .ghost, .ghost:active { transition: none; transform: none; }
   .cta, .cta:active { transition: none; transform: none; }
-  .spinner { animation-duration: 3s; }
+  /* Abriendo el LoL: solo fundidos, nada gira ni se desplaza. */
+  .ls-rings, .ls-rings::before, .ls-rings::after, .ls-bar > span::before { animation: none; }
+  .ls-line::after { display: none; }
+  .ls-ch, .ls-eyebrow, .ls-bar { animation: ls-fade .3s ease forwards var(--since); }
 }
 
 /* Sin vidrio (Windows con «Efectos de transparencia» desactivado, o sin soporte). */
@@ -1175,6 +1311,8 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
   .topbar::before, .card::before, .scene { display: none; }
   .badge, .tag, .chip, .pill { border: 1px solid CanvasText; }
   .cta { border: 1px solid ButtonText; }
+  .ls-ch { color: CanvasText; text-shadow: none; }
+  .ls-line::after, .ls-rings { display: none; }
   .rune-option { opacity: 1; filter: none; border: 1px solid transparent; }
   .rune-option.selected, .rune-choice.selected { border: 2px solid Highlight; }
   .rune-choice { border: 1px solid ButtonText; }

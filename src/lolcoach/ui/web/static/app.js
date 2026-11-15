@@ -277,11 +277,14 @@ function renderIdle(state) {
         { duration: 700, delay: 200, easing: EASE_POP, fill: "backwards", pseudoElement: "::after" });
     });
   }
+  // Abriendo el LoL: la animación ocupa el sitio del título (no hace falta leer nada más).
+  const opening = !state.connected && state.launch === "starting";
+  if (!opening) launchStartedAt = null;
   return el("section", { class: "card empty wide" }, [
     emblem,
-    el("h2", { class: "big", text: title }),
-    el("div", { class: "hint", text: hint }),
-    state.connected ? null : renderLaunch(state.launch),
+    opening ? null : el("h2", { class: "big", text: title }),
+    opening ? null : el("div", { class: "hint", text: hint }),
+    state.connected ? null : opening ? renderLaunchShow() : renderLaunch(state.launch),
     stats,
   ]);
 }
@@ -295,19 +298,45 @@ const LAUNCH_NOTES = {
 };
 
 function renderLaunch(launch) {
-  const starting = launch === "starting";
-  const button = el("button", { class: "cta", type: "button", disabled: starting }, [
-    starting
-      ? el("span", { class: "spinner", "aria-hidden": "true" })
-      : svgGlyph("M5.5 3.5v9l7-4.5z"),
-    el("span", { text: starting ? "Abriendo League of Legends…" : "Abrir League of Legends" }),
+  const button = el("button", { class: "cta", type: "button" }, [
+    svgGlyph("M5.5 3.5v9l7-4.5z"),
+    el("span", { text: "Abrir League of Legends" }),
   ]);
-  if (!starting) button.addEventListener("click", launchClient);
+  button.addEventListener("click", launchClient);
   const note = LAUNCH_NOTES[launch];
   return el("div", { class: "launch" }, [
     button,
-    note ? el("div", { class: classes("small", launch === "starting" ? "muted" : "warn"), role: "status", text: note }) : null,
+    note ? el("div", { class: "small warn", role: "status", text: note }) : null,
   ]);
+}
+
+// Animación «LEAGUE OF LEGENDS» mientras se abre. Es CSS: como la ventana se repinta entera
+// a menudo, cada repintado le dice cuánto lleva (`--since`, negativo) y sigue donde iba en
+// vez de empezar de nuevo.
+let launchStartedAt = null;
+
+function renderLaunchShow() {
+  if (launchStartedAt === null) launchStartedAt = performance.now();
+  const show = el("div", { class: "launch-show", role: "status", "aria-label": "Abriendo League of Legends" }, [
+    el("div", { class: "ls-rings", "aria-hidden": "true" }),
+    el("div", { class: "ls-eyebrow", "aria-hidden": "true", text: "Abriendo" }),
+    showLine("LEAGUE", "ls-big", 0),
+    showLine("OF LEGENDS", "ls-small", 6),
+    el("div", { class: "ls-bar", "aria-hidden": "true" }, [el("span")]),
+    el("div", { class: "small muted ls-note", text: LAUNCH_NOTES.starting }),
+  ]);
+  // Por CSSOM y no con el atributo style: la CSP de la ventana no deja estilos en línea.
+  show.style.setProperty("--since", `${(-(performance.now() - launchStartedAt) / 1000).toFixed(3)}s`);
+  return show;
+}
+
+function showLine(text, size, first) {
+  const letters = [...text].map((ch, i) => {
+    const letter = el("span", { class: "ls-ch", text: ch === " " ? " " : ch });
+    letter.style.setProperty("--i", String(first + i));
+    return letter;
+  });
+  return el("div", { class: `ls-line ${size}`, "data-text": text, "aria-hidden": "true" }, letters);
 }
 
 function svgGlyph(path) {
