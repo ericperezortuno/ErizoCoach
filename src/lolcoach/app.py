@@ -17,6 +17,7 @@ from .lcu import endpoints
 from .lcu.client import LcuClient, LcuError, LcuTlsError
 from .lcu.connector import LcuConnector, fetch_client_info
 from .lcu.discovery import ClientLocator
+from .lcu.launcher import ClientLauncher
 from .lcu.tls import create_ssl_context
 from .lcu.websocket import LcuEventStream
 from .loadout.counters import CounterService
@@ -68,6 +69,8 @@ class Application:
             discovery_interval=settings.discovery_interval,
         )
         self.monitor = ClientMonitor(self.bus, self.connector, self.gamedata, self.tracker)
+        # Botón «Abrir League of Legends» de la ventana (con el cliente cerrado)
+        self.launcher = ClientLauncher(self.bus, league_dir=settings.league_dir)
         # La consola se suscribe antes que los módulos para mostrar cada paso en orden.
         self.console = ConsoleReporter(self.bus, self.gamedata)
         # Fase 2: runas y hechizos. Fase 3: build en la tienda. Fase 4: partida en vivo.

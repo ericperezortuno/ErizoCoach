@@ -195,6 +195,23 @@ class SpellsEditRequested:
 
 
 @dataclass(frozen=True, slots=True)
+class LaunchClientRequested:
+    """Desde la ventana: abre el cliente de League of Legends (botón «Abrir»)."""
+
+
+class LaunchState(StrEnum):
+    IDLE = "idle"  # nada en marcha (o se dejó de esperar): el botón se puede pulsar
+    STARTING = "starting"  # el cliente de Riot está abriendo League of Legends
+    NOT_FOUND = "notFound"  # no se encuentra el cliente de Riot en este PC
+    FAILED = "failed"  # Windows no ha dejado abrirlo
+
+
+@dataclass(frozen=True, slots=True)
+class ClientLaunchStatus:
+    state: LaunchState
+
+
+@dataclass(frozen=True, slots=True)
 class CountersUpdated:
     """Counters contra tu rival de línea en la selección (``enemy_id`` 0 = no hay que mostrar)."""
 

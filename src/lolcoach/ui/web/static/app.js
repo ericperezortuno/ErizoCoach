@@ -266,7 +266,7 @@ function renderIdle(state) {
     ? "Preselecciona o mira un campeón y verás aquí sus runas y hechizos. Se ponen solos al hacerse el último pick."
     : state.connected
       ? "En la selección verás las runas y hechizos del campeón que preselecciones; al último pick se ponen solos, con tu build. Durante la partida, qué comprar y quién va fuerte."
-      : "Abre el cliente de League of Legends: Erizo Coach se conectará solo.";
+      : "Ábrelo con este botón o como siempre: Erizo Coach se conectará solo.";
   const stats = state.stats && !state.stats.problem ? el("div", { class: "small stats", text: state.stats.text }) : null;
   const emblem = el("span", { class: "emblem", "aria-hidden": "true" });
   if (seen.entering) {
@@ -281,8 +281,55 @@ function renderIdle(state) {
     emblem,
     el("h2", { class: "big", text: title }),
     el("div", { class: "hint", text: hint }),
+    state.connected ? null : renderLaunch(state.launch),
     stats,
   ]);
+}
+
+// Botón «Abrir League of Legends» (con el cliente cerrado). La app abre el cliente de Riot
+// igual que su acceso directo; al conectar, esta tarjeta cambia sola.
+const LAUNCH_NOTES = {
+  starting: "Puede tardar un poco (más si se actualiza). Erizo Coach se conectará solo.",
+  notFound: "No encuentro el cliente de Riot en este PC. Ábrelo tú y Erizo Coach se conectará solo.",
+  failed: "Windows no ha dejado abrirlo. Prueba otra vez o ábrelo tú.",
+};
+
+function renderLaunch(launch) {
+  const starting = launch === "starting";
+  const button = el("button", { class: "cta", type: "button", disabled: starting }, [
+    starting
+      ? el("span", { class: "spinner", "aria-hidden": "true" })
+      : svgGlyph("M5.5 3.5v9l7-4.5z"),
+    el("span", { text: starting ? "Abriendo League of Legends…" : "Abrir League of Legends" }),
+  ]);
+  if (!starting) button.addEventListener("click", launchClient);
+  const note = LAUNCH_NOTES[launch];
+  return el("div", { class: "launch" }, [
+    button,
+    note ? el("div", { class: classes("small", launch === "starting" ? "muted" : "warn"), role: "status", text: note }) : null,
+  ]);
+}
+
+function svgGlyph(path) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("class", "glyph");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  const shape = document.createElementNS(ns, "path");
+  shape.setAttribute("d", path);
+  svg.append(shape);
+  return svg;
+}
+
+function launchClient() {
+  if (DESKTOP) {
+    const api = window.pywebview && window.pywebview.api;
+    if (api && api.launch_client) api.launch_client().catch(() => {});
+  } else if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ type: "launchClient" }));
+  }
 }
 
 function renderChampSelect(state) {

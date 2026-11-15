@@ -9,6 +9,7 @@ import pytest
 import trustme
 from keyring.backend import KeyringBackend
 
+from lolcoach.lcu import launcher
 from lolcoach.lcu.tls import create_ssl_context
 from lolcoach.stats import pack
 from lolcoach.stats.pack import PackError
@@ -47,6 +48,19 @@ def no_internet_pack(monkeypatch: pytest.MonkeyPatch) -> None:
         raise PackError("sin internet en las pruebas")
 
     monkeypatch.setattr(pack, "download_pack", offline)
+
+
+@pytest.fixture(autouse=True)
+def no_real_riot_client(monkeypatch: pytest.MonkeyPatch, tmp_path_factory) -> None:
+    """Las pruebas nunca abren tu cliente de Riot ni hablan con su API local."""
+    nowhere = tmp_path_factory.mktemp("sin-riot")
+    monkeypatch.setattr(launcher, "default_riot_lockfile", lambda: nowhere / "lockfile")
+    monkeypatch.setattr(launcher, "default_installs_file", lambda: nowhere / "installs.json")
+
+    def refuse(exe: object) -> None:
+        raise AssertionError(f"una prueba ha intentado abrir {exe}")
+
+    monkeypatch.setattr(launcher, "spawn_detached", refuse)
 
 
 @pytest.fixture

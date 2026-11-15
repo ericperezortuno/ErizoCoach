@@ -17,8 +17,11 @@ from ...events import (
     ChampSelectStarted,
     ClientConnected,
     ClientDisconnected,
+    ClientLaunchStatus,
     CountersUpdated,
     GameflowPhaseChanged,
+    LaunchClientRequested,
+    LaunchState,
     LiveGameEnded,
     LiveGameUpdated,
     LoadoutInClient,
@@ -97,6 +100,7 @@ class UiPresenter:
             "spellCatalog": [],  # hechizos que se pueden elegir en este modo
             "spellRule": "",  # Aplastar: "required" (jungla), "forbidden" (otra posición) o libre
             "smiteId": SMITE,
+            "launch": LaunchState.IDLE.value,  # botón «Abrir League of Legends»
         }
         bus.subscribe(ClientConnected, self._on_connected)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -111,6 +115,7 @@ class UiPresenter:
         bus.subscribe(LiveGameEnded, self._on_live_ended)
         bus.subscribe(StatsStatus, self._on_stats)
         bus.subscribe(CountersUpdated, self._on_counters)
+        bus.subscribe(ClientLaunchStatus, self._on_launch)
 
     @property
     def state(self) -> State:
@@ -131,7 +136,18 @@ class UiPresenter:
     # --- Cliente y estado -----------------------------------------------------------
 
     async def _on_connected(self, _event: ClientConnected) -> None:
-        await self._set(connected=True, phaseLabel="Conectado")
+        await self._set(connected=True, phaseLabel="Conectado", launch=LaunchState.IDLE.value)
+
+    async def _on_launch(self, event: ClientLaunchStatus) -> None:
+        if not self._state["connected"]:
+            await self._set(launch=event.state.value)
+
+    async def request_launch(self) -> bool:
+        """La ventana pide abrir el cliente de LoL (solo tiene sentido si está cerrado)."""
+        if self._state["connected"]:
+            return False
+        await self._bus.publish(LaunchClientRequested())
+        return True
 
     async def _on_disconnected(self, _event: ClientDisconnected) -> None:
         await self._set(

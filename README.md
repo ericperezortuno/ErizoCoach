@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versión 0.19.0" src="https://img.shields.io/badge/versi%C3%B3n-0.19.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.20.0" src="https://img.shields.io/badge/versi%C3%B3n-0.20.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
   <img alt="398 pruebas" src="https://img.shields.io/badge/pruebas-398-4fd6a2?style=for-the-badge&labelColor=0c1b35">
@@ -272,6 +272,8 @@ Erizo Coach es una **aplicación de escritorio**: su ventana (con su nombre e ic
 **centrada en tu segundo monitor** (1056 × 700, o lo que quepa), y al cerrarla se cierra la app.
 Durante la partida se actualiza cada 3 segundos.
 
+**Abrir League of Legends**: con el cliente cerrado, la ventana tiene un botón que lo abre. Abre el cliente de Riot como su acceso directo y, en cuanto tienes la sesión iniciada, le pide el LoL por su API local (lo mismo que su botón «Jugar»), porque si el cliente de Riot ya estaba abierto su acceso directo solo lo pone delante.
+
 **Segundo plano**: el botón **Segundo plano** de la cabecera esconde la ventana (tampoco sale
 en la barra de tareas) y Erizo Coach **sigue funcionando igual**: runas, hechizos, build en la
 tienda y descarga de estadísticas. Mientras tanto la ventana no se repinta, así que no gasta.
@@ -494,4 +496,5 @@ cliente abierto.
 14. **Oro total en directo, como en las retransmisiones** ✅
 15. **Counters contra tu rival de línea en la selección** ✅
 16. **Aplastar obligatorio en la jungla y prohibido en las demás posiciones** ✅
-17. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
+17. **Erizo Coach: nuevo nombre, logo y botón para abrir el LoL** ✅
+18. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.

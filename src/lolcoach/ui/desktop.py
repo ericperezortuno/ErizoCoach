@@ -176,6 +176,15 @@ class DesktopBridge:
             log.exception("No se pudieron cambiar los hechizos desde la ventana")
             return False
 
+    def launch_client(self) -> bool:
+        """Abre el cliente de League of Legends (botón de la ventana)."""
+        future = asyncio.run_coroutine_threadsafe(self._presenter.request_launch(), self._loop)
+        try:
+            return bool(future.result(timeout=ICON_TIMEOUT))
+        except Exception:
+            log.exception("No se pudo pedir que se abra el cliente de LoL")
+            return False
+
     def background(self) -> bool:
         """Esconde la ventana; la app sigue funcionando. False si no se puede (sin bandeja)."""
         if self._to_background is None:

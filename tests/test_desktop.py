@@ -101,9 +101,11 @@ def test_bridge_rejects_anything_else(
     assert icons.calls == []  # ni siquiera se intenta
 
 
-def test_bridge_exposes_only_five_methods() -> None:
+def test_bridge_exposes_only_six_methods() -> None:
     public = [name for name in dir(DesktopBridge) if not name.startswith("_")]
-    assert public == ["background", "get_state", "icon", "set_runes", "set_spells"]
+    assert public == [
+        "background", "get_state", "icon", "launch_client", "set_runes", "set_spells",
+    ]  # fmt: skip
 
 
 def test_bridge_set_spells_only_passes_two_spells(

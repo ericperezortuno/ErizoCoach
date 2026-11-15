@@ -1021,6 +1021,49 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
 
 .empty .hint { max-width: 40ch; margin: 0 auto; }
 
+/* Botón «Abrir League of Legends» (con el cliente cerrado). */
+.launch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+.launch .small { max-width: 40ch; }
+.launch .warn { color: var(--orange); }
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 20px 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  font: 600 14px/1.2 var(--font-small);
+  color: #1a1206;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold) 55%, #a8884c);
+  box-shadow: 0 6px 18px rgba(200, 170, 110, .28), inset 0 1px 0 rgba(255, 246, 220, .7);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.cta:hover { filter: brightness(1.07); box-shadow: 0 8px 24px rgba(200, 170, 110, .4), inset 0 1px 0 rgba(255, 246, 220, .7); }
+.cta:active { transform: scale(.97); }
+.cta:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 3px; }
+.cta:disabled { cursor: default; filter: saturate(.6); opacity: .8; transform: none; }
+.cta .glyph { width: 14px; height: 14px; flex: none; fill: currentColor; }
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid rgba(26, 18, 6, .25);
+  border-top-color: #1a1206;
+  animation: spin .9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 .empty .stats {
   margin-top: 18px;
   padding-top: 14px;
@@ -1112,6 +1155,8 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
   .rune-option, .rune-option:active, .rune-choice, .rune-choice:active,
   button.spell-slot, button.spell-slot:hover { transition: none; transform: none; }
   .ghost, .ghost:active { transition: none; transform: none; }
+  .cta, .cta:active { transition: none; transform: none; }
+  .spinner { animation-duration: 3s; }
 }
 
 /* Sin vidrio (Windows con «Efectos de transparencia» desactivado, o sin soporte). */
@@ -1129,6 +1174,7 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
   .topbar, .card { border: 1px solid CanvasText; }
   .topbar::before, .card::before, .scene { display: none; }
   .badge, .tag, .chip, .pill { border: 1px solid CanvasText; }
+  .cta { border: 1px solid ButtonText; }
   .rune-option { opacity: 1; filter: none; border: 1px solid transparent; }
   .rune-option.selected, .rune-choice.selected { border: 2px solid Highlight; }
   .rune-choice { border: 1px solid ButtonText; }
