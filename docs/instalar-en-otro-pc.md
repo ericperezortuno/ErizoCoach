@@ -11,22 +11,28 @@ Guía para pasarle LoL Coach a otra persona (por ejemplo, a un amigo para que lo
    uv run python scripts/build_installer.py
    ```
 
-2. Envía el archivo `dist\Instalar LoL Coach <versión>.exe` (unos 32 MB) por Discord,
-   Google Drive, WeTransfer o como prefieras.
+2. Envía **solo** el archivo `dist\Instalar LoL Coach <versión>.exe` (unos 35 MB) por
+   Discord, Google Drive, WeTransfer o como prefieras. Lleva todo dentro; lo que falte en
+   su PC lo descarga él solo.
 
 No va dentro nada tuyo: ni tu clave de Riot (está cifrada en tu Windows), ni tus
 estadísticas, ni tu configuración.
 
 ## Para quien lo instala
 
-**Requisitos:** Windows 10 u 11 y League of Legends instalado. No hace falta Python ni
-nada más.
+**Requisitos:** Windows 10 u 11 de 64 bits, League of Legends instalado e internet. No
+hace falta instalar Python ni nada más a mano.
 
 1. Abre `Instalar LoL Coach <versión>.exe`.
 2. Windows avisará con «Windows protegió su PC», porque el programa no está firmado
    (firmarlo cuesta dinero). Pulsa **Más información** → **Ejecutar de todas formas**.
 3. Acepta la instalación. Se instala **solo para tu usuario**, sin pedir permisos de
    administrador, y crea accesos directos en el menú Inicio y en el escritorio.
+   - Si a tu PC le falta **WebView2** (el componente de Microsoft con el que se dibuja la
+     ventana; viene de serie en Windows 11 y en casi todos los Windows 10), el instalador
+     te avisa, lo descarga de Microsoft, comprueba que está firmado por Microsoft y lo
+     instala (unos minutos). Si no puede, LoL Coach funciona igual y abre su ventana con
+     Microsoft Edge.
 4. Abre **LoL Coach** y después el cliente de League of Legends (o al revés: se conecta
    solo).
 

@@ -195,6 +195,7 @@ class DesktopWindow:
         self._settings = settings
         self._window: Any = None
         self._loaded = False
+        self.shown = False  # la ventana llegó a abrirse alguna vez
         self._hidden = False
         self._minimized = False
         self._noticed = False  # el aviso de «sigue en marcha» sale solo la primera vez
@@ -281,6 +282,7 @@ class DesktopWindow:
 
     def _on_loaded(self) -> None:
         self._loaded = True
+        self.shown = True
         self._evaluate(render_script(self._app.presenter.state))
 
     def _on_minimized(self) -> None:

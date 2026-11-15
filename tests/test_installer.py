@@ -103,3 +103,140 @@ def test_install_creates_working_shortcuts(tmp_path: Path) -> None:
     exe = installer.install(payload, places, "0.8.1", register=False)
     assert exe == places.target / "LoL Coach.exe"
     assert (tmp_path / "Inicio" / "LoL Coach.lnk").stat().st_size > 0
+
+
+# --- WebView2: se descarga de Microsoft solo si falta, y nunca sin la firma de Microsoft ---
+
+
+def test_download_only_over_https_and_with_a_size_limit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import io
+
+    with pytest.raises(installer.InstallError, match="HTTPS"):
+        installer.download("http://go.microsoft.com/x", tmp_path / "a.exe")
+
+    class FakeResponse(io.BytesIO):
+        def geturl(self) -> str:
+            return "https://msedge.sf.dl.delivery.mp.microsoft.com/setup.exe"
+
+        def __enter__(self):  # type: ignore[no-untyped-def]
+            return self
+
+        def __exit__(self, *_exc: object) -> None:
+            self.close()
+
+    monkeypatch.setattr(
+        installer.urllib.request, "urlopen", lambda *_a, **_kw: FakeResponse(b"x" * 1000)
+    )
+    installer.download("https://go.microsoft.com/x", tmp_path / "ok.exe")
+    assert (tmp_path / "ok.exe").stat().st_size == 1000
+    with pytest.raises(installer.InstallError, match="más grande"):
+        installer.download("https://go.microsoft.com/x", tmp_path / "big.exe", max_bytes=999)
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="firmas de Windows")
+def test_signature_check_accepts_microsoft_and_rejects_unsigned(tmp_path: Path) -> None:
+    edge = next(
+        (Path(p) for p in (
+            r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+            r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+        ) if Path(p).exists()),
+        None,
+    )  # fmt: skip
+    if edge is None:
+        pytest.skip("Edge no está instalado")
+    assert installer.signed_by_microsoft(edge)
+    unsigned = tmp_path / "MicrosoftEdgeWebview2Setup.exe"
+    unsigned.write_bytes(b"MZ no firmado")
+    assert not installer.signed_by_microsoft(unsigned)
+
+
+def test_unsigned_webview2_download_is_never_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ran: list[object] = []
+    monkeypatch.setattr(installer, "download", lambda _url, dest: dest.write_bytes(b"MZ"))
+    monkeypatch.setattr(installer, "signed_by_microsoft", lambda _path: False)
+    monkeypatch.setattr(installer.subprocess, "run", lambda *a, **kw: ran.append(a))
+    with pytest.raises(installer.InstallError, match="firma"):
+        installer.install_webview2(tmp_path)
+    assert ran == []
+
+
+def test_webview2_download_failure_is_explained(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def offline(_url: str, _dest: Path) -> None:
+        raise OSError("sin conexión")
+
+    monkeypatch.setattr(installer, "download", offline)
+    with pytest.raises(installer.InstallError, match="descargar"):
+        installer.install_webview2(tmp_path)
+
+
+def run_main(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, *, has_webview2: bool, fails: bool):  # type: ignore[no-untyped-def]
+    """Ejecuta el instalador «con ventanas» respondiendo Sí a todo; devuelve qué pasó."""
+    seen: dict[str, object] = {"messages": [], "webview2": 0, "opened": []}
+    monkeypatch.setattr(installer, "bundled", lambda name: tmp_path / name)
+    (tmp_path / installer.VERSION_FILE).write_text("9.9.9", encoding="utf-8")
+    monkeypatch.setattr(installer, "default_places", lambda: None)
+    monkeypatch.setattr(installer, "install", lambda *_a, **_kw: tmp_path / "LoL Coach.exe")
+    monkeypatch.setattr(installer, "webview2_installed", lambda: has_webview2)
+
+    def fake_webview2(_work: Path) -> None:
+        seen["webview2"] += 1  # type: ignore[operator]
+        if fails:
+            raise installer.InstallError("sin conexión")
+
+    def fake_message(text: str, _flags: int = 0) -> int:
+        seen["messages"].append(text)  # type: ignore[attr-defined]
+        return installer.IDYES
+
+    monkeypatch.setattr(installer, "install_webview2", fake_webview2)
+    monkeypatch.setattr(installer, "message", fake_message)
+    monkeypatch.setattr(installer, "with_progress", lambda _text, work: work(lambda _t: None))
+    monkeypatch.setattr(
+        installer.subprocess, "Popen", lambda args, **_kw: seen["opened"].append(args)
+    )
+    assert installer.main([]) == 0
+    return seen
+
+
+def test_installer_skips_webview2_when_the_pc_has_it(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    seen = run_main(monkeypatch, tmp_path, has_webview2=True, fails=False)
+    assert seen["webview2"] == 0
+    assert not any("WebView2" in m for m in seen["messages"])  # type: ignore[attr-defined]
+    assert seen["opened"]  # se abre la app al final
+
+
+def test_installer_installs_webview2_when_missing(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    seen = run_main(monkeypatch, tmp_path, has_webview2=False, fails=False)
+    assert seen["webview2"] == 1
+    first, last = seen["messages"][0], seen["messages"][-1]  # type: ignore[index]
+    assert "WebView2" in first and "internet" in first
+    assert "No se ha podido" not in last
+
+
+def test_installer_still_works_if_webview2_cannot_be_installed(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    seen = run_main(monkeypatch, tmp_path, has_webview2=False, fails=True)
+    last = seen["messages"][-1]  # type: ignore[index]
+    assert "No se ha podido instalar WebView2 (sin conexión)" in last and "Edge" in last
+    assert seen["opened"]  # LoL Coach queda instalado y se puede abrir
+
+
+def test_exe_version_info_matches_the_app_version() -> None:
+    """Lo que Windows enseña en Propiedades > Detalles es la versión de verdad."""
+    sys.path.insert(0, str(ROOT / "src"))
+    from lolcoach import __version__
+
+    text = (ROOT / "packaging" / "version_info.txt").read_text(encoding="utf-8")
+    numbers = ", ".join(__version__.split(".")) + ", 0"
+    assert text.count(f"({numbers})") == 2
+    assert text.count(f"'{__version__}'") == 2

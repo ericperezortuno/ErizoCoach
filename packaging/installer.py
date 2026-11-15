@@ -9,17 +9,26 @@ Se construye con ``uv run python scripts/build_installer.py`` y lleva dentro la 
 * Aparece en *Configuración > Aplicaciones > Aplicaciones instaladas*, desde donde se
   desinstala (se quitan la app y los accesos directos; los datos se conservan).
 * Si ya estaba instalado, lo actualiza. Si LoL Coach está abierto, pide cerrarlo antes.
+* Si al PC le falta **WebView2** (el motor de Microsoft con el que se dibuja la ventana; viene
+  de serie en Windows 11 y en casi todos los Windows 10), lo descarga de Microsoft, comprueba
+  que el archivo está firmado por Microsoft y lo instala para tu usuario. Si no puede (por
+  ejemplo, sin internet), LoL Coach funciona igual: abre su ventana con Edge.
 
-Solo usa la biblioteca estándar de Python (y ``ctypes`` para las ventanas de Windows).
+Solo usa la biblioteca estándar de Python (``ctypes`` y ``tkinter`` para las ventanas).
 """
 
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import threading
+import urllib.request
 import zipfile
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -30,6 +39,16 @@ UNINSTALL_SCRIPT = "desinstalar.ps1"
 UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\LoLCoach"
 PAYLOAD = "payload.zip"
 VERSION_FILE = "version.txt"  # dentro del paquete: la versión que se instala
+ICON_FILE = "lolcoach.ico"  # dentro del paquete: icono de la ventanita de progreso
+
+# WebView2 (motor de la ventana): instalador oficial «Evergreen bootstrapper» de Microsoft
+WEBVIEW2_CLIENT_ID = "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+WEBVIEW2_URL = "https://go.microsoft.com/fwlink/p/?LinkId=2124703"
+WEBVIEW2_SETUP = "MicrosoftEdgeWebview2Setup.exe"
+WEBVIEW2_MAX_BYTES = 20_000_000  # el bootstrapper ocupa ~2 MB; más es que algo va mal
+WEBVIEW2_DOWNLOAD_TIMEOUT = 60  # segundos sin respuesta
+WEBVIEW2_INSTALL_TIMEOUT = 15 * 60  # descarga el motor (~150 MB) e instala
+MICROSOFT_SIGNER = "O=Microsoft Corporation"
 
 MB_OK, MB_YESNO, MB_ICONINFO, MB_ICONWARN, MB_ICONERROR, IDYES = 0, 4, 0x40, 0x30, 0x10, 6
 CREATE_NO_WINDOW = 0x08000000
@@ -172,6 +191,90 @@ def install(payload: Path, places: Places, version: str, *, register: bool = Tru
     return exe
 
 
+# --- WebView2 ----------------------------------------------------------------------------
+
+
+def webview2_installed() -> bool:
+    """¿Tiene el PC el motor WebView2? (Las mismas claves que mira la app y Microsoft)."""
+    import winreg
+
+    clients = rf"Microsoft\EdgeUpdate\Clients\{WEBVIEW2_CLIENT_ID}"
+    locations = (
+        (winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\WOW6432Node\{clients}"),
+        (winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\{clients}"),
+        (winreg.HKEY_CURRENT_USER, rf"Software\{clients}"),
+    )
+    for root, path in locations:
+        try:
+            with winreg.OpenKey(root, path) as key:
+                version, _ = winreg.QueryValueEx(key, "pv")
+        except OSError:
+            continue
+        if version and version != "0.0.0.0":
+            return True
+    return False
+
+
+def download(url: str, dest: Path, *, max_bytes: int = WEBVIEW2_MAX_BYTES) -> None:
+    """Descarga por HTTPS (con el certificado comprobado) y con un tamaño máximo."""
+    if not url.startswith("https://"):
+        raise InstallError("solo se descarga por HTTPS")
+    request = urllib.request.Request(url, headers={"User-Agent": "LoLCoach-Installer"})
+    with urllib.request.urlopen(request, timeout=WEBVIEW2_DOWNLOAD_TIMEOUT) as response:
+        if not response.geturl().startswith("https://"):
+            raise InstallError("la descarga ha salido de HTTPS")
+        size = 0
+        with dest.open("wb") as out:
+            while chunk := response.read(64 * 1024):
+                size += len(chunk)
+                if size > max_bytes:
+                    raise InstallError("la descarga es más grande de lo esperado")
+                out.write(chunk)
+
+
+def signed_by_microsoft(path: Path) -> bool:
+    """¿Lleva el archivo una firma digital válida de Microsoft Corporation?"""
+    script = (
+        "$s = Get-AuthenticodeSignature -LiteralPath $env:LC_FILE; "
+        "Write-Output $s.Status; Write-Output $s.SignerCertificate.Subject"
+    )
+    result = subprocess.run(
+        ["powershell", "-NoProfile", "-Command", script],
+        env={**os.environ, "LC_FILE": str(path)},
+        capture_output=True, text=True, check=False, creationflags=CREATE_NO_WINDOW,
+    )  # fmt: skip
+    lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    if len(lines) < 2 or lines[0] != "Valid":
+        return False
+    return MICROSOFT_SIGNER in [part.strip() for part in lines[1].split(",")]
+
+
+def install_webview2(work: Path) -> None:
+    """Descarga el instalador oficial de WebView2, comprueba su firma y lo ejecuta.
+
+    Sin permisos de administrador, Microsoft lo instala solo para tu usuario.
+    """
+    setup = work / WEBVIEW2_SETUP
+    try:
+        download(WEBVIEW2_URL, setup)
+    except InstallError:
+        raise
+    except Exception as exc:
+        raise InstallError(f"no se ha podido descargar: {exc}") from exc
+    if not signed_by_microsoft(setup):
+        raise InstallError("el archivo descargado no tiene la firma de Microsoft")
+    try:
+        result = subprocess.run(
+            [str(setup), "/silent", "/install"],
+            check=False, timeout=WEBVIEW2_INSTALL_TIMEOUT, creationflags=CREATE_NO_WINDOW,
+        )  # fmt: skip
+    except subprocess.TimeoutExpired as exc:
+        raise InstallError("la instalación ha tardado demasiado") from exc
+    if not webview2_installed():
+        code = result.returncode
+        raise InstallError(f"el instalador de Microsoft ha terminado con el código {code}")
+
+
 # --- Ventanas -----------------------------------------------------------------------------
 
 
@@ -179,6 +282,60 @@ def message(text: str, flags: int = MB_OK | MB_ICONINFO) -> int:
     import ctypes
 
     return int(ctypes.windll.user32.MessageBoxW(None, text, f"Instalar {APP_NAME}", flags))
+
+
+def with_progress[T](text: str, work: Callable[[Callable[[str], None]], T]) -> T:
+    """Ejecuta ``work`` mostrando una ventanita de «trabajando…» que no se puede cerrar.
+
+    ``work`` recibe una función para cambiar el texto. Sin ``tkinter``, va sin ventana.
+    """
+    try:
+        import tkinter as tk
+        from tkinter import ttk
+
+        root = tk.Tk()
+    except Exception:  # sin tkinter o sin Tcl: se instala igual, solo que sin ventanita
+        return work(lambda _text: None)
+
+    outcome: dict[str, object] = {}
+
+    def say(new_text: str) -> None:
+        root.after(0, lambda: label.config(text=new_text))
+
+    say.window = True  # type: ignore[attr-defined]
+
+    def run() -> None:
+        try:
+            outcome["value"] = work(say)
+        except BaseException as exc:
+            outcome["error"] = exc
+        finally:
+            root.after(0, root.destroy)
+
+    root.title(f"Instalar {APP_NAME}")
+    root.resizable(False, False)
+    root.protocol("WM_DELETE_WINDOW", lambda: None)  # que no se cierre a medias
+    icon = bundled(ICON_FILE)
+    if icon.exists():
+        with contextlib.suppress(Exception):
+            root.iconbitmap(default=str(icon))
+    frame = ttk.Frame(root, padding=18)
+    frame.pack(fill="both", expand=True)
+    label = ttk.Label(frame, text=text, width=58, wraplength=420, justify="left")
+    label.pack(anchor="w")
+    bar = ttk.Progressbar(frame, mode="indeterminate", length=420)
+    bar.pack(pady=(14, 0))
+    bar.start(12)
+    root.update_idletasks()
+    x = (root.winfo_screenwidth() - root.winfo_width()) // 2
+    y = (root.winfo_screenheight() - root.winfo_height()) // 3
+    root.geometry(f"+{x}+{y}")
+    root.attributes("-topmost", True)
+    threading.Thread(target=run, name="instalar", daemon=True).start()
+    root.mainloop()
+    if "error" in outcome:
+        raise outcome["error"]  # type: ignore[misc]
+    return outcome["value"]  # type: ignore[return-value]
 
 
 def bundled(name: str) -> Path:
@@ -190,29 +347,66 @@ def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     version = bundled(VERSION_FILE).read_text(encoding="utf-8").strip()
     if len(args) == 2 and args[0] == "--destino":
-        # Prueba sin ventanas: instala en una carpeta, con los accesos directos dentro y sin
-        # tocar el registro (para comprobar el instalador sin cambiar tu instalación).
+        # Prueba sin preguntas: instala en una carpeta, con los accesos directos dentro y sin
+        # tocar el registro ni WebView2 (para comprobar el instalador sin cambiar tu
+        # instalación). Deja en la carpeta si se vio la ventanita de progreso.
         target = Path(args[1]).resolve() / APP_NAME
         places = Places(target=target, shortcuts=(target.parent / "accesos",))
-        install(bundled(PAYLOAD), places, version, register=False)
+        shown: list[bool] = []
+
+        def work(say: Callable[[str], None]) -> None:
+            shown.append(getattr(say, "window", False))
+            install(bundled(PAYLOAD), places, version, register=False)
+
+        with_progress(f"Instalando {APP_NAME} {version} (prueba)…", work)
+        (target.parent / "ventana.txt").write_text(str(shown[0]), encoding="utf-8")
         return 0
+    needs_webview2 = not webview2_installed()
     question = (
         f"Se va a instalar {APP_NAME} {version} para tu usuario (no hacen falta permisos de "
         "administrador), con accesos directos en el menú Inicio y en el escritorio.\n\n"
-        "¿Quieres instalarlo?"
     )
+    if needs_webview2:
+        question += (
+            "A este PC le falta WebView2, el componente de Microsoft con el que se dibuja la "
+            "ventana de LoL Coach: se descargará de Microsoft y se instalará (unos minutos; "
+            "hace falta internet).\n\n"
+        )
+    question += "¿Quieres instalarlo?"
     if message(question, MB_YESNO | MB_ICONINFO) != IDYES:
         return 0
-    try:
+
+    def work(say: Callable[[str], None]) -> tuple[Path, str | None]:
         exe = install(bundled(PAYLOAD), default_places(), version)
+        if not needs_webview2:
+            return exe, None
+        say(
+            "Descargando e instalando WebView2 de Microsoft…\n"
+            "Puede tardar unos minutos según tu conexión."
+        )
+        try:
+            with tempfile.TemporaryDirectory(prefix="lolcoach-") as tmp:
+                install_webview2(Path(tmp))
+        except Exception as exc:
+            return exe, str(exc)
+        return exe, None
+
+    try:
+        exe, webview2_problem = with_progress(f"Instalando {APP_NAME} {version}…", work)
     except InstallError as exc:
         message(str(exc), MB_OK | MB_ICONWARN)
         return 1
     except Exception as exc:  # p. ej., sin permiso para escribir: que se vea el motivo
         message(f"No se ha podido instalar: {exc}", MB_OK | MB_ICONERROR)
         return 1
-    done = (
-        f"{APP_NAME} {version} está instalado.\n\n"
+    done = f"{APP_NAME} {version} está instalado.\n\n"
+    if webview2_problem:
+        done += (
+            f"No se ha podido instalar WebView2 ({webview2_problem}). No pasa nada: LoL Coach "
+            "abrirá su ventana con Microsoft Edge y funciona igual. Si quieres la ventana "
+            "propia, vuelve a abrir este instalador con internet.\n\n"
+        )
+    done += (
         "Ábrelo cuando quieras desde el menú Inicio o el acceso directo del escritorio. "
         "Se desinstala desde Configuración > Aplicaciones > Aplicaciones instaladas.\n\n"
         "¿Quieres abrirlo ahora?"

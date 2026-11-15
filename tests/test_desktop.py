@@ -176,3 +176,71 @@ def test_ui_mode_selection(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_falls_back_to_edge_without_webview2(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(desktop, "desktop_available", lambda: False)
     assert choose_ui_mode(settings(), demo=False, browser=False) == UiMode.BROWSER
+
+
+# --- Si la ventana de escritorio falla, se abre con Edge ---------------------------------
+
+
+class FakeApp:
+    created: list[UiMode] = []
+
+    def __init__(self, _settings: Settings, *, demo: bool, ui_mode: UiMode) -> None:
+        FakeApp.created.append(ui_mode)
+        self.started = threading.Event()
+        self.stopped = threading.Event()
+
+    async def run(self) -> None:
+        self.started.set()
+        await asyncio.to_thread(self.stopped.wait, 5)
+
+    def request_stop(self) -> None:
+        self.stopped.set()
+
+
+def broken_window(*, shown: bool) -> type:
+    class BrokenWindow:
+        def __init__(self, _app: object, _settings: Settings) -> None:
+            self.shown = shown
+
+        def run(self) -> None:
+            raise RuntimeError("WebView2 no arranca")
+
+    return BrokenWindow
+
+
+def test_desktop_window_that_never_opens_falls_back_to_edge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from lolcoach import __main__ as entry
+
+    monkeypatch.setattr(entry, "Application", FakeApp)
+    monkeypatch.setattr(desktop, "DesktopWindow", broken_window(shown=False))
+    assert entry.run_desktop(settings(), demo=False) is False
+
+
+def test_errors_after_the_window_opened_are_not_hidden(monkeypatch: pytest.MonkeyPatch) -> None:
+    from lolcoach import __main__ as entry
+
+    monkeypatch.setattr(entry, "Application", FakeApp)
+    monkeypatch.setattr(desktop, "DesktopWindow", broken_window(shown=True))
+    with pytest.raises(RuntimeError):
+        entry.run_desktop(settings(), demo=False)
+
+
+def test_main_reopens_in_edge_when_the_desktop_window_fails(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from lolcoach import __main__ as entry
+
+    class OneShotApp(FakeApp):
+        async def run(self) -> None:  # en modo Edge: arranca y se cierra enseguida
+            self.started.set()
+
+    FakeApp.created = []
+    monkeypatch.setattr(entry, "load_settings", lambda **_kw: (Settings(data_dir=tmp_path), []))
+    monkeypatch.setattr(entry, "setup_logging", lambda *_a, **_kw: None)
+    monkeypatch.setattr(entry, "choose_ui_mode", lambda *_a, **_kw: UiMode.DESKTOP)
+    monkeypatch.setattr(entry, "run_desktop", lambda *_a, **_kw: False)
+    monkeypatch.setattr(entry, "Application", OneShotApp)
+    assert entry.main([]) == 0
+    assert FakeApp.created == [UiMode.BROWSER]

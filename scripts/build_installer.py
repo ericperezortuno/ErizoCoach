@@ -9,6 +9,7 @@ El instalador lleva la app comprimida dentro; ver ``packaging/installer.py``.
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import sys
@@ -36,6 +37,21 @@ def make_payload(app: Path, payload: Path) -> int:
     return len(files)
 
 
+def tcl_env() -> dict[str, str]:
+    """Entorno para PyInstaller con Tcl/Tk localizables.
+
+    Con el Python de python.org usado por uv, Tcl no encuentra sus archivos y PyInstaller
+    quitaría ``tkinter`` (la ventanita de progreso del instalador).
+    """
+    env = dict(os.environ)
+    base = Path(sys.base_prefix) / "tcl"
+    libraries = (("TCL_LIBRARY", "tcl8.6", "init.tcl"), ("TK_LIBRARY", "tk8.6", "tk.tcl"))
+    for variable, folder, marker in libraries:
+        if variable not in env and (base / folder / marker).exists():
+            env[variable] = str(base / folder)
+    return env
+
+
 def main() -> int:
     if not (APP / "LoL Coach.exe").exists():
         print("No hay app construida: primero «uv run python scripts/build_exe.py».")
@@ -51,10 +67,11 @@ def main() -> int:
             "--onefile", "--noconsole", "--noconfirm", "--clean", "--log-level", "WARN",
             "--name", name, "--icon", str(ICON), "--version-file", str(VERSION_INFO),
             "--add-data", f"{payload};.", "--add-data", f"{work / 'version.txt'};.",
+            "--add-data", f"{ICON};.",
             "--distpath", str(DIST), "--workpath", str(work / "build"),
             "--specpath", str(work),
         ]  # fmt: skip
-        result = subprocess.run(command, cwd=ROOT, check=False)
+        result = subprocess.run(command, cwd=ROOT, env=tcl_env(), check=False)
     if result.returncode != 0:
         print("La construcción del instalador ha fallado.")
         return result.returncode

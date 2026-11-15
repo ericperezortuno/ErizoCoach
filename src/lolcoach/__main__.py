@@ -88,8 +88,12 @@ def choose_ui_mode(settings: Settings, *, demo: bool, browser: bool) -> UiMode:
     return UiMode.BROWSER
 
 
-def run_desktop(settings: Settings, *, demo: bool) -> None:
-    """La app trabaja en segundo plano y la ventana ocupa el hilo principal."""
+def run_desktop(settings: Settings, *, demo: bool) -> bool:
+    """La app trabaja en segundo plano y la ventana ocupa el hilo principal.
+
+    Devuelve ``False`` si la ventana de escritorio no ha llegado a abrirse (por ejemplo,
+    porque WebView2 o .NET fallan en ese PC): entonces se abre con Edge.
+    """
     from .ui.desktop import DesktopWindow
 
     app = Application(settings, demo=demo, ui_mode=UiMode.DESKTOP)
@@ -97,12 +101,19 @@ def run_desktop(settings: Settings, *, demo: bool) -> None:
     worker.start()
     if not app.started.wait(timeout=15):
         log.error("LoL Coach no ha podido arrancar.")
-        return
+        return True
+    window = DesktopWindow(app, settings)
     try:
-        DesktopWindow(app, settings).run()  # vuelve al cerrar la ventana
+        window.run()  # vuelve al cerrar la ventana
+    except Exception:
+        if window.shown:
+            raise
+        log.exception("No se puede abrir la ventana de escritorio: se usa Edge.")
+        return False
     finally:
         app.request_stop()
         worker.join(timeout=10)
+    return True
 
 
 def _run_in_thread(app: Application) -> None:
@@ -144,9 +155,9 @@ def main(argv: list[str] | None = None) -> int:
     mode = choose_ui_mode(settings, demo=args.demo, browser=args.browser)
     try:
         log.info("LoL Coach %s iniciado.", __version__)
-        if mode == UiMode.DESKTOP:
-            run_desktop(settings, demo=args.demo)
-        else:
+        if mode == UiMode.DESKTOP and not run_desktop(settings, demo=args.demo):
+            mode = UiMode.BROWSER
+        if mode != UiMode.DESKTOP:
             log.info("Pulsa Ctrl+C para salir.")
             asyncio.run(Application(settings, demo=args.demo, ui_mode=mode).run())
     except KeyboardInterrupt:
