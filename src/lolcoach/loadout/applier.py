@@ -2,7 +2,7 @@
 
 Reglas de seguridad con tus páginas de runas:
 
-* La app usa **una sola página propia**, cuyo nombre empieza por "LoL Coach".
+* La app usa **una sola página propia**, cuyo nombre empieza por "Erizo Coach".
 * Si no existe: la crea si tienes un hueco libre; si no, reutiliza una página
   **vacía y no válida** (sin nombre). Nunca toca ninguna otra página tuya.
 * Si no hay ninguna de las dos opciones, no cambia nada y avisa.
@@ -21,7 +21,10 @@ from ..util import as_dict, as_int, as_list, as_str
 
 log = logging.getLogger(__name__)
 
-PAGE_PREFIX = "LoL Coach"
+PAGE_PREFIX = "Erizo Coach"
+# Hasta la 0.18 la app se llamaba «LoL Coach»: esa página sigue siendo nuestra y, al
+# escribirla, pasa a llamarse «Erizo Coach: <campeón>».
+OWN_PREFIXES = (PAGE_PREFIX, "LoL Coach")
 MAX_PAGE_NAME = 25  # límite del cliente para el nombre de una página
 
 
@@ -52,7 +55,7 @@ class PageInfo:
 
     @property
     def is_ours(self) -> bool:
-        return self.editable and not self.temporary and self.name.startswith(PAGE_PREFIX)
+        return self.editable and not self.temporary and self.name.startswith(OWN_PREFIXES)
 
     @property
     def is_empty(self) -> bool:
@@ -80,7 +83,7 @@ class LoadoutApplier:
             else:
                 empty = next((p for p in pages if p.is_empty), None)
                 if empty is None:
-                    raise NoRunePageSlot("no hay hueco para la página de runas de LoL Coach")
+                    raise NoRunePageSlot("no hay hueco para la página de runas de Erizo Coach")
                 page_id = await self._overwrite(client, empty.id, body)
                 log.info("La página vacía se ha convertido en «%s»", title)
         if page_id <= 0:

@@ -11,7 +11,7 @@ Seguridad:
 * Los iconos solo se piden por id numérico y solo de los recursos del juego.
 * Por el canal, la ventana solo puede pedir otra página de runas u otros hechizos (números
   que se validan con los datos del juego antes de escribirlos; las runas, solo en la
-  página de LoL Coach).
+  página de Erizo Coach).
 """
 
 from __future__ import annotations
@@ -32,7 +32,12 @@ from .presenter import State, UiPresenter
 log = logging.getLogger(__name__)
 
 MAX_COMMAND_SIZE = 2048  # una página de runas ocupa ~150 bytes
-STATIC_FILES = {"app.js": "text/javascript", "style.css": "text/css"}
+STATIC_FILES = {
+    "app.js": "text/javascript",
+    "style.css": "text/css",
+    "logo.png": "image/png",
+    "logo-mini.png": "image/png",
+}
 SECURITY_HEADERS = {
     "Content-Security-Policy": (
         "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; "
@@ -123,8 +128,9 @@ class UiServer:
         if name not in STATIC_FILES:
             raise web.HTTPNotFound()
         return web.Response(
-            text=self._static.joinpath(name).read_text(encoding="utf-8"),
+            body=self._static.joinpath(name).read_bytes(),
             content_type=STATIC_FILES[name],
+            charset=None if name.endswith(".png") else "utf-8",
             headers={"Cache-Control": "no-store"},
         )
 

@@ -2,7 +2,7 @@
 
 Las builds, runas y hechizos de alto elo salen de partidas reales descargadas con una clave
 de Riot. Para que quien no tiene clave (por ejemplo, un amigo) tenga las mismas builds, tu
-LoL Coach puede **publicar** sus estadísticas ya calculadas y el suyo las **descarga**.
+Erizo Coach puede **publicar** sus estadísticas ya calculadas y el suyo las **descarga**.
 
 ## Cómo funciona
 
@@ -14,7 +14,7 @@ LoL Coach puede **publicar** sus estadísticas ya calculadas y el suyo las **des
 - **Cuándo:** tu app lo publica sola tras sus descargas automáticas. Cuando hay un parche
   nuevo, en cuanto tiene 100 partidas; si no, como mucho cada 3 horas. Cada publicación
   sustituye a la anterior: el repositorio siempre tiene un solo commit.
-- **Quien lo usa:** cualquier LoL Coach lo descarga como mucho cada 6 horas, lo valida entero
+- **Quien lo usa:** cualquier Erizo Coach lo descarga como mucho cada 6 horas, lo valida entero
   (tamaño, formato y valores) y guarda una copia por si un día no hay internet. Si además
   tiene estadísticas propias, usa las que tengan datos suficientes del parche más reciente.
 

@@ -36,7 +36,7 @@ AHRI_VS_ZED = [8112, 8139, 8140, 8106, 8226, 8210, 5005, 5008, 5011]
 
 
 def our_page(fake: FakeLcu) -> dict[str, Any]:
-    return next(p for p in fake.pages if p["name"].startswith("LoL Coach"))
+    return next(p for p in fake.pages if p["name"].startswith("Erizo Coach"))
 
 
 def page_writes(fake: FakeLcu) -> list[tuple[str, str, Any]]:
@@ -88,7 +88,7 @@ async def test_holding_a_pre_pick_applies_runes_and_spells(
         applied = app.of(LoadoutApplied)[0]
         assert applied.provisional and applied.runes_applied and applied.spells_applied
         page = our_page(fake)
-        assert page["name"] == "LoL Coach: Ahri" and fake.current_page_id == page["id"]
+        assert page["name"] == "Erizo Coach: Ahri" and fake.current_page_id == page["id"]
         me = next(p for p in fake.session["myTeam"] if p["cellId"] == 2)  # type: ignore[index]
         assert (me["spell1Id"], me["spell2Id"]) == (14, 4)  # Prender, Destello en tu tecla
         shown = app.of(LoadoutInClient)[-1]
@@ -116,7 +116,7 @@ async def test_the_last_pick_adjusts_the_provisional_runes(
     final = [a for a in app.of(LoadoutApplied) if not a.provisional]
     assert len(final) == 1 and final[0].runes_applied
     assert our_page(fake)["selectedPerkIds"] == AHRI_VS_ZED  # con Zed ya conocido
-    assert sum(p["name"].startswith("LoL Coach") for p in fake.pages) == 1
+    assert sum(p["name"].startswith("Erizo Coach") for p in fake.pages) == 1
     assert app.of(LoadoutInClient)[-1].runes_by == RunesBy.COACH
 
 
@@ -229,11 +229,13 @@ async def test_the_window_shows_the_runes_in_your_client() -> None:
 
     mine = edited_page()
     await bus.publish(
-        LoadoutInClient(AHRI, mine, (4, 14), RunesBy.YOU_IN_APP, RunesBy.PREVIEW, "LoL Coach: Ahri")
+        LoadoutInClient(
+            AHRI, mine, (4, 14), RunesBy.YOU_IN_APP, RunesBy.PREVIEW, "Erizo Coach: Ahri"
+        )
     )
     state = presenter.state["loadout"]
     assert state["page"]["perkIds"] == list(mine.perk_ids) and state["runesBy"] == "you_in_app"
-    assert "Tus cambios" in state["status"] and "LoL Coach: Ahri" in state["status"]
+    assert "Tus cambios" in state["status"] and "Erizo Coach: Ahri" in state["status"]
     # Lo puesto para otro campeón (el que mirabas antes) no se mezcla
     await bus.publish(LoadoutInClient(17, mine, (4, 14), RunesBy.PREVIEW, RunesBy.PREVIEW))
     assert presenter.state["loadout"]["page"]["keystone"]["id"] == loadout.runes.keystone_id

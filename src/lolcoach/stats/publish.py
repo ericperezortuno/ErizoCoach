@@ -42,14 +42,14 @@ MIN_MATCHES = 100  # con menos partidas no merece la pena publicar
 GIT_TIMEOUT = 120
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
-README = """# Estadísticas de LoL Coach
+README = """# Estadísticas de Erizo Coach
 
 Builds, runas y hechizos más jugados por campeón y posición en partidas de alto elo,
-agregados por LoL Coach. Solo contiene datos agregados: ningún jugador ni partida concreta.
+agregados por Erizo Coach. Solo contiene datos agregados: ningún jugador ni partida concreta.
 
 Último paquete: parche {patch}, {matches} partidas.
 
-LoL Coach no está respaldado por Riot Games y no refleja sus opiniones.
+Erizo Coach no está respaldado por Riot Games y no refleja sus opiniones.
 """
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
@@ -143,9 +143,9 @@ class PackPublisher:
             **os.environ,
             "GIT_SSH_COMMAND": f'ssh -i "{key}" -o IdentitiesOnly=yes -o BatchMode=yes',
             "GIT_TERMINAL_PROMPT": "0",
-            "GIT_AUTHOR_NAME": "LoL Coach",
+            "GIT_AUTHOR_NAME": "Erizo Coach",
             "GIT_AUTHOR_EMAIL": "lolcoach@localhost",
-            "GIT_COMMITTER_NAME": "LoL Coach",
+            "GIT_COMMITTER_NAME": "Erizo Coach",
             "GIT_COMMITTER_EMAIL": "lolcoach@localhost",
         }
         result = self._run(

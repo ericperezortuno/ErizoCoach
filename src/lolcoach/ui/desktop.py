@@ -1,4 +1,4 @@
-"""Ventana de escritorio de LoL Coach (pywebview + WebView2 de Windows).
+"""Ventana de escritorio de Erizo Coach (pywebview + WebView2 de Windows).
 
 * Es una ventana propia, con su nombre e icono (sin Edge ni navegador), con el mismo
   diseño que la versión web.
@@ -10,10 +10,10 @@
   antes de escribir).
 * Se carga con una política de seguridad estricta: solo su propio código (marcado con
   un *nonce* aleatorio en cada arranque), iconos incrustados y ninguna conexión de red.
-* Al cerrar la ventana se cierra LoL Coach.
+* Al cerrar la ventana se cierra Erizo Coach.
 * **Segundo plano**: el botón de la cabecera esconde la ventana (y la quita de la barra
-  de tareas) y la app sigue trabajando igual. Se vuelve a abrir con el icono de LoL Coach
-  en la bandeja de Windows, junto al reloj, o abriendo LoL Coach otra vez.
+  de tareas) y la app sigue trabajando igual. Se vuelve a abrir con el icono de Erizo Coach
+  en la bandeja de Windows, junto al reloj, o abriendo Erizo Coach otra vez.
 """
 
 from __future__ import annotations
@@ -41,14 +41,15 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-TITLE = "LoL Coach"
+TITLE = "Erizo Coach"
+LOGOS = ("logo.png", "logo-mini.png")  # imágenes de style.css
 BACKGROUND = "#060d1c"  # el mismo fondo que --abyss en style.css (sin destello al abrir)
 MIN_SIZE = (380, 480)
 ICON_TIMEOUT = 5.0
 WEBVIEW2_CLIENT_ID = "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
-APP_USER_MODEL_ID = "LoLCoach.Desktop"
+APP_USER_MODEL_ID = "ErizoCoach.Desktop"
 BACKGROUND_NOTICE = (
-    "LoL Coach sigue en marcha",
+    "Erizo Coach sigue en marcha",
     "Las runas, los hechizos y la build se siguen poniendo solos. "
     "Haz clic en este icono para volver a abrir la ventana.",
 )
@@ -93,6 +94,9 @@ def build_html(nonce: str | None = None) -> str:
     static = files("lolcoach.ui.web").joinpath("static")
     html = static.joinpath("index.html").read_text(encoding="utf-8")
     css = static.joinpath("style.css").read_text(encoding="utf-8")
+    for image in LOGOS:  # la CSP solo deja imágenes data:
+        data = base64.b64encode(static.joinpath(image).read_bytes()).decode("ascii")
+        css = css.replace(f"/static/{image}", f"data:image/png;base64,{data}")
     script = static.joinpath("app.js").read_text(encoding="utf-8")
     nonce = nonce or secrets.token_urlsafe(18)
     csp = (
@@ -255,7 +259,7 @@ class DesktopWindow:
             if not self._hidden:
                 self._window.hide()
                 self._hidden = True
-        log.info("LoL Coach en segundo plano: ábrelo desde el icono junto al reloj.")
+        log.info("Erizo Coach en segundo plano: ábrelo desde el icono junto al reloj.")
         if not self._noticed:
             self._noticed = True
             tray.notify(*BACKGROUND_NOTICE)
@@ -276,7 +280,7 @@ class DesktopWindow:
                 window.restore()
 
     def quit(self) -> None:
-        """«Cerrar LoL Coach» del menú de la bandeja: igual que cerrar la ventana."""
+        """«Cerrar Erizo Coach» del menú de la bandeja: igual que cerrar la ventana."""
         if self._window is not None:
             self._window.destroy()
 
@@ -309,7 +313,7 @@ class DesktopWindow:
 
 
 def _set_app_user_model_id() -> None:
-    """Que Windows agrupe la ventana como «LoL Coach» en la barra de tareas."""
+    """Que Windows agrupe la ventana como «Erizo Coach» en la barra de tareas."""
     if sys.platform == "win32":
         import ctypes
 

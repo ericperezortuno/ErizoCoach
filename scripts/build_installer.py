@@ -1,8 +1,8 @@
 """Construye el instalador de un solo archivo para pasárselo a otra persona.
 
 Uso:
-    uv run python scripts/build_exe.py         (antes: construir la app en dist/LoL Coach/)
-    uv run python scripts/build_installer.py   crea dist/Instalar LoL Coach <versión>.exe
+    uv run python scripts/build_exe.py         (antes: construir la app en dist/Erizo Coach/)
+    uv run python scripts/build_installer.py   crea dist/Instalar Erizo Coach <versión>.exe
 
 El instalador lleva la app comprimida dentro; ver ``packaging/installer.py``.
 """
@@ -18,9 +18,9 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-APP = ROOT / "dist" / "LoL Coach"
+APP = ROOT / "dist" / "Erizo Coach"
 DIST = ROOT / "dist"
-ICON = ROOT / "assets" / "lolcoach.ico"
+ICON = ROOT / "assets" / "erizocoach.ico"
 INSTALLER = ROOT / "packaging" / "installer.py"
 VERSION_INFO = ROOT / "packaging" / "version_info.txt"
 
@@ -53,10 +53,10 @@ def tcl_env() -> dict[str, str]:
 
 
 def main() -> int:
-    if not (APP / "LoL Coach.exe").exists():
+    if not (APP / "Erizo Coach.exe").exists():
         print("No hay app construida: primero «uv run python scripts/build_exe.py».")
         return 1
-    name = f"Instalar LoL Coach {__version__}"
+    name = f"Instalar Erizo Coach {__version__}"
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
         payload = work / "payload.zip"

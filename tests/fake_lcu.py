@@ -272,7 +272,7 @@ class FakeLcu:
         body = await request.json()
         sets = copy.deepcopy(body["itemSets"])
         if self.drop_other_item_sets:
-            sets = [s for s in sets if s["title"].startswith("LoL Coach")]
+            sets = [s for s in sets if s["title"].startswith("Erizo Coach")]
             self.drop_other_item_sets = False  # solo falla una vez
         self.item_sets = sets
         return web.Response(status=201)

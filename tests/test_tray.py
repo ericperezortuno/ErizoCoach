@@ -26,7 +26,7 @@ windows_only = pytest.mark.skipif(sys.platform != "win32", reason="bandeja de Wi
 
 
 def unique_class() -> str:
-    """Nombre propio en cada prueba: nunca se confunde con un LoL Coach de verdad abierto."""
+    """Nombre propio en cada prueba: nunca se confunde con un Erizo Coach de verdad abierto."""
     return f"LoLCoachTrayTest{uuid.uuid4().hex}"
 
 
@@ -40,7 +40,7 @@ def test_tray_starts_reopens_on_request_and_stops() -> None:
     assert icon.start() is True
     try:
         icon.notify("Prueba", "Aviso de prueba")  # no debe fallar
-        assert signal_running(name) is True  # como si abrieras LoL Coach otra vez
+        assert signal_running(name) is True  # como si abrieras Erizo Coach otra vez
         assert opened.wait(5)
     finally:
         icon.stop()
@@ -66,7 +66,7 @@ def test_tray_survives_a_missing_icon_file(tmp_path: Path) -> None:
 
 def test_development_icon_is_the_app_icon() -> None:
     path = default_icon_path()
-    assert path is not None and path.name == "lolcoach.ico" and path.exists()
+    assert path is not None and path.name == "erizocoach.ico" and path.exists()
 
 
 def test_tray_does_nothing_outside_windows(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -189,4 +189,4 @@ def test_relaunch_opens_the_running_copy(monkeypatch: pytest.MonkeyPatch, tmp_pa
 
     monkeypatch.setattr(tray, "signal_running", lambda: False)
     assert entry.main([]) == 1
-    assert shown == ["LoL Coach ya está abierto."]
+    assert shown == ["Erizo Coach ya está abierto."]

@@ -266,7 +266,7 @@ async def test_item_removed_from_the_patch_is_replaced() -> None:
 async def test_item_set_format() -> None:
     plan = await recommend(AHRI, "middle", HEALERS)
     item_set = build_item_set(plan, "uid-1", set_title("Ahri"))
-    assert item_set["title"] == "LoL Coach: Ahri" and is_ours(item_set)
+    assert item_set["title"] == "Erizo Coach: Ahri" and is_ours(item_set)
     assert item_set["associatedChampions"] == [AHRI] and item_set["associatedMaps"] == [11]
     titles = [b["type"] for b in item_set["blocks"]]
     assert titles == [

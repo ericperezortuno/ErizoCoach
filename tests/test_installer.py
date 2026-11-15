@@ -28,8 +28,8 @@ builder = load("lolcoach_build_installer", ROOT / "scripts" / "build_installer.p
 
 def fake_app(folder: Path, marker: str = "v1") -> Path:
     (folder / "_internal").mkdir(parents=True)
-    (folder / "LoL Coach.exe").write_text(marker, encoding="utf-8")
-    (folder / "lolcoach-consola.exe").write_text(marker, encoding="utf-8")
+    (folder / "Erizo Coach.exe").write_text(marker, encoding="utf-8")
+    (folder / "erizocoach-consola.exe").write_text(marker, encoding="utf-8")
     (folder / "_internal" / "base_library.zip").write_text(marker, encoding="utf-8")
     return folder
 
@@ -44,32 +44,32 @@ def test_payload_keeps_the_app_layout(tmp_path: Path) -> None:
     payload = payload_of(fake_app(tmp_path / "app"), tmp_path)
     with zipfile.ZipFile(payload) as archive:
         assert sorted(archive.namelist()) == [
-            "LoL Coach.exe", "_internal/base_library.zip", "lolcoach-consola.exe",
+            "Erizo Coach.exe", "_internal/base_library.zip", "erizocoach-consola.exe",
         ]  # fmt: skip
 
 
 def test_extract_installs_and_adds_the_uninstaller(tmp_path: Path) -> None:
-    target = tmp_path / "Programs" / "LoL Coach"
+    target = tmp_path / "Programs" / "Erizo Coach"
     installer.extract(payload_of(fake_app(tmp_path / "app"), tmp_path), target)
-    assert (target / "LoL Coach.exe").read_text(encoding="utf-8") == "v1"
+    assert (target / "Erizo Coach.exe").read_text(encoding="utf-8") == "v1"
     assert (target / "_internal" / "base_library.zip").exists()
     script = (target / "desinstalar.ps1").read_text(encoding="utf-8-sig")
-    assert "Uninstall\\LoLCoach" in script and "LoL Coach.lnk" in script
-    assert "LoLCoach" not in script.replace("Uninstall\\LoLCoach", "")  # nunca toca tus datos
+    assert "Uninstall\\ErizoCoach" in script and "Erizo Coach.lnk" in script
+    assert "LoLCoach" not in script  # nunca toca tus datos (%LOCALAPPDATA%\LoLCoach)
 
 
 def test_update_replaces_the_old_version_without_leftovers(tmp_path: Path) -> None:
-    target = tmp_path / "LoL Coach"
+    target = tmp_path / "Erizo Coach"
     installer.extract(payload_of(fake_app(tmp_path / "v1"), tmp_path, "v1.zip"), target)
     (target / "viejo.dll").write_text("x", encoding="utf-8")  # archivo que ya no existe en v2
     installer.extract(payload_of(fake_app(tmp_path / "v2", "v2"), tmp_path, "v2.zip"), target)
-    assert (target / "LoL Coach.exe").read_text(encoding="utf-8") == "v2"
+    assert (target / "Erizo Coach.exe").read_text(encoding="utf-8") == "v2"
     assert not (target / "viejo.dll").exists()
-    assert not target.with_name("LoL Coach.nuevo").exists()
+    assert not target.with_name("Erizo Coach.nuevo").exists()
 
 
 def test_incomplete_or_tampered_payloads_are_rejected(tmp_path: Path) -> None:
-    target = tmp_path / "LoL Coach"
+    target = tmp_path / "Erizo Coach"
     empty = tmp_path / "empty.zip"
     with zipfile.ZipFile(empty, "w") as archive:
         archive.writestr("leeme.txt", "nada")
@@ -78,7 +78,7 @@ def test_incomplete_or_tampered_payloads_are_rejected(tmp_path: Path) -> None:
 
     evil = tmp_path / "evil.zip"
     with zipfile.ZipFile(evil, "w") as archive:
-        archive.writestr("LoL Coach.exe", "app")
+        archive.writestr("Erizo Coach.exe", "app")
         archive.writestr("../../fuera.txt", "no")
     with pytest.raises(installer.InstallError, match="dañado"):
         installer.extract(evil, target)
@@ -88,8 +88,8 @@ def test_incomplete_or_tampered_payloads_are_rejected(tmp_path: Path) -> None:
 def test_install_refuses_while_the_app_is_open(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(installer, "app_running", lambda _target: True)
-    places = installer.Places(target=tmp_path / "LoL Coach", shortcuts=())
+    monkeypatch.setattr(installer, "app_running", lambda *_targets: True)
+    places = installer.Places(target=tmp_path / "Erizo Coach", shortcuts=())
     payload = payload_of(fake_app(tmp_path / "app"), tmp_path)
     with pytest.raises(installer.InstallError, match="abierto"):
         installer.install(payload, places, "0.8.1", register=False)
@@ -98,11 +98,37 @@ def test_install_refuses_while_the_app_is_open(
 
 @pytest.mark.skipif(sys.platform != "win32", reason="accesos directos de Windows")
 def test_install_creates_working_shortcuts(tmp_path: Path) -> None:
-    places = installer.Places(target=tmp_path / "LoL Coach", shortcuts=(tmp_path / "Inicio",))
+    places = installer.Places(target=tmp_path / "Erizo Coach", shortcuts=(tmp_path / "Inicio",))
     payload = payload_of(fake_app(tmp_path / "app"), tmp_path)
     exe = installer.install(payload, places, "0.8.1", register=False)
-    assert exe == places.target / "LoL Coach.exe"
-    assert (tmp_path / "Inicio" / "LoL Coach.lnk").stat().st_size > 0
+    assert exe == places.target / "Erizo Coach.exe"
+    assert (tmp_path / "Inicio" / "Erizo Coach.lnk").stat().st_size > 0
+
+
+def test_install_removes_the_app_with_the_old_name(tmp_path: Path) -> None:
+    """Hasta la 0.18 se llamaba «LoL Coach»: se quitan su carpeta y sus accesos directos."""
+    legacy = tmp_path / "Programs" / "LoL Coach"
+    (legacy / "_internal").mkdir(parents=True)
+    (legacy / "LoL Coach.exe").write_text("viejo", encoding="utf-8")
+    start = tmp_path / "Inicio"
+    start.mkdir()
+    (start / "LoL Coach.lnk").write_text("acceso", encoding="utf-8")
+    (start / "Otra app.lnk").write_text("acceso", encoding="utf-8")
+    places = installer.Places(target=tmp_path / "Programs" / "Erizo Coach", shortcuts=(start,))
+    installer.remove_legacy(places, register=False)
+    assert not legacy.exists()
+    assert not (start / "LoL Coach.lnk").exists()
+    assert (start / "Otra app.lnk").exists()  # lo demás no se toca
+
+
+def test_old_name_folder_without_the_app_is_not_deleted(tmp_path: Path) -> None:
+    folder = tmp_path / "Programs" / "LoL Coach"
+    folder.mkdir(parents=True)
+    (folder / "mis cosas.txt").write_text("hola", encoding="utf-8")
+    installer.remove_legacy(
+        installer.Places(tmp_path / "Programs" / "Erizo Coach", ()), register=False
+    )
+    assert (folder / "mis cosas.txt").exists()
 
 
 # --- WebView2: se descarga de Microsoft solo si falta, y nunca sin la firma de Microsoft ---
@@ -181,7 +207,7 @@ def run_main(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, *, has_webview2: b
     monkeypatch.setattr(installer, "bundled", lambda name: tmp_path / name)
     (tmp_path / installer.VERSION_FILE).write_text("9.9.9", encoding="utf-8")
     monkeypatch.setattr(installer, "default_places", lambda: None)
-    monkeypatch.setattr(installer, "install", lambda *_a, **_kw: tmp_path / "LoL Coach.exe")
+    monkeypatch.setattr(installer, "install", lambda *_a, **_kw: tmp_path / "Erizo Coach.exe")
     monkeypatch.setattr(installer, "webview2_installed", lambda: has_webview2)
 
     def fake_webview2(_work: Path) -> None:
@@ -228,7 +254,7 @@ def test_installer_still_works_if_webview2_cannot_be_installed(
     seen = run_main(monkeypatch, tmp_path, has_webview2=False, fails=True)
     last = seen["messages"][-1]  # type: ignore[index]
     assert "No se ha podido instalar WebView2 (sin conexión)" in last and "Edge" in last
-    assert seen["opened"]  # LoL Coach queda instalado y se puede abrir
+    assert seen["opened"]  # Erizo Coach queda instalado y se puede abrir
 
 
 def test_exe_version_info_matches_the_app_version() -> None:

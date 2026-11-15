@@ -527,7 +527,7 @@ async def test_urgent_defense_does_not_flip_while_the_threat_is_still_strong() -
 
 # --- Objetos que se transforman (mejoras sin comprar) ---------------------------------------
 # El Bastón del arcángel se convierte en Abrazo del serafín al cargarse de maná: el juego
-# solo enseña el nuevo, y antes LoL Coach seguía pidiendo el Bastón.
+# solo enseña el nuevo, y antes Erizo Coach seguía pidiendo el Bastón.
 
 ARCHANGEL, SERAPH, MANAMUNE, MURAMANA = 3003, 3040, 3004, 3042
 

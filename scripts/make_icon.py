@@ -1,69 +1,67 @@
-"""Genera el icono de LoL Coach (diseño propio: rombo dorado sobre azul oscuro).
+"""Genera los iconos de Erizo Coach a partir del dibujo original (docs/img/ErizoCoach.png).
 
 Uso:  uv run python scripts/make_icon.py
-Crea assets/lolcoach.ico (16-256 px, para Windows) y assets/lolcoach.png (512 px).
+Crea:
+* assets/erizocoach.ico   (16-256 px) icono del .exe, la barra de tareas y la bandeja.
+* assets/erizocoach.png   (512 px) el dibujo entero, recortado y cuadrado.
+* src/lolcoach/ui/web/static/logo.png        (256 px) el erizo grande del centro de la ventana.
+* src/lolcoach/ui/web/static/logo-mini.png   (96 px) el de la barra superior (recorte).
+
+En los tamaños pequeños (16-32 px: barra de tareas, bandeja y barra superior) el dibujo entero no se
+distingue, así que se usa un recorte del erizo con su sombrero.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
+SOURCE = ROOT / "docs" / "img" / "ErizoCoach.png"
 ASSETS = ROOT / "assets"
-SIZE = 1024  # se dibuja grande y se reduce: bordes suaves en todos los tamaños
-NAVY_TOP, NAVY_BOTTOM = (16, 34, 62), (6, 14, 30)
-GOLD, GOLD_LIGHT, GOLD_DARK = (200, 170, 110), (240, 222, 170), (120, 90, 40)
-ICO_SIZES = [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
+WEB_STATIC = ROOT / "src" / "lolcoach" / "ui" / "web" / "static"
+LARGE_SIZES = (48, 64, 128, 256)
+SMALL_SIZES = (16, 24, 32)
+# Recorte del erizo (sombrero + cara) en coordenadas relativas al dibujo cuadrado.
+HEAD_BOX = (0.04, 0.12, 0.56, 0.64)
 
 
-def diamond(cx: float, cy: float, r: float) -> list[tuple[float, float]]:
-    return [(cx, cy - r), (cx + r, cy), (cx, cy + r), (cx - r, cy)]
+def square(image: Image.Image, margin: float = 0.02) -> Image.Image:
+    """Recorta lo transparente y centra el dibujo en un cuadrado con un pequeño margen."""
+    image = image.crop(image.getbbox())
+    side = round(max(image.size) * (1 + 2 * margin))
+    canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    canvas.alpha_composite(image, ((side - image.width) // 2, (side - image.height) // 2))
+    return canvas
 
 
-def draw_icon() -> Image.Image:
-    image = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+def head(image: Image.Image) -> Image.Image:
+    w, h = image.size
+    left, top, right, bottom = HEAD_BOX
+    box = (round(left * w), round(top * h), round(right * w), round(bottom * h))
+    return square(image.crop(box))
 
-    # Fondo: cuadrado redondeado con degradado vertical
-    gradient = Image.new("RGBA", (SIZE, SIZE))
-    pixels = gradient.load()
-    for y in range(SIZE):
-        t = y / (SIZE - 1)
-        color = tuple(round(a + (b - a) * t) for a, b in zip(NAVY_TOP, NAVY_BOTTOM, strict=True))
-        for x in range(SIZE):
-            pixels[x, y] = (*color, 255)
-    mask = Image.new("L", (SIZE, SIZE), 0)
-    ImageDraw.Draw(mask).rounded_rectangle((32, 32, SIZE - 32, SIZE - 32), radius=200, fill=255)
-    image.paste(gradient, (0, 0), mask)
 
-    draw = ImageDraw.Draw(image)
-    # Marco dorado fino del fondo
-    draw.rounded_rectangle((32, 32, SIZE - 32, SIZE - 32), radius=200, outline=GOLD_DARK, width=14)
-
-    c = SIZE / 2
-    # Resplandor suave detrás del rombo
-    glow = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
-    ImageDraw.Draw(glow).polygon(diamond(c, c, 330), fill=(200, 170, 110, 90))
-    image.alpha_composite(glow.filter(ImageFilter.GaussianBlur(40)))
-
-    draw = ImageDraw.Draw(image)
-    # El interior del rombo vuelve a azul oscuro (el resplandor solo se ve por fuera)
-    draw.polygon(diamond(c, c, 330), fill=(10, 22, 42))
-    # Rombo exterior: contorno dorado grueso
-    draw.polygon(diamond(c, c, 330), outline=GOLD, width=58)
-    # Rombo interior relleno, con un brillo en la mitad superior
-    draw.polygon(diamond(c, c, 170), fill=GOLD)
-    draw.polygon([(c, c - 170), (c + 170, c), (c, c), (c - 170, c)], fill=GOLD_LIGHT)
-    return image
+def resized(image: Image.Image, size: int) -> Image.Image:
+    return image.resize((size, size), Image.Resampling.LANCZOS)
 
 
 def main() -> None:
+    drawing = square(Image.open(SOURCE).convert("RGBA"))
+    small = head(drawing)
     ASSETS.mkdir(exist_ok=True)
-    icon = draw_icon()
-    icon.resize((512, 512), Image.Resampling.LANCZOS).save(ASSETS / "lolcoach.png")
-    icon.resize((256, 256), Image.Resampling.LANCZOS).save(ASSETS / "lolcoach.ico", sizes=ICO_SIZES)
-    print(f"Icono creado en {ASSETS}")
+    resized(drawing, 512).save(ASSETS / "erizocoach.png", optimize=True)
+    resized(drawing, 256).save(WEB_STATIC / "logo.png", optimize=True)
+    resized(small, 96).save(WEB_STATIC / "logo-mini.png", optimize=True)
+    frames = [resized(small, s) for s in SMALL_SIZES] + [resized(drawing, s) for s in LARGE_SIZES]
+    frames[-1].save(
+        ASSETS / "erizocoach.ico",
+        format="ICO",
+        sizes=[f.size for f in frames],
+        append_images=frames[:-1],
+    )
+    print(f"Iconos creados en {ASSETS} y {WEB_STATIC}")
 
 
 if __name__ == "__main__":

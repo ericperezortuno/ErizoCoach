@@ -1,6 +1,6 @@
 """Paquete de estadísticas compartido: las builds, runas y hechizos ya calculados.
 
-Quien tiene clave de Riot descarga las partidas y su LoL Coach publica el resultado en
+Quien tiene clave de Riot descarga las partidas y su Erizo Coach publica el resultado en
 un repositorio público (ver ``publish.py``). Es un archivo pequeño (unos 30 KB) que solo
 lleva agregados por campeón y posición: ningún nombre, PUUID ni partida concreta.
 
@@ -71,7 +71,7 @@ def decode_pack(data: bytes) -> Stats:
         raise PackError(f"no se puede leer ({exc})") from exc
     parsed = parse_payload(payload, accept=is_sane)
     if parsed is None:
-        raise PackError("formato desconocido (¿LoL Coach desactualizado?)")
+        raise PackError("formato desconocido (¿Erizo Coach desactualizado?)")
     patch, matches, builds = parsed
     if not PATCH.fullmatch(patch) or not 0 < matches <= MAX_GAMES or not builds:
         raise PackError("sin datos válidos")

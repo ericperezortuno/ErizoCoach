@@ -1,18 +1,18 @@
-"""Instalador de LoL Coach en un solo archivo (para pasárselo a otra persona).
+"""Instalador de Erizo Coach en un solo archivo (para pasárselo a otra persona).
 
 Se construye con ``uv run python scripts/build_installer.py`` y lleva dentro la app
 (``payload.zip``). Al abrirlo:
 
 * Pregunta si quieres instalar y lo instala **solo para tu usuario**, sin permisos de
-  administrador, en ``%LOCALAPPDATA%\\Programs\\LoL Coach``.
+  administrador, en ``%LOCALAPPDATA%\\Programs\\Erizo Coach``.
 * Crea accesos directos en el menú Inicio y en el escritorio.
 * Aparece en *Configuración > Aplicaciones > Aplicaciones instaladas*, desde donde se
   desinstala (se quitan la app y los accesos directos; los datos se conservan).
-* Si ya estaba instalado, lo actualiza. Si LoL Coach está abierto, pide cerrarlo antes.
+* Si ya estaba instalado, lo actualiza. Si Erizo Coach está abierto, pide cerrarlo antes.
 * Si al PC le falta **WebView2** (el motor de Microsoft con el que se dibuja la ventana; viene
   de serie en Windows 11 y en casi todos los Windows 10), lo descarga de Microsoft, comprueba
   que el archivo está firmado por Microsoft y lo instala para tu usuario. Si no puede (por
-  ejemplo, sin internet), LoL Coach funciona igual: abre su ventana con Edge.
+  ejemplo, sin internet), Erizo Coach funciona igual: abre su ventana con Edge.
 
 Solo usa la biblioteca estándar de Python (``ctypes`` y ``tkinter`` para las ventanas).
 """
@@ -32,14 +32,20 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-APP_NAME = "LoL Coach"
-EXE_NAME = "LoL Coach.exe"
-SHORTCUT_NAME = "LoL Coach.lnk"
+APP_NAME = "Erizo Coach"
+EXE_NAME = "Erizo Coach.exe"
+SHORTCUT_NAME = "Erizo Coach.lnk"
 UNINSTALL_SCRIPT = "desinstalar.ps1"
-UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\LoLCoach"
+UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\ErizoCoach"
+# Hasta la 0.18 la app se llamaba «LoL Coach»: al instalar se quita esa instalación antigua.
+LEGACY_NAME = "LoL Coach"
+LEGACY_EXE = "LoL Coach.exe"
+LEGACY_SHORTCUT = "LoL Coach.lnk"
+LEGACY_UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\LoLCoach"
+PROCESS_NAMES = ("Erizo Coach", "LoL Coach")
 PAYLOAD = "payload.zip"
 VERSION_FILE = "version.txt"  # dentro del paquete: la versión que se instala
-ICON_FILE = "lolcoach.ico"  # dentro del paquete: icono de la ventanita de progreso
+ICON_FILE = "erizocoach.ico"  # dentro del paquete: icono de la ventanita de progreso
 
 # WebView2 (motor de la ventana): instalador oficial «Evergreen bootstrapper» de Microsoft
 WEBVIEW2_CLIENT_ID = "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
@@ -61,21 +67,21 @@ $ErrorActionPreference = 'SilentlyContinue'
 Add-Type -AssemblyName PresentationFramework
 $box = [System.Windows.MessageBox]
 $app = Split-Path -Parent $MyInvocation.MyCommand.Path
-if (Get-Process -Name 'LoL Coach' | Where-Object { $_.Path -like "$app\*" }) {
-    $box::Show('LoL Coach está abierto: ciérralo y vuelve a desinstalarlo.', 'LoL Coach')
+if (Get-Process -Name 'Erizo Coach' | Where-Object { $_.Path -like "$app\*" }) {
+    $box::Show('Erizo Coach está abierto: ciérralo y vuelve a desinstalarlo.', 'Erizo Coach')
     exit 1
 }
-$question = '¿Quitar LoL Coach de este PC? Tus datos (estadísticas y ajustes) se conservan.'
-if ($box::Show($question, 'Desinstalar LoL Coach', 'YesNo') -ne 'Yes') { exit 0 }
+$question = '¿Quitar Erizo Coach de este PC? Tus datos (estadísticas y ajustes) se conservan.'
+if ($box::Show($question, 'Desinstalar Erizo Coach', 'YesNo') -ne 'Yes') { exit 0 }
 foreach ($folder in 'Programs', 'Desktop') {
-    $link = Join-Path ([Environment]::GetFolderPath($folder)) 'LoL Coach.lnk'
+    $link = Join-Path ([Environment]::GetFolderPath($folder)) 'Erizo Coach.lnk'
     Remove-Item -LiteralPath $link -Force
 }
-$key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\LoLCoach'
+$key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\ErizoCoach'
 Remove-Item -LiteralPath $key -Recurse -Force
 Set-Location -LiteralPath $env:TEMP
 Remove-Item -LiteralPath $app -Recurse -Force
-$box::Show('LoL Coach se ha desinstalado.', 'LoL Coach') | Out-Null
+$box::Show('Erizo Coach se ha desinstalado.', 'Erizo Coach') | Out-Null
 """
 
 
@@ -106,16 +112,17 @@ def known_folder(name: str) -> Path:
     return Path(result.stdout.strip())
 
 
-def app_running(target: Path) -> bool:
-    """¿Está abierto el LoL Coach instalado en ``target``? (sin librerías extra)."""
+def app_running(*targets: Path) -> bool:
+    """¿Está abierta la app instalada en alguna de ``targets``? (sin librerías extra)."""
+    names = ",".join(f"'{name}'" for name in PROCESS_NAMES)
     result = subprocess.run(
         ["powershell", "-NoProfile", "-Command",
-         "Get-Process -Name 'LoL Coach' -ErrorAction SilentlyContinue | "
+         f"Get-Process -Name {names} -ErrorAction SilentlyContinue | "
          "ForEach-Object { $_.Path }"],
         capture_output=True, text=True, check=False, creationflags=CREATE_NO_WINDOW,
     )  # fmt: skip
-    prefix = str(target).lower() + os.sep
-    return any(line.strip().lower().startswith(prefix) for line in result.stdout.splitlines())
+    prefixes = tuple(str(target).lower() + os.sep for target in targets)
+    return any(line.strip().lower().startswith(prefixes) for line in result.stdout.splitlines())
 
 
 def extract(payload: Path, target: Path) -> None:
@@ -142,7 +149,7 @@ def create_shortcut(link: Path, exe: Path) -> None:
         "$s = (New-Object -ComObject WScript.Shell).CreateShortcut($env:LC_LINK); "
         "$s.TargetPath = $env:LC_TARGET; $s.WorkingDirectory = $env:LC_DIR; "
         "$s.IconLocation = $env:LC_TARGET + ',0'; "
-        "$s.Description = 'LoL Coach: runas, hechizos y builds para League of Legends'; "
+        "$s.Description = 'Erizo Coach: runas, hechizos y builds para League of Legends'; "
         "$s.Save()"
     )
     env = {**os.environ, "LC_LINK": str(link), "LC_TARGET": str(exe), "LC_DIR": str(exe.parent)}
@@ -177,10 +184,29 @@ def register_uninstaller(target: Path, version: str) -> None:
         winreg.SetValueEx(key, "NoRepair", 0, winreg.REG_DWORD, 1)
 
 
+def remove_legacy(places: Places, *, register: bool = True) -> None:
+    """Quita la instalación con el nombre antiguo («LoL Coach»): carpeta, accesos y entrada.
+
+    Solo borra la carpeta si de verdad es la app antigua (tiene su ejecutable). Los datos
+    (estadísticas, ajustes, clave) no se tocan: la app nueva sigue usando los mismos.
+    """
+    for folder in places.shortcuts:
+        with contextlib.suppress(OSError):
+            (folder / LEGACY_SHORTCUT).unlink(missing_ok=True)
+    legacy = places.target.with_name(LEGACY_NAME)
+    if legacy != places.target and (legacy / LEGACY_EXE).is_file():
+        shutil.rmtree(legacy, ignore_errors=True)
+    if register:
+        import winreg
+
+        with contextlib.suppress(OSError):
+            winreg.DeleteKey(winreg.HKEY_CURRENT_USER, LEGACY_UNINSTALL_KEY)
+
+
 def install(payload: Path, places: Places, version: str, *, register: bool = True) -> Path:
     """Instala o actualiza. Devuelve la ruta del ejecutable."""
-    if app_running(places.target):
-        raise InstallError("LoL Coach está abierto: ciérralo y vuelve a abrir el instalador.")
+    if app_running(places.target, places.target.with_name(LEGACY_NAME)):
+        raise InstallError("Erizo Coach está abierto: ciérralo y vuelve a abrir el instalador.")
     extract(payload, places.target)
     exe = places.target / EXE_NAME
     for folder in places.shortcuts:
@@ -188,6 +214,7 @@ def install(payload: Path, places: Places, version: str, *, register: bool = Tru
         create_shortcut(folder / SHORTCUT_NAME, exe)
     if register:
         register_uninstaller(places.target, version)
+    remove_legacy(places, register=register)
     return exe
 
 
@@ -219,7 +246,7 @@ def download(url: str, dest: Path, *, max_bytes: int = WEBVIEW2_MAX_BYTES) -> No
     """Descarga por HTTPS (con el certificado comprobado) y con un tamaño máximo."""
     if not url.startswith("https://"):
         raise InstallError("solo se descarga por HTTPS")
-    request = urllib.request.Request(url, headers={"User-Agent": "LoLCoach-Installer"})
+    request = urllib.request.Request(url, headers={"User-Agent": "ErizoCoach-Installer"})
     with urllib.request.urlopen(request, timeout=WEBVIEW2_DOWNLOAD_TIMEOUT) as response:
         if not response.geturl().startswith("https://"):
             raise InstallError("la descarga ha salido de HTTPS")
@@ -369,7 +396,7 @@ def main(argv: list[str] | None = None) -> int:
     if needs_webview2:
         question += (
             "A este PC le falta WebView2, el componente de Microsoft con el que se dibuja la "
-            "ventana de LoL Coach: se descargará de Microsoft y se instalará (unos minutos; "
+            "ventana de Erizo Coach: se descargará de Microsoft y se instalará (unos minutos; "
             "hace falta internet).\n\n"
         )
     question += "¿Quieres instalarlo?"
@@ -402,7 +429,7 @@ def main(argv: list[str] | None = None) -> int:
     done = f"{APP_NAME} {version} está instalado.\n\n"
     if webview2_problem:
         done += (
-            f"No se ha podido instalar WebView2 ({webview2_problem}). No pasa nada: LoL Coach "
+            f"No se ha podido instalar WebView2 ({webview2_problem}). No pasa nada: Erizo Coach "
             "abrirá su ventana con Microsoft Edge y funciona igual. Si quieres la ventana "
             "propia, vuelve a abrir este instalador con internet.\n\n"
         )

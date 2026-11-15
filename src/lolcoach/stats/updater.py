@@ -1,4 +1,4 @@
-"""Descarga automática de estadísticas mientras LoL Coach está abierto.
+"""Descarga automática de estadísticas mientras Erizo Coach está abierto.
 
 * Solo si hay clave de Riot guardada (y ``stats_auto_download`` no está desactivado).
 * Se pausa en la selección de campeones y durante la partida, para no gastar red
@@ -139,7 +139,7 @@ class StatsUpdater:
             self._finished_patch = patch
             await self._status(
                 "Estadísticas sin descarga automática: no hay clave de Riot guardada "
-                "(lolcoach-consola stats clave)."
+                "(erizocoach-consola stats clave)."
             )
             return
         REDACTOR.add_secret(key)
@@ -195,7 +195,7 @@ class StatsUpdater:
     async def _cannot_open(self, exc: Exception) -> None:
         await self._status(
             f"No se puede usar la base de estadísticas ({exc}): se reintentará en unos "
-            "minutos. Si sigue igual, cierra la consola de LoL Coach si la tienes abierta.",
+            "minutos. Si sigue igual, cierra la consola de Erizo Coach si la tienes abierta.",
             problem=True,
         )
         await asyncio.sleep(self._retry_seconds)
@@ -233,7 +233,7 @@ class StatsUpdater:
             except RiotApiKeyError as exc:
                 await self._status(
                     f"La clave de Riot ha caducado o no es válida ({exc.riot_message or exc}): "
-                    "las estadísticas no se actualizan. Renuévala con «lolcoach-consola stats "
+                    "las estadísticas no se actualizan. Renuévala con «erizocoach-consola stats "
                     "clave».",
                     problem=True,
                 )

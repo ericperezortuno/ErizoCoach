@@ -1,6 +1,6 @@
 "use strict";
 
-// La ventana solo pinta el estado que le envía LoL Coach. Funciona de dos formas:
+// La ventana solo pinta el estado que le envía Erizo Coach. Funciona de dos formas:
 // * Escritorio (pywebview): puente directo con la app, sin servidor ni red.
 // * Navegador (respaldo): servidor local con websocket.
 // Todo el texto se inserta con textContent (nunca como HTML).
@@ -38,7 +38,7 @@ function setupBackground() {
       button.disabled = false;
       button.blur(); // al volver, que no se quede marcado
     } else {
-      button.title = "No disponible: Windows no ha dejado poner el icono de LoL Coach junto al reloj.";
+      button.title = "No disponible: Windows no ha dejado poner el icono de Erizo Coach junto al reloj.";
     }
   });
 }
@@ -78,7 +78,7 @@ function connect() {
 
 function setConnection(on) {
   document.getElementById("connection").className = on ? "dot on" : "dot off";
-  setText("connection-text", on ? "Conectado a LoL Coach" : "Sin conexión con LoL Coach (¿está abierto?)");
+  setText("connection-text", on ? "Conectado a Erizo Coach" : "Sin conexión con Erizo Coach (¿está abierto?)");
 }
 
 // --- Movimiento ----------------------------------------------------------------------
@@ -266,14 +266,14 @@ function renderIdle(state) {
     ? "Preselecciona o mira un campeón y verás aquí sus runas y hechizos. Se ponen solos al hacerse el último pick."
     : state.connected
       ? "En la selección verás las runas y hechizos del campeón que preselecciones; al último pick se ponen solos, con tu build. Durante la partida, qué comprar y quién va fuerte."
-      : "Abre el cliente de League of Legends: LoL Coach se conectará solo.";
+      : "Abre el cliente de League of Legends: Erizo Coach se conectará solo.";
   const stats = state.stats && !state.stats.problem ? el("div", { class: "small stats", text: state.stats.text }) : null;
   const emblem = el("span", { class: "emblem", "aria-hidden": "true" });
   if (seen.entering) {
-    // El emblema se «arma» una vez: el anillo gira un cuarto de vuelta y el rombo aparece.
+    // El emblema se «arma» una vez: el anillo gira un cuarto de vuelta y el erizo aparece.
     motion(() => {
       move(emblem, [{ transform: "rotate(-90deg)" }, { transform: "none" }], { duration: 1400, easing: EASE_OUT, pseudoElement: "::before" });
-      move(emblem, [{ opacity: 0, transform: "rotate(45deg) scale(.4)" }, { opacity: 1, transform: "rotate(45deg) scale(1)" }],
+      move(emblem, [{ opacity: 0, transform: "translateY(10px) scale(.6)" }, { opacity: 1, transform: "none" }],
         { duration: 700, delay: 200, easing: EASE_POP, fill: "backwards", pseudoElement: "::after" });
     });
   }
@@ -355,7 +355,7 @@ function renderHero(state) {
 
 // --- Runas: la página con sus imágenes y el editor ------------------------------------
 // Al tocar una runa en el editor, la página se cambia aquí al momento (borrador) y se envía
-// a la app, que la valida y la escribe en tu página «LoL Coach» del cliente. El borrador se
+// a la app, que la valida y la escribe en tu página «Erizo Coach» del cliente. El borrador se
 // enseña hasta que la app confirma (o 4 s, si algo falla: entonces vuelve lo que hay).
 
 const SEND_DELAY = 350; // varios clics seguidos = un solo envío
@@ -505,7 +505,7 @@ function renderSpells(loadout, state, canEdit) {
   const parts = [el("div", { class: "spells" }, [
     el("span", { class: "section-label inline", text: "Hechizos" }),
     ...slots,
-    yours ? el("span", { class: "small muted", text: "Tuyos: LoL Coach no los toca" })
+    yours ? el("span", { class: "small muted", text: "Tuyos: Erizo Coach no los toca" })
       : canEdit && spellEditor.slot < 0 ? el("span", { class: "small muted", text: "Toca uno para cambiarlo" }) : null,
   ])];
   if (canEdit && spellEditor.slot >= 0) {
@@ -678,7 +678,7 @@ function renderRuneEditor(page, catalog) {
     ["perk", id, name(id), perks[6 + r] === id, () => pick(withShard(page, r, id)), "shard-option"])));
 
   return el("div", { class: "rune-editor" }, [
-    el("div", { class: "muted small", text: "Toca una runa: se cambia al momento en tu página «LoL Coach» del cliente." }),
+    el("div", { class: "muted small", text: "Toca una runa: se cambia al momento en tu página «Erizo Coach» del cliente." }),
     el("div", { class: "editor-columns" }, [
       el("div", { class: "editor-tree" }, [el("div", { class: "section-label", text: "Principal" }), primaryTrees, ...primaryRows]),
       el("div", { class: "editor-tree" }, [

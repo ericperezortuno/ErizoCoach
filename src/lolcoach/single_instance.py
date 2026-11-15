@@ -63,7 +63,7 @@ if os.name == "nt":
         os.lseek(fd, 0, os.SEEK_SET)
         msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
 
-else:  # pragma: no cover - LoL Coach se usa en Windows; esto permite desarrollar en otros SO
+else:  # pragma: no cover - Erizo Coach se usa en Windows; esto permite desarrollar en otros SO
     import fcntl
 
     def _lock(fd: int) -> None:

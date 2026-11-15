@@ -1,10 +1,10 @@
 # ruff: noqa: E501, ASYNC220, ASYNC221, ASYNC240
 # (herramienta de desarrollo de un solo uso: los datos de las escenas se leen mejor en una
 #  línea, y abrir Edge o mirar archivos sin asyncio aquí no bloquea nada que importe)
-"""Capturas y animaciones del README, hechas con la ventana REAL de LoL Coach.
+"""Capturas y animaciones del README, hechas con la ventana REAL de Erizo Coach.
 
 Monta el servidor de la ventana (el mismo presentador, ``app.js`` y ``style.css`` que usa la
-app), lo alimenta con partidas de ejemplo calculadas por el propio código de LoL Coach y
+app), lo alimenta con partidas de ejemplo calculadas por el propio código de Erizo Coach y
 lo graba con Microsoft Edge sin ventana (protocolo DevTools):
 
 * Datos del juego: los del parche 16.22 de las pruebas, con las rutas de los iconos.
@@ -77,7 +77,7 @@ PACK_URL = (
 )
 ASSETS = "/lol-game-data/assets/"
 SR = QueueInfo(420, "Clasificatoria en solitario", "CLASSIC", 11)
-WIDTH, HEIGHT = 1056, 700  # el tamaño con el que se abre la ventana de LoL Coach
+WIDTH, HEIGHT = 1056, 700  # el tamaño con el que se abre la ventana de Erizo Coach
 ENEMIES = [122, 104, 238, 145, 16]  # Darius, Graves, Zed, Kai'Sa, Soraka
 
 
@@ -360,7 +360,7 @@ class Show:
         here = self.presenter._in_client
         spells = here.spells if here else self.loadout.spells
         await self.bus.publish(LoadoutInClient(AHRI, event.page, spells, RunesBy.YOU_IN_APP,
-                                               RunesBy.PREVIEW, "LoL Coach: Ahri"))  # fmt: skip
+                                               RunesBy.PREVIEW, "Erizo Coach: Ahri"))  # fmt: skip
 
     async def _spells_written(self, event: SpellsEditRequested) -> None:
         await asyncio.sleep(0.25)
@@ -368,7 +368,7 @@ class Show:
         runes = here.runes if here else self.loadout.runes
         by = here.runes_by if here else RunesBy.PREVIEW
         await self.bus.publish(LoadoutInClient(AHRI, runes, event.spells, by, RunesBy.YOU_IN_APP,
-                                               "LoL Coach: Ahri"))  # fmt: skip
+                                               "Erizo Coach: Ahri"))  # fmt: skip
 
     async def lobby(self) -> None:
         await self.presenter._set(connected=True)
@@ -394,7 +394,7 @@ class Show:
 
     async def applied(self) -> None:
         await self.bus.publish(LoadoutInClient(AHRI, self.loadout.runes, self.loadout.spells,
-                                               RunesBy.PREVIEW, RunesBy.PREVIEW, "LoL Coach: Ahri"))  # fmt: skip
+                                               RunesBy.PREVIEW, RunesBy.PREVIEW, "Erizo Coach: Ahri"))  # fmt: skip
 
     async def game(self, minute: float) -> None:
         if self.presenter.state["phase"] != GameflowPhase.IN_PROGRESS.value:

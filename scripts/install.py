@@ -1,11 +1,11 @@
-"""Instala LoL Coach para tu usuario, con accesos directos en el menú Inicio y el escritorio.
+"""Instala Erizo Coach para tu usuario, con accesos directos en el menú Inicio y el escritorio.
 
 Uso:
     uv run python scripts/build_exe.py     (antes: construir los ejecutables)
     uv run python scripts/install.py       instalar o actualizar
     uv run python scripts/install.py --desinstalar
 
-* Se instala en %LOCALAPPDATA%\\Programs\\LoL Coach (no hacen falta permisos de administrador).
+* Se instala en %LOCALAPPDATA%\\Programs\\Erizo Coach (no hacen falta permisos de administrador).
 * Tus datos (estadísticas, configuración, registros) están en %LOCALAPPDATA%\\LoLCoach y
   no se tocan ni al actualizar ni al desinstalar.
 """
@@ -22,11 +22,15 @@ from pathlib import Path
 import psutil
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE = ROOT / "dist" / "LoL Coach"
-TARGET = Path(os.environ["LOCALAPPDATA"]) / "Programs" / "LoL Coach"
+SOURCE = ROOT / "dist" / "Erizo Coach"
+TARGET = Path(os.environ["LOCALAPPDATA"]) / "Programs" / "Erizo Coach"
 START_MENU = Path(os.environ["APPDATA"]) / "Microsoft" / "Windows" / "Start Menu" / "Programs"
-SHORTCUT_NAME = "LoL Coach.lnk"
-EXE_NAME = "LoL Coach.exe"
+SHORTCUT_NAME = "Erizo Coach.lnk"
+EXE_NAME = "Erizo Coach.exe"
+# Hasta la 0.18 la app se llamaba «LoL Coach»: al instalar se quita esa instalación antigua.
+LEGACY_TARGET = TARGET.with_name("LoL Coach")
+LEGACY_SHORTCUT = "LoL Coach.lnk"
+LEGACY_EXE = "LoL Coach.exe"
 
 
 def desktop_folder() -> Path:
@@ -43,7 +47,7 @@ def create_shortcut(link: Path, target: Path) -> None:
         "$s = (New-Object -ComObject WScript.Shell).CreateShortcut($env:LC_LINK); "
         "$s.TargetPath = $env:LC_TARGET; $s.WorkingDirectory = $env:LC_DIR; "
         "$s.IconLocation = $env:LC_TARGET + ',0'; "
-        "$s.Description = 'LoL Coach: runas, hechizos y builds para League of Legends'; "
+        "$s.Description = 'Erizo Coach: runas, hechizos y builds para League of Legends'; "
         "$s.Save()"
     )
     env = {**os.environ, "LC_LINK": str(link), "LC_TARGET": str(target),
@@ -52,13 +56,26 @@ def create_shortcut(link: Path, target: Path) -> None:
 
 
 def running() -> bool:
+    names = {EXE_NAME.lower(), LEGACY_EXE.lower()}
+    folders = (str(TARGET).lower() + os.sep, str(LEGACY_TARGET).lower() + os.sep)
     for proc in psutil.process_iter(["name", "exe"]):
         exe = (proc.info.get("exe") or "").lower()
-        if (proc.info.get("name") or "").lower() == EXE_NAME.lower() and exe.startswith(
-            str(TARGET).lower()
-        ):
+        if (proc.info.get("name") or "").lower() in names and exe.startswith(folders):
             return True
     return False
+
+
+def remove_legacy() -> list[str]:
+    """Quita la app con el nombre antiguo (carpeta y accesos directos). Los datos se quedan."""
+    removed = []
+    for link in (START_MENU / LEGACY_SHORTCUT, desktop_folder() / LEGACY_SHORTCUT):
+        if link.exists():
+            link.unlink()
+            removed.append(str(link))
+    if (LEGACY_TARGET / LEGACY_EXE).is_file():
+        shutil.rmtree(LEGACY_TARGET)
+        removed.append(str(LEGACY_TARGET))
+    return removed
 
 
 def install() -> int:
@@ -66,7 +83,7 @@ def install() -> int:
         print("No hay ejecutables: primero «uv run python scripts/build_exe.py».")
         return 1
     if running():
-        print("LoL Coach está abierto: ciérralo y vuelve a intentarlo.")
+        print("Erizo Coach está abierto: ciérralo y vuelve a intentarlo.")
         return 1
     if TARGET.exists():
         shutil.rmtree(TARGET)
@@ -76,15 +93,17 @@ def install() -> int:
     for link in links:
         link.parent.mkdir(parents=True, exist_ok=True)
         create_shortcut(link, exe)
-    print(f"LoL Coach instalado en {TARGET}")
+    print(f"Erizo Coach instalado en {TARGET}")
     for link in links:
         print(f"  Acceso directo: {link}")
+    for path in remove_legacy():
+        print(f"  Quitado (nombre antiguo): {path}")
     return 0
 
 
 def uninstall() -> int:
     if running():
-        print("LoL Coach está abierto: ciérralo y vuelve a intentarlo.")
+        print("Erizo Coach está abierto: ciérralo y vuelve a intentarlo.")
         return 1
     removed = []
     for link in (START_MENU / SHORTCUT_NAME, desktop_folder() / SHORTCUT_NAME):
@@ -102,8 +121,8 @@ def uninstall() -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Instala o desinstala LoL Coach.")
-    parser.add_argument("--desinstalar", action="store_true", help="quita LoL Coach")
+    parser = argparse.ArgumentParser(description="Instala o desinstala Erizo Coach.")
+    parser.add_argument("--desinstalar", action="store_true", help="quita Erizo Coach")
     args = parser.parse_args()
     return uninstall() if args.desinstalar else install()
 

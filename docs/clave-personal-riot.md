@@ -2,10 +2,10 @@
 
 La clave de desarrollo (*Development API Key*) caduca cada 24 horas. Para no tener que
 renovarla, Riot ofrece la **clave personal** (*Personal API Key*) para proyectos de uso propio
-como LoL Coach:
+como Erizo Coach:
 
 - **Mismos límites** que la de desarrollo: 20 peticiones por segundo y 100 cada 2 minutos.
-  A LoL Coach le sobran (descarga unas 1.500 partidas por hora).
+  A Erizo Coach le sobran (descarga unas 1.500 partidas por hora).
 - **Solo para ti**: Riot no permite usarla en aplicaciones públicas o para otros usuarios.
 - **Gratis**. La pides con un formulario y Riot la revisa a mano; no indica cuánto tarda.
 - La web de Riot no dice de forma explícita si caduca. La comunidad indica que no caduca
@@ -21,13 +21,13 @@ como LoL Coach:
    **Product Name**
 
    ```text
-   LoL Coach (personal)
+   Erizo Coach (personal)
    ```
 
    **Product Description**
 
    ```text
-   LoL Coach is a personal, non-commercial desktop tool that I use only on my own Windows PC
+   Erizo Coach is a personal, non-commercial desktop tool that I use only on my own Windows PC
    while playing League of Legends on EUW. It is not distributed or offered to anyone else.
 
    What it does:
@@ -67,8 +67,8 @@ como LoL Coach:
 Guárdala igual que la de desarrollo. Sustituye a la anterior:
 
 ```bash
-lolcoach-consola stats clave
+erizocoach-consola stats clave
 ```
 
-Desde el código fuente: `uv run lolcoach stats clave`. LoL Coach la usará en la siguiente
+Desde el código fuente: `uv run lolcoach stats clave`. Erizo Coach la usará en la siguiente
 descarga automática; no hace falta cambiar nada más.

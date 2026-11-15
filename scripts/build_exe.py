@@ -1,4 +1,4 @@
-"""Construye los ejecutables de LoL Coach en dist/LoL Coach/.
+"""Construye los ejecutables de Erizo Coach en dist/Erizo Coach/.
 
 Uso:  uv run python scripts/build_exe.py
 Después, para instalarlo con accesos directos:  uv run python scripts/install.py
@@ -18,7 +18,7 @@ BUILD = ROOT / "build"
 
 
 def main() -> int:
-    for folder in (DIST / "LoL Coach", BUILD):
+    for folder in (DIST / "Erizo Coach", BUILD):
         shutil.rmtree(folder, ignore_errors=True)
     command = [
         sys.executable, "-m", "PyInstaller", str(SPEC),
@@ -29,10 +29,10 @@ def main() -> int:
     if result.returncode != 0:
         print("La construcción ha fallado.")
         return result.returncode
-    folder = DIST / "LoL Coach"
+    folder = DIST / "Erizo Coach"
     size = sum(f.stat().st_size for f in folder.rglob("*") if f.is_file()) / 1_000_000
     print(f"Listo: {folder} ({size:.0f} MB)")
-    for exe in ("LoL Coach.exe", "lolcoach-consola.exe"):
+    for exe in ("Erizo Coach.exe", "erizocoach-consola.exe"):
         print(f"  {exe}: {'OK' if (folder / exe).exists() else 'FALTA'}")
     return 0
 

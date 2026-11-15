@@ -1,11 +1,11 @@
-"""Icono de LoL Coach en la bandeja de Windows (junto al reloj).
+"""Icono de Erizo Coach en la bandeja de Windows (junto al reloj).
 
 Sirve para el **segundo plano**: la ventana se esconde (tampoco sale en la barra de
 tareas), pero la app sigue funcionando igual (runas, hechizos, build, partida en vivo).
 
 * Clic en el icono: vuelve a abrir la ventana.
-* Clic derecho: menú con «Abrir LoL Coach» y «Cerrar LoL Coach».
-* Si abres LoL Coach otra vez mientras está en segundo plano, se abre la ventana que ya
+* Clic derecho: menú con «Abrir Erizo Coach» y «Cerrar Erizo Coach».
+* Si abres Erizo Coach otra vez mientras está en segundo plano, se abre la ventana que ya
   estaba en marcha en lugar de avisar de que ya está abierto (``signal_running``).
 
 Usa la API de Windows directamente (``ctypes``), sin librerías extra, en un hilo propio
@@ -24,11 +24,11 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 WINDOW_CLASS = "LoLCoachTrayWindow"
-TOOLTIP = "LoL Coach (en marcha)"
+TOOLTIP = "Erizo Coach (en marcha)"
 
 # Mensajes propios (WM_APP = 0x8000)
 WM_TRAY = 0x8001  # eventos del icono
-WM_SHOW_REQUEST = 0x8002  # otra copia de LoL Coach pide abrir la ventana
+WM_SHOW_REQUEST = 0x8002  # otra copia de Erizo Coach pide abrir la ventana
 WM_NOTIFY_REQUEST = 0x8003  # mostrar el aviso pendiente (desde otro hilo)
 
 MENU_OPEN = 1
@@ -36,7 +36,7 @@ MENU_QUIT = 2
 
 
 def signal_running(window_class: str = WINDOW_CLASS) -> bool:
-    """Pide a la copia de LoL Coach que ya está abierta que muestre su ventana.
+    """Pide a la copia de Erizo Coach que ya está abierta que muestre su ventana.
 
     Devuelve True si había una copia con icono en la bandeja y se le ha avisado.
     """
@@ -64,10 +64,10 @@ def signal_running(window_class: str = WINDOW_CLASS) -> bool:
 
 
 def default_icon_path() -> Path | None:
-    """El icono de LoL Coach: el del .exe instalado o, en desarrollo, ``assets/lolcoach.ico``."""
+    """El icono de la app: el del .exe instalado o, en desarrollo, ``assets/erizocoach.ico``."""
     if getattr(sys, "frozen", False):
         return Path(sys.executable)  # el icono va dentro del .exe
-    candidate = Path(__file__).resolve().parents[3] / "assets" / "lolcoach.ico"
+    candidate = Path(__file__).resolve().parents[3] / "assets" / "erizocoach.ico"
     return candidate if candidate.exists() else None
 
 
@@ -302,7 +302,7 @@ class _Win32Tray:
         # Ventana normal pero nunca visible: así recibe el aviso de que el Explorador
         # se ha reiniciado (las ventanas «solo mensajes» no lo reciben).
         self._hwnd = user32.CreateWindowExW(
-            0, window_class, "LoL Coach", 0, 0, 0, 0, 0, None, None, self._hinstance, None
+            0, window_class, "Erizo Coach", 0, 0, 0, 0, 0, None, None, self._hinstance, None
         )
         if not self._hwnd:
             error = ctypes.get_last_error()
@@ -390,9 +390,9 @@ class _Win32Tray:
         if not menu:
             return
         try:
-            user32.AppendMenuW(menu, 0, MENU_OPEN, "Abrir LoL Coach")
+            user32.AppendMenuW(menu, 0, MENU_OPEN, "Abrir Erizo Coach")
             user32.AppendMenuW(menu, 0x800, 0, None)  # MF_SEPARATOR
-            user32.AppendMenuW(menu, 0, MENU_QUIT, "Cerrar LoL Coach")
+            user32.AppendMenuW(menu, 0, MENU_QUIT, "Cerrar Erizo Coach")
             user32.SetMenuDefaultItem(menu, MENU_OPEN, 0)
             point = self._POINT()
             user32.GetCursorPos(ct.byref(point))

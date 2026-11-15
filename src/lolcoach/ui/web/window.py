@@ -1,8 +1,8 @@
-"""Abre la ventana de LoL Coach en tu segundo monitor.
+"""Abre la ventana de Erizo Coach en tu segundo monitor.
 
 Usa Microsoft Edge (incluido en Windows) en modo aplicación: una ventana sin
 barras de navegador. Tiene su propio perfil (dentro de la carpeta de datos de
-LoL Coach), así que no se mezcla con tu navegación ni con tus pestañas.
+Erizo Coach), así que no se mezcla con tu navegación ni con tus pestañas.
 Si no encuentra Edge, abre la página en tu navegador predeterminado.
 """
 
@@ -134,9 +134,9 @@ class AppWindow:
             process.terminate()
 
     def close_leftovers(self) -> int:
-        """Cierra ventanas de LoL Coach que quedaran abiertas (p. ej., si la app se cerró de golpe).
+        """Cierra ventanas de Erizo Coach que quedaran abiertas (p. ej., si la app se cerró).
 
-        Solo afecta a procesos de Edge que usan el perfil propio de LoL Coach: nunca a tu
+        Solo afecta a procesos de Edge que usan el perfil propio de Erizo Coach: nunca a tu
         navegador normal. Devuelve cuántos procesos se han cerrado.
         """
         marker = f"--user-data-dir={self._profile_dir}".lower()
@@ -151,5 +151,5 @@ class AppWindow:
             except (psutil.Error, OSError):
                 continue
         if closed:
-            log.debug("Cerradas %d ventanas antiguas de LoL Coach", closed)
+            log.debug("Cerradas %d ventanas antiguas de Erizo Coach", closed)
         return closed

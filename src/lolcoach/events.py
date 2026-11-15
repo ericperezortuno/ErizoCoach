@@ -157,9 +157,9 @@ class RunesBy(StrEnum):
     """Quién ha puesto las runas (o los hechizos) que tienes ahora en el cliente."""
 
     NOBODY = ""
-    PREVIEW = "preview"  # LoL Coach, al preseleccionar (provisionales)
-    COACH = "coach"  # LoL Coach, al hacerse el último pick
-    YOU_IN_APP = "you_in_app"  # tú, desde la ventana de LoL Coach
+    PREVIEW = "preview"  # Erizo Coach, al preseleccionar (provisionales)
+    COACH = "coach"  # Erizo Coach, al hacerse el último pick
+    YOU_IN_APP = "you_in_app"  # tú, desde la ventana de Erizo Coach
     YOU_IN_CLIENT = "you_in_client"  # tú, en el cliente de LoL (se respetan)
 
     @property

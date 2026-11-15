@@ -3,7 +3,7 @@
 Al completar la misión de rol de tirador, las botas pasan a un espacio propio, aparte del
 inventario. La API de la partida en vivo (``/liveclientdata``) solo publica los espacios
 0-6, así que esas botas no aparecen en ningún sitio, y tampoco las que se compran después.
-Sin esto, LoL Coach seguía pidiendo «compra ahora tus botas» aunque ya las tuvieras.
+Sin esto, Erizo Coach seguía pidiendo «compra ahora tus botas» aunque ya las tuvieras.
 
 Solo si juegas en la línea inferior (la única misión con ese espacio) se deduce qué botas
 tienes ahí, y se distingue si son las de base (Botas, o el Calzado ligeramente mágico de

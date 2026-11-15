@@ -189,11 +189,14 @@ async def test_page_requires_the_key(server: tuple[UiServer, EventBus]) -> None:
         assert (await http.get(base + "/")).status == 403
         assert (await http.get(base + "/?t=mala")).status == 403
         ok = await http.get(ui.url)
-        assert ok.status == 200 and "LoL Coach" in await ok.text()
+        assert ok.status == 200 and "Erizo Coach" in await ok.text()
         csp = ok.headers["Content-Security-Policy"]
         assert "default-src 'none'" in csp and "frame-ancestors 'none'" in csp
         assert ok.headers["X-Frame-Options"] == "DENY"
         assert (await http.get(base + "/static/app.js")).status == 200
+        logo = await http.get(base + "/static/logo.png")
+        assert logo.status == 200 and logo.content_type == "image/png"
+        assert (await logo.read())[1:4] == b"PNG"
         assert (await http.get(base + "/static/secreto.txt")).status == 404
 
 

@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="docs/img/banner.svg" width="100%" alt="LoL Coach: runas, hechizos y build para League of Legends; en partida, qué comprar y quién va fuerte">
+  <img src="docs/img/banner.svg" width="100%" alt="Erizo Coach: runas, hechizos y build para League of Legends; en partida, qué comprar y quién va fuerte">
 </p>
 
 <p align="center">
-  <img alt="Versión 0.18.2" src="https://img.shields.io/badge/versi%C3%B3n-0.18.2-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.19.0" src="https://img.shields.io/badge/versi%C3%B3n-0.19.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
   <img alt="398 pruebas" src="https://img.shields.io/badge/pruebas-398-4fd6a2?style=for-the-badge&labelColor=0c1b35">
@@ -18,7 +18,7 @@
 
 <p align="center">
   <img src="docs/img/seleccion.webp" width="820" alt="Selección de campeones: al preseleccionar a Ahri salen sus runas, hechizos y build; a los 5 segundos se ponen solas en el cliente y se elige otra de las páginas propuestas">
-  <br><sub>La ventana real de LoL Coach en la selección de campeones: previsión, runas puestas solas y otra página elegida con un clic.</sub>
+  <br><sub>La ventana real de Erizo Coach en la selección de campeones: previsión, runas puestas solas y otra página elegida con un clic.</sub>
 </p>
 
 ---
@@ -62,7 +62,7 @@ bloqueas, cómo va tu enfrentamiento.
 
 ### ✏️ Cámbialas desde la ventana
 - **Runas**: abre el editor y toca la que quieras, como en el cliente. Se escribe al
-  momento en tu página «LoL Coach». Si cambias de árbol, el resto se recoloca solo para
+  momento en tu página «Erizo Coach». Si cambias de árbol, el resto se recoloca solo para
   que la página siga siendo válida.
 - **Hechizos**: toca el de la D o el de la F y elige otro de los de tu modo. Si eliges
   el de la otra tecla, se intercambian.
@@ -70,7 +70,7 @@ bloqueas, cómo va tu enfrentamiento.
   ese campeón.
 
 ### 🛒 La build en la tienda
-Un conjunto de objetos «LoL Coach» con lo inicial, las botas, el núcleo en orden y lo que
+Un conjunto de objetos «Erizo Coach» con lo inicial, las botas, el núcleo en orden y lo que
 pide el equipo enemigo, listo en la pestaña *Conjuntos de objetos*.
 
 </td>
@@ -132,7 +132,7 @@ Los objetos que se mejoran solos (Abrazo del serafín, Muramana...) cuentan como
 
 ```mermaid
 flowchart LR
-    C["🎮 Cliente de LoL<br/><sub>API local oficial</sub>"] -- "selección de campeones" --> A(("LoL Coach"))
+    C["🎮 Cliente de LoL<br/><sub>API local oficial</sub>"] -- "selección de campeones" --> A(("Erizo Coach"))
     S[("📈 Alto elo<br/><sub>API de Riot o<br/>paquete compartido</sub>")] --> A
     A -- "runas · hechizos ·<br/>conjunto de objetos" --> C
     P["⚔️ Partida en vivo<br/><sub>127.0.0.1:2999</sub>"] -- "marcador" --> A
@@ -181,18 +181,18 @@ flowchart LR
   campeón. Solo vuelve a aplicar si cambia tu campeón (intercambio o banquillo de ARAM).
 - En ARAM usa las recomendaciones de ARAM (Destello + Marca). En modos sin runas no toca nada.
 
-**Tu página de runas**: la app usa **una sola página propia**, llamada «LoL Coach: (campeón)».
+**Tu página de runas**: la app usa **una sola página propia**, llamada «Erizo Coach: (campeón)».
 Si existe, la reescribe; si no, la crea si tienes un hueco libre. Si no hay hueco, **solo
 reutiliza una página vacía y no válida** (sin nombre): nunca toca tus otras páginas. Si no
 hay ninguna opción, no cambia las runas y te las muestra para que las pongas tú (los
-hechizos sí se aplican). Para darle una página, renombra una a «LoL Coach».
+hechizos sí se aplican). Para darle una página, renombra una a «Erizo Coach».
 
 </details>
 
 <details>
 <summary><b>🛒 La build en la tienda, en detalle</b></summary>
 
-En el mismo momento, la app escribe un **conjunto de objetos «LoL Coach: (campeón)»**, que
+En el mismo momento, la app escribe un **conjunto de objetos «Erizo Coach: (campeón)»**, que
 verás en la tienda de la partida, pestaña *Conjuntos de objetos*:
 
 | Bloque | Contenido |
@@ -226,7 +226,7 @@ verás en la tienda de la partida, pestaña *Conjuntos de objetos*:
    | Eres de primera línea | Botas de mercurio o blindadas según el daño enemigo |
 
 **Tus conjuntos de objetos están a salvo**: el cliente solo permite reemplazar la lista
-entera, así que la app la lee, cambia solo el conjunto «LoL Coach» y comprueba después que
+entera, así que la app la lee, cambia solo el conjunto «Erizo Coach» y comprueba después que
 los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
 
 </details>
@@ -268,15 +268,15 @@ La ventana indica de dónde salen las runas y la build, por ejemplo
 <details>
 <summary><b>🖥️ La ventana, en detalle</b></summary>
 
-LoL Coach es una **aplicación de escritorio**: su ventana (con su nombre e icono) se abre
+Erizo Coach es una **aplicación de escritorio**: su ventana (con su nombre e icono) se abre
 **centrada en tu segundo monitor** (1056 × 700, o lo que quepa), y al cerrarla se cierra la app.
 Durante la partida se actualiza cada 3 segundos.
 
 **Segundo plano**: el botón **Segundo plano** de la cabecera esconde la ventana (tampoco sale
-en la barra de tareas) y LoL Coach **sigue funcionando igual**: runas, hechizos, build en la
+en la barra de tareas) y Erizo Coach **sigue funcionando igual**: runas, hechizos, build en la
 tienda y descarga de estadísticas. Mientras tanto la ventana no se repinta, así que no gasta.
-Para volver, haz clic en el **icono de LoL Coach junto al reloj** de Windows (puede estar dentro
-de la flechita ˄) o abre LoL Coach otra vez. Con clic derecho en ese icono también puedes
+Para volver, haz clic en el **icono de Erizo Coach junto al reloj** de Windows (puede estar dentro
+de la flechita ˄) o abre Erizo Coach otra vez. Con clic derecho en ese icono también puedes
 cerrarlo.
 
 **Oro**: como en las retransmisiones de Riot, es el **oro total conseguido** (gastado o no).
@@ -325,18 +325,18 @@ hechizo por su id, pasar a segundo plano y poner otras runas u otros hechizos, q
 valida antes de escribir) y se carga con una política estricta: solo su propio código (con
 un *nonce* nuevo en cada arranque), iconos incrustados y ninguna conexión de red.
 
-Si faltara WebView2, LoL Coach usa como respaldo Edge en modo aplicación con un servidor local
+Si faltara WebView2, Erizo Coach usa como respaldo Edge en modo aplicación con un servidor local
 (solo `127.0.0.1`, clave aleatoria, `Host` y `Origin` comprobados y cabeceras estrictas).
 
 </details>
 
 ## 🚀 Cómo se usa
 
-**Con la aplicación instalada**: abre **LoL Coach** desde el menú Inicio o el acceso directo del
+**Con la aplicación instalada**: abre **Erizo Coach** desde el menú Inicio o el acceso directo del
 escritorio. Para salir, cierra su ventana (o, si está en segundo plano, clic derecho en su
-icono junto al reloj → *Cerrar LoL Coach*).
+icono junto al reloj → *Cerrar Erizo Coach*).
 
-**Pasárselo a otra persona**: `scripts/build_installer.py` crea `dist\Instalar LoL Coach
+**Pasárselo a otra persona**: `scripts/build_installer.py` crea `dist\Instalar Erizo Coach
 <versión>.exe`, un solo archivo que se instala con doble clic (sin permisos de administrador)
 y se desinstala desde *Aplicaciones instaladas*. Guía para quien lo instala:
 [docs/instalar-en-otro-pc.md](docs/instalar-en-otro-pc.md).
@@ -347,15 +347,15 @@ y se desinstala desde *Aplicaciones instaladas*. Guía para quien lo instala:
 Desde una terminal en esta carpeta; requiere [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv run python scripts/make_icon.py   # (solo si cambias el icono) assets/lolcoach.ico
-uv run python scripts/build_exe.py   # crea dist/LoL Coach/ con los ejecutables
+uv run python scripts/make_icon.py   # (solo si cambias el icono) assets/erizocoach.ico
+uv run python scripts/build_exe.py   # crea dist/Erizo Coach/ con los ejecutables
 uv run python scripts/install.py     # lo instala con accesos directos (--desinstalar para quitarlo)
 uv run python scripts/build_installer.py  # instalador de un archivo para pasárselo a otra persona
 ```
 
-Se instala en `%LOCALAPPDATA%\Programs\LoL Coach` (sin permisos de administrador) con dos
-ejecutables: **`LoL Coach.exe`** (la aplicación, sin consola) y **`lolcoach-consola.exe`** (los
-comandos de texto, por ejemplo `lolcoach-consola.exe stats descargar`). Tus datos están aparte, en
+Se instala en `%LOCALAPPDATA%\Programs\Erizo Coach` (sin permisos de administrador) con dos
+ejecutables: **`Erizo Coach.exe`** (la aplicación, sin consola) y **`erizocoach-consola.exe`** (los
+comandos de texto, por ejemplo `erizocoach-consola.exe stats descargar`). Tus datos están aparte, en
 `%LOCALAPPDATA%\LoLCoach`, y no se tocan al actualizar ni al desinstalar.
 
 </details>
@@ -377,7 +377,7 @@ uv run lolcoach stats olvidar-clave  # borra la clave guardada
 uv run lolcoach stats publicar       # publica ya tus estadísticas para quien no tiene clave
 ```
 
-Con la ventana de escritorio, al cerrarla se cierra LoL Coach. En modo `--browser` o
+Con la ventana de escritorio, al cerrarla se cierra Erizo Coach. En modo `--browser` o
 `--no-window` se sale con **Ctrl+C**.
 
 Los registros se guardan en `%LOCALAPPDATA%\LoLCoach\logs\lolcoach.log`

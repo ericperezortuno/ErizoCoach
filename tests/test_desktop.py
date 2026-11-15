@@ -52,6 +52,8 @@ def test_html_is_self_contained_with_strict_policy() -> None:
     html = build_html("NONCE123")
     assert 'data-mode="desktop"' in html
     assert 'src="/static' not in html and 'href="/static' not in html  # todo incrustado
+    assert "/static/" not in html  # los logos de style.css también
+    assert html.count("data:image/png;base64,iVBORw0KGgo") == 2  # el erizo grande y el pequeño
     csp = re.search(r'Content-Security-Policy" content="([^"]+)"', html)
     assert csp is not None
     policy = csp.group(1)

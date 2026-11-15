@@ -1,4 +1,4 @@
-/* LoL Coach · vidrio líquido sobre el azul hextech de League.
+/* Erizo Coach · vidrio líquido sobre el azul hextech de League.
  *
  * Rendimiento: el fondo es estático (sin animaciones continuas) para que el desenfoque
  * del vidrio solo se recalcule al desplazar la ventana o al cambiar el contenido.
@@ -7,6 +7,9 @@
 
 :root {
   color-scheme: dark;
+  /* El erizo (scripts/make_icon.py). En escritorio, desktop.py los incrusta como data:. */
+  --logo: url("/static/logo.png");
+  --logo-mini: url("/static/logo-mini.png");
 
   /* Paleta */
   --abyss: #060d1c;        /* fondo de la ventana (igual que BACKGROUND en desktop.py) */
@@ -175,13 +178,13 @@ body {
   white-space: nowrap;
 }
 
+/* El erizo con su sombrero. Sobresale un poco de la barra sin hacerla más alta. */
 .logo {
-  width: 13px;
-  height: 13px;
-  border-radius: 3px;
-  transform: rotate(45deg);
-  background: linear-gradient(135deg, var(--gold-bright), var(--gold) 45%, var(--gold-deep));
-  box-shadow: inset 0 0 0 3px #0b1830, 0 0 8px rgba(200, 170, 110, .45);
+  width: 30px;
+  height: 30px;
+  margin: -6px 0 -6px -5px;
+  background: var(--logo-mini) center / contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .55));
   flex: none;
 }
 
@@ -976,36 +979,37 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
   color: var(--muted);
 }
 
-/* Emblema hextech dibujado con CSS (sin imágenes). */
+/* Emblema: el erizo sobre un sello hextech (anillos dibujados con CSS). */
 .emblem {
   position: relative;
   display: block;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 16px;
+  width: 136px;
+  height: 136px;
+  margin: -6px auto 12px;
   border-radius: 50%;
-  background: radial-gradient(circle closest-side, transparent 0 66%, rgba(200, 170, 110, .7) 68% 72%, transparent 74% 86%, rgba(242, 223, 174, .45) 88% 91%, transparent 93%);
+  background:
+    radial-gradient(circle closest-side, transparent 0 84%, rgba(200, 170, 110, .55) 85% 86.5%, transparent 87.5%),
+    radial-gradient(circle closest-side, rgba(200, 170, 110, .2), rgba(200, 170, 110, .06) 62%, transparent 80%);
 }
 
-/* Marcas del emblema: giran un cuarto de vuelta al aparecer (una sola vez). */
+/* Marcas del sello: giran un cuarto de vuelta al aparecer (una sola vez). */
 .emblem::before {
   content: "";
   position: absolute;
-  inset: -8px;
+  inset: 0;
   border-radius: 50%;
-  background: repeating-conic-gradient(rgba(242, 223, 174, .6) 0 1.4deg, transparent 1.4deg 15deg);
-  -webkit-mask: radial-gradient(circle closest-side, transparent 0 87%, #000 88% 100%);
-  mask: radial-gradient(circle closest-side, transparent 0 87%, #000 88% 100%);
+  background: repeating-conic-gradient(rgba(242, 223, 174, .55) 0 1.4deg, transparent 1.4deg 15deg);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 0 92%, #000 93% 100%);
+  mask: radial-gradient(circle closest-side, transparent 0 92%, #000 93% 100%);
 }
 
+/* El erizo, por encima de los anillos. */
 .emblem::after {
   content: "";
   position: absolute;
-  inset: 22px;
-  border-radius: 4px;
-  transform: rotate(45deg);
-  background: linear-gradient(135deg, var(--gold-bright), var(--gold) 50%, var(--gold-deep));
-  box-shadow: 0 0 14px rgba(200, 170, 110, .55);
+  inset: 6px;
+  background: var(--logo) center / contain no-repeat;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .45));
 }
 
 .empty .big {

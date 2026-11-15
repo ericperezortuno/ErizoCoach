@@ -23,7 +23,7 @@ PAGES = "/lol-perks/v1/pages"
 
 
 def our_page(fake: FakeLcu) -> dict[str, Any]:
-    return next(p for p in fake.pages if p["name"].startswith("LoL Coach"))
+    return next(p for p in fake.pages if p["name"].startswith("Erizo Coach"))
 
 
 async def test_runes_go_to_a_new_page_and_become_active(
@@ -34,7 +34,7 @@ async def test_runes_go_to_a_new_page_and_become_active(
         await play_draft(fake, app)
 
     page = our_page(fake)
-    assert page["name"] == "LoL Coach: Ahri"
+    assert page["name"] == "Erizo Coach: Ahri"
     assert page["selectedPerkIds"] == AHRI_VS_ZED
     assert (page["primaryStyleId"], page["subStyleId"]) == (8100, 8200)
     assert fake.current_page_id == page["id"]
@@ -42,7 +42,7 @@ async def test_runes_go_to_a_new_page_and_become_active(
 
     applied = app.of(LoadoutApplied)[0]
     assert applied.runes_applied and applied.spells_applied and applied.problems == ()
-    assert applied.page_name == "LoL Coach: Ahri"
+    assert applied.page_name == "Erizo Coach: Ahri"
     # Ya tenías Destello + Prender: no hace falta tocar los hechizos
     assert fake.writes_to(endpoints.CHAMP_SELECT_MY_SELECTION) == []
 
@@ -68,7 +68,7 @@ async def test_full_pages_reuse_only_the_empty_one(
 
     assert [w[:2] for w in fake.writes_to(PAGES)] == [("PUT", f"{PAGES}/13")]
     reused = fake.page(13)
-    assert reused is not None and reused["name"] == "LoL Coach: Ahri" and reused["isValid"]
+    assert reused is not None and reused["name"] == "Erizo Coach: Ahri" and reused["isValid"]
     assert fake.pages[:2] == originals
     assert fake.current_page_id == 13
 
@@ -91,11 +91,23 @@ async def test_full_pages_without_empty_one_only_recommend(
 
 
 async def test_existing_coach_page_is_reused(fake: FakeLcu, client_ssl: ssl.SSLContext) -> None:
-    fake.pages.append(rune_page(20, "LoL Coach: Zed"))
+    fake.pages.append(rune_page(20, "Erizo Coach: Zed"))
     async with Harness(credentials_for(fake), client_ssl) as app:
         await play_draft(fake, app)
     assert [w[:2] for w in fake.writes_to(PAGES)] == [("PUT", f"{PAGES}/20")]
-    assert len(fake.pages) == 3 and our_page(fake)["name"] == "LoL Coach: Ahri"
+    assert len(fake.pages) == 3 and our_page(fake)["name"] == "Erizo Coach: Ahri"
+
+
+async def test_page_with_the_old_name_is_reused_and_renamed(
+    fake: FakeLcu, client_ssl: ssl.SSLContext
+) -> None:
+    """La app se llamaba «LoL Coach»: esa página sigue siendo la nuestra (no se crea otra)."""
+    fake.pages.append(rune_page(20, "LoL Coach"))
+    async with Harness(credentials_for(fake), client_ssl) as app:
+        await play_draft(fake, app)
+    assert [w[:2] for w in fake.writes_to(PAGES)] == [("PUT", f"{PAGES}/20")]
+    assert len(fake.pages) == 3 and our_page(fake)["id"] == 20
+    assert our_page(fake)["name"] == "Erizo Coach: Ahri"
 
 
 async def test_manual_changes_are_respected(fake: FakeLcu, client_ssl: ssl.SSLContext) -> None:
@@ -121,8 +133,8 @@ async def test_champion_trade_after_last_pick_reapplies(
         await fake.set_session(state)
         await wait_until(lambda: len(app.of(LoadoutApplied)) == 2)
     assert [a.loadout.champion_id for a in app.of(LoadoutApplied)] == [AHRI, JINX]
-    assert our_page(fake)["name"] == "LoL Coach: Jinx"
-    assert sum(p["name"].startswith("LoL Coach") for p in fake.pages) == 1  # una sola página
+    assert our_page(fake)["name"] == "Erizo Coach: Jinx"
+    assert sum(p["name"].startswith("Erizo Coach") for p in fake.pages) == 1  # una sola página
 
 
 async def test_client_temporary_page_is_replaced(fake: FakeLcu, client_ssl: ssl.SSLContext) -> None:

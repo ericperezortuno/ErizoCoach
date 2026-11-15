@@ -64,7 +64,7 @@ def cmd_key(settings: Settings) -> int:
             ui.error("No se pudo guardar la clave: %s", exc)
             return 1
         ui.info("Clave comprobada y guardada en el Administrador de credenciales de Windows.")
-        ui.info("LoL Coach la usará en su próxima descarga automática (no hace falta nada más).")
+        ui.info("Erizo Coach la usará en su próxima descarga automática (no hace falta nada más).")
         return 0
     ui.error("No se ha guardado ninguna clave.")
     return 1
@@ -108,8 +108,8 @@ def cmd_update(settings: Settings, hours: float, max_matches: int | None) -> int
     lock = download_lock(settings.stats_dir)
     if not lock.acquire():
         ui.error(
-            "LoL Coach ya está descargando estadísticas en segundo plano (se pausa solo al "
-            "jugar). No hace falta lanzarlo a mano; si aun así quieres, cierra LoL Coach antes."
+            "Erizo Coach ya está descargando estadísticas en segundo plano (se pausa solo al "
+            "jugar). No hace falta lanzarlo a mano; si aun así quieres, cierra Erizo Coach antes."
         )
         return 1
     try:

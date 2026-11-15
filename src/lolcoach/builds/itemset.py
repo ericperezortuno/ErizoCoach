@@ -3,8 +3,8 @@
 Seguridad con tus conjuntos de objetos:
 
 * La API del cliente solo permite **reemplazar la lista completa**, así que se
-  lee la lista actual, se cambia **solo** el conjunto de LoL Coach (título que
-  empieza por "LoL Coach") y se conservan los tuyos tal cual.
+  lee la lista actual, se cambia **solo** el conjunto de Erizo Coach (título que
+  empieza por "Erizo Coach") y se conservan los tuyos tal cual.
 * Después se vuelve a leer para comprobar que tus conjuntos siguen ahí. Si faltara
   alguno, se restaura la lista original y se avisa.
 """
@@ -23,7 +23,10 @@ from .models import BuildPlan, ItemCount
 
 log = logging.getLogger(__name__)
 
-SET_PREFIX = "LoL Coach"
+SET_PREFIX = "Erizo Coach"
+# Hasta la 0.18 la app se llamaba «LoL Coach»: ese conjunto sigue siendo nuestro y se
+# sustituye por el nuevo (no se queda uno viejo en tu tienda).
+OWN_PREFIXES = (SET_PREFIX, "LoL Coach")
 MAX_TITLE = 25
 
 
@@ -37,7 +40,8 @@ def set_title(champion_name: str) -> str:
 
 def is_ours(item_set: Any) -> bool:
     raw = as_dict(item_set)
-    return as_str(raw.get("title")).startswith(SET_PREFIX) and raw.get("type", "custom") == "custom"
+    is_custom = raw.get("type", "custom") == "custom"
+    return is_custom and as_str(raw.get("title")).startswith(OWN_PREFIXES)
 
 
 def _block(title: str, items: list[ItemCount]) -> dict[str, Any]:

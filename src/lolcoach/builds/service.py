@@ -1,7 +1,7 @@
 """Orquesta la fase 3: calcula la build y la lleva a la tienda de la partida.
 
 Igual que las runas: al hacerse el último pick (o si cambia tu campeón después),
-se calcula la build y se escribe el conjunto de objetos «LoL Coach: <campeón>».
+se calcula la build y se escribe el conjunto de objetos «Erizo Coach: <campeón>».
 """
 
 from __future__ import annotations

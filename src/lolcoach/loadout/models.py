@@ -67,7 +67,7 @@ class RuneOption:
 
     page: RunePage
     detail: str  # p. ej. "La más jugada · 412 partidas · 53 % de victorias"
-    recommended: bool = False  # la que LoL Coach pone por defecto
+    recommended: bool = False  # la que Erizo Coach pone por defecto
 
 
 @dataclass(frozen=True, slots=True)

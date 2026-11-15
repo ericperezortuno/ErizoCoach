@@ -8,7 +8,7 @@
 * Al hacerse el último pick (``PicksFinalized``): se calculan con todos los rivales y se
   aplican (ajustando las provisionales).
 * Si después cambia tu campeón (intercambio o banquillo de ARAM): se vuelve a aplicar.
-* Desde la ventana puedes cambiar las runas (se escriben en tu página de LoL Coach) y los
+* Desde la ventana puedes cambiar las runas (se escriben en tu página de Erizo Coach) y los
   hechizos.
 * Lo que cambies tú (en la ventana o en el cliente) se respeta para ese campeón: la app
   no lo vuelve a tocar salvo que cambies de campeón. Antes de escribir, se comprueba en
@@ -66,7 +66,7 @@ PREVIEW_DELAY = 0.3
 # Si sigues en el mismo campeón este tiempo, sus runas y hechizos se ponen ya.
 HOVER_APPLY_DELAY = 5.0
 NO_PAGE_SLOT = (
-    "No hay hueco para la página «LoL Coach»: renombra una de tus páginas a «LoL Coach» "
+    "No hay hueco para la página «Erizo Coach»: renombra una de tus páginas a «Erizo Coach» "
     "(o borra una) y se usará esa. Pon las runas a mano esta vez."
 )
 
@@ -78,7 +78,7 @@ class _Runes:
     champion_id: int
     page: RunePage
     by: RunesBy
-    page_id: int = 0  # página de LoL Coach donde se escribió (0 = no la escribimos nosotros)
+    page_id: int = 0  # página de Erizo Coach donde se escribió (0 = no la escribimos nosotros)
 
 
 @dataclass(frozen=True, slots=True)
@@ -203,7 +203,7 @@ class LoadoutService:
         await self._run(event.snapshot)
 
     async def _on_edit(self, event: RunesEditRequested) -> None:
-        """Has cambiado las runas en la ventana: se escriben en tu página de LoL Coach."""
+        """Has cambiado las runas en la ventana: se escriben en tu página de Erizo Coach."""
         champion = self._target_champion()
         client = self._connector.client
         problems = validate_page(event.page, self._gamedata.styles)

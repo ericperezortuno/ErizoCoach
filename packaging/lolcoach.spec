@@ -1,8 +1,8 @@
-# Especificación de PyInstaller para LoL Coach.
+# Especificación de PyInstaller para Erizo Coach.
 #
-# Crea dist/LoL Coach/ con dos ejecutables que comparten las mismas librerías:
-#   LoL Coach.exe        la aplicación de escritorio (con icono, sin consola)
-#   lolcoach-consola.exe los comandos de texto (stats clave, stats descargar...)
+# Crea dist/Erizo Coach/ con dos ejecutables que comparten las mismas librerías:
+#   Erizo Coach.exe        la aplicación de escritorio (con icono, sin consola)
+#   erizocoach-consola.exe los comandos de texto (stats clave, stats descargar...)
 #
 # Uso:  uv run python scripts/build_exe.py
 # ruff: noqa
@@ -12,7 +12,7 @@ from pathlib import Path
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 ROOT = Path(SPECPATH).parent
-ICON = str(ROOT / "assets" / "lolcoach.ico")
+ICON = str(ROOT / "assets" / "erizocoach.ico")
 
 datas = collect_data_files("lolcoach")  # certificado de Riot e interfaz (HTML/CSS/JS)
 hiddenimports = (
@@ -36,7 +36,7 @@ app = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="LoL Coach",
+    name="Erizo Coach",
     icon=ICON,
     version=str(ROOT / "packaging" / "version_info.txt"),
     console=False,
@@ -47,10 +47,10 @@ cli = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="lolcoach-consola",
+    name="erizocoach-consola",
     icon=ICON,
     version=str(ROOT / "packaging" / "version_info.txt"),
     console=True,
     upx=False,
 )
-COLLECT(app, cli, a.binaries, a.datas, name="LoL Coach", upx=False)
+COLLECT(app, cli, a.binaries, a.datas, name="Erizo Coach", upx=False)

@@ -1,4 +1,4 @@
-"""Punto de entrada: ``lolcoach``, ``python -m lolcoach`` o ``LoL Coach.exe``."""
+"""Punto de entrada: ``lolcoach``, ``python -m lolcoach`` o ``Erizo Coach.exe``."""
 
 from __future__ import annotations
 
@@ -100,7 +100,7 @@ def run_desktop(settings: Settings, *, demo: bool) -> bool:
     worker = threading.Thread(target=_run_in_thread, args=(app,), name="lolcoach-app", daemon=True)
     worker.start()
     if not app.started.wait(timeout=15):
-        log.error("LoL Coach no ha podido arrancar.")
+        log.error("Erizo Coach no ha podido arrancar.")
         return True
     window = DesktopWindow(app, settings)
     try:
@@ -122,7 +122,7 @@ def _run_in_thread(app: Application) -> None:
     except asyncio.CancelledError:
         pass
     except Exception:
-        log.exception("Error inesperado en LoL Coach")
+        log.exception("Error inesperado en Erizo Coach")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -146,15 +146,15 @@ def main(argv: list[str] | None = None) -> int:
         from .ui.tray import signal_running
 
         if signal_running():  # estaba en segundo plano (o detrás): se abre su ventana
-            log.info("LoL Coach ya estaba abierto: se muestra su ventana.")
+            log.info("Erizo Coach ya estaba abierto: se muestra su ventana.")
             return 0
-        message = "LoL Coach ya está abierto."
+        message = "Erizo Coach ya está abierto."
         log.error(message)
         _show_message(message)
         return 1
     mode = choose_ui_mode(settings, demo=args.demo, browser=args.browser)
     try:
-        log.info("LoL Coach %s iniciado.", __version__)
+        log.info("Erizo Coach %s iniciado.", __version__)
         if mode == UiMode.DESKTOP and not run_desktop(settings, demo=args.demo):
             mode = UiMode.BROWSER
         if mode != UiMode.DESKTOP:
@@ -164,7 +164,7 @@ def main(argv: list[str] | None = None) -> int:
         pass
     finally:
         lock.release()
-        log.info("LoL Coach cerrado. ¡Hasta la próxima!")
+        log.info("Erizo Coach cerrado. ¡Hasta la próxima!")
     return 0
 
 
@@ -174,7 +174,7 @@ def _show_message(text: str) -> None:
         return
     import ctypes
 
-    ctypes.windll.user32.MessageBoxW(None, text, "LoL Coach", 0x40)
+    ctypes.windll.user32.MessageBoxW(None, text, "Erizo Coach", 0x40)
 
 
 if __name__ == "__main__":

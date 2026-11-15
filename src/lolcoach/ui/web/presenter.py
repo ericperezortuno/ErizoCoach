@@ -55,10 +55,10 @@ RUNES_STATUS = {
     ),
     RunesBy.COACH: "Puestas en tu cliente.",
     RunesBy.YOU_IN_APP: (
-        "Tus cambios están puestos en el cliente. LoL Coach ya no las toca para este campeón."
+        "Tus cambios están puestos en el cliente. Erizo Coach ya no las toca para este campeón."
     ),
     RunesBy.YOU_IN_CLIENT: (
-        "Las has cambiado en el cliente: LoL Coach no las toca para este campeón."
+        "Las has cambiado en el cliente: Erizo Coach no las toca para este campeón."
     ),
 }
 PREVIEW_STATUS = "Previsión: si te quedas 5 segundos en este campeón, se ponen en tu cliente."
