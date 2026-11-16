@@ -8,21 +8,21 @@ from collections.abc import AsyncIterator
 import aiohttp
 import pytest
 
-from lolcoach.builds.recommender import BuildRecommender
-from lolcoach.bus import EventBus
-from lolcoach.events import (
+from erizocoach.builds.recommender import BuildRecommender
+from erizocoach.bus import EventBus
+from erizocoach.events import (
     BuildReady,
     ClientDisconnected,
     GameflowPhaseChanged,
     LiveGameEnded,
     LiveGameUpdated,
 )
-from lolcoach.ingame.advisor import advise
-from lolcoach.ingame.analysis import analyze
-from lolcoach.ingame.models import LivePlayer, parse_all_game_data
-from lolcoach.models import GameflowPhase, Position
-from lolcoach.ui.web.presenter import UiPresenter
-from lolcoach.ui.web.server import UiServer
+from erizocoach.ingame.advisor import advise
+from erizocoach.ingame.analysis import analyze
+from erizocoach.ingame.models import LivePlayer, parse_all_game_data
+from erizocoach.models import GameflowPhase, Position
+from erizocoach.ui.web.presenter import UiPresenter
+from erizocoach.ui.web.server import UiServer
 
 from .gamedata_fixture import FixtureClient, loaded_gamedata
 from .live_factories import standard_game

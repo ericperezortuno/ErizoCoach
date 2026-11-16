@@ -8,10 +8,10 @@ import ssl
 from pathlib import Path
 from typing import Any
 
-from lolcoach.config import Settings
-from lolcoach.events import LoadoutApplied, LoadoutReady
-from lolcoach.lcu import endpoints
-from lolcoach.models import GameflowPhase
+from erizocoach.config import Settings
+from erizocoach.events import LoadoutApplied, LoadoutReady
+from erizocoach.lcu import endpoints
+from erizocoach.models import GameflowPhase
 
 from .factories import AHRI, JINX, blind_session
 from .fake_lcu import FakeLcu, rune_page

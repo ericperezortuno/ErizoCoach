@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from lolcoach.lcu.discovery import ClientLocator
+from erizocoach.lcu.discovery import ClientLocator
 
 ROOT = Path(__file__).resolve().parent.parent
 SCANNED = ("src", "tests", "packaging", "scripts", "README.md", "pyproject.toml")

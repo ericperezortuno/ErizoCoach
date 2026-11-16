@@ -22,8 +22,8 @@ def load(name: str, path: Path):  # type: ignore[no-untyped-def]
     return module
 
 
-installer = load("lolcoach_installer", ROOT / "packaging" / "installer.py")
-builder = load("lolcoach_build_installer", ROOT / "scripts" / "build_installer.py")
+installer = load("erizocoach_installer", ROOT / "packaging" / "installer.py")
+builder = load("erizocoach_build_installer", ROOT / "scripts" / "build_installer.py")
 
 
 def fake_app(folder: Path, marker: str = "v1") -> Path:
@@ -55,7 +55,8 @@ def test_extract_installs_and_adds_the_uninstaller(tmp_path: Path) -> None:
     assert (target / "_internal" / "base_library.zip").exists()
     script = (target / "desinstalar.ps1").read_text(encoding="utf-8-sig")
     assert "Uninstall\\ErizoCoach" in script and "Erizo Coach.lnk" in script
-    assert "LoLCoach" not in script  # nunca toca tus datos (%LOCALAPPDATA%\LoLCoach)
+    assert installer.LEGACY_UNINSTALL_KEY.endswith("\\LoLCoach")  # quitar la vieja, no esta
+    assert "LOCALAPPDATA" not in script  # nunca toca tus datos (%LOCALAPPDATA%\ErizoCoach)
 
 
 def test_update_replaces_the_old_version_without_leftovers(tmp_path: Path) -> None:
@@ -260,7 +261,7 @@ def test_installer_still_works_if_webview2_cannot_be_installed(
 def test_exe_version_info_matches_the_app_version() -> None:
     """Lo que Windows enseña en Propiedades > Detalles es la versión de verdad."""
     sys.path.insert(0, str(ROOT / "src"))
-    from lolcoach import __version__
+    from erizocoach import __version__
 
     text = (ROOT / "packaging" / "version_info.txt").read_text(encoding="utf-8")
     numbers = ", ".join(__version__.split(".")) + ", 0"

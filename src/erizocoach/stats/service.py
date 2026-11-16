@@ -36,7 +36,7 @@ from .source import StatsBuildSource
 from .store import DATABASE, MatchStore, is_corrupt, set_aside
 
 log = logging.getLogger(__name__)
-ui = logging.getLogger("lolcoach.ui")
+ui = logging.getLogger("erizocoach.ui")
 
 ENOUGH_MATCHES = 100  # por debajo, se prefiere el parche anterior si tiene más datos
 

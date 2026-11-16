@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 import trustme
 
-from lolcoach.events import (
+from erizocoach.events import (
     ChampionLocked,
     ChampSelectEnded,
     ChampSelectOutcome,
@@ -23,9 +23,9 @@ from lolcoach.events import (
     MyChampionChanged,
     PicksFinalized,
 )
-from lolcoach.lcu import endpoints
-from lolcoach.lcu.tls import create_ssl_context
-from lolcoach.models import GameflowPhase, Position
+from erizocoach.lcu import endpoints
+from erizocoach.lcu.tls import create_ssl_context
+from erizocoach.models import GameflowPhase, Position
 
 from .factories import AHRI, DraftScenario
 from .fake_lcu import FakeLcu
@@ -35,7 +35,7 @@ from .harness import Harness, credentials_for, wait_until
 async def test_full_ranked_draft_flow(
     fake: FakeLcu, client_ssl: ssl.SSLContext, caplog: pytest.LogCaptureFixture
 ) -> None:
-    caplog.set_level(logging.DEBUG, logger="lolcoach")
+    caplog.set_level(logging.DEBUG, logger="erizocoach")
     async with Harness(credentials_for(fake), client_ssl) as app:
         await wait_until(lambda: app.monitor.phase == GameflowPhase.LOBBY)
         assert len(fake.subscriptions) == 2
@@ -113,7 +113,7 @@ async def test_rejects_server_with_untrusted_certificate(
     fake: FakeLcu, caplog: pytest.LogCaptureFixture
 ) -> None:
     impostor_trust = create_ssl_context(trustme.CA().cert_pem.bytes().decode("ascii"))
-    with caplog.at_level(logging.ERROR, logger="lolcoach"):
+    with caplog.at_level(logging.ERROR, logger="erizocoach"):
         async with Harness(credentials_for(fake), impostor_trust) as app:
             await asyncio.sleep(0.5)
     assert not app.of(ClientConnected)

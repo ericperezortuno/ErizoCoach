@@ -61,7 +61,7 @@ CREATE_NO_WINDOW = 0x08000000
 
 # Desinstalador: quita accesos directos, la entrada de «Aplicaciones» y la carpeta de la
 # app (PowerShell lee el script entero antes de ejecutarlo, así que puede borrarse a sí
-# mismo). Los datos de %LOCALAPPDATA%\LoLCoach no se tocan.
+# mismo). Los datos de %LOCALAPPDATA%\ErizoCoach no se tocan.
 UNINSTALL_PS1 = r"""
 $ErrorActionPreference = 'SilentlyContinue'
 Add-Type -AssemblyName PresentationFramework
@@ -412,7 +412,7 @@ def main(argv: list[str] | None = None) -> int:
             "Puede tardar unos minutos según tu conexión."
         )
         try:
-            with tempfile.TemporaryDirectory(prefix="lolcoach-") as tmp:
+            with tempfile.TemporaryDirectory(prefix="erizocoach-") as tmp:
                 install_webview2(Path(tmp))
         except Exception as exc:
             return exe, str(exc)

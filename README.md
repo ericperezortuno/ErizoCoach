@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <img alt="Versión 0.20.1" src="https://img.shields.io/badge/versi%C3%B3n-0.20.1-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.21.0" src="https://img.shields.io/badge/versi%C3%B3n-0.21.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
-  <img alt="398 pruebas" src="https://img.shields.io/badge/pruebas-398-4fd6a2?style=for-the-badge&labelColor=0c1b35">
+  <img alt="440 pruebas" src="https://img.shields.io/badge/pruebas-440-4fd6a2?style=for-the-badge&labelColor=0c1b35">
   <img alt="Solo la API oficial de Riot" src="https://img.shields.io/badge/API-solo%20la%20oficial%20de%20Riot-c8aa6e?style=for-the-badge&labelColor=0c1b35">
 </p>
 
@@ -235,7 +235,7 @@ los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
 <summary><b>📈 Estadísticas de alto elo (API oficial de Riot)</b></summary>
 
 1. **Clave**: consigue tu clave gratuita en [developer.riotgames.com](https://developer.riotgames.com)
-   y guárdala con `uv run lolcoach stats clave`. Se pide sin mostrarse y se guarda **cifrada en
+   y guárdala con `uv run erizocoach stats clave`. Se pide sin mostrarse y se guarda **cifrada en
    el Administrador de credenciales de Windows**. Nunca aparece en pantalla ni en los registros.
    La de desarrollo caduca cada 24 h; para no renovarla, pide una clave personal siguiendo
    [docs/clave-personal-riot.md](docs/clave-personal-riot.md).
@@ -249,7 +249,7 @@ los tuyos siguen ahí. Si faltara alguno, restaura la lista original.
    (**sin nombres, Riot ID ni identificadores**). Respeta los límites de Riot y no repite
    partidas. Con un parche nuevo vuelve a empezar y borra los parches viejos. Si la clave
    caduca, te avisa en la ventana. También se puede lanzar a mano con
-   `uv run lolcoach stats descargar` (con la app cerrada).
+   `uv run erizocoach stats descargar` (con la app cerrada).
 3. **Uso**: tras cada tanda de descarga se recalcula, sin reiniciar, la build más habitual de
    cada campeón y posición, sus runas (las 3 piedras angulares más elegidas y, entre quienes
    llevan cada una, lo más elegido de cada fila) y sus hechizos. Con 20 partidas o más
@@ -358,7 +358,9 @@ uv run python scripts/build_installer.py  # instalador de un archivo para pasár
 Se instala en `%LOCALAPPDATA%\Programs\Erizo Coach` (sin permisos de administrador) con dos
 ejecutables: **`Erizo Coach.exe`** (la aplicación, sin consola) y **`erizocoach-consola.exe`** (los
 comandos de texto, por ejemplo `erizocoach-consola.exe stats descargar`). Tus datos están aparte, en
-`%LOCALAPPDATA%\LoLCoach`, y no se tocan al actualizar ni al desinstalar.
+`%LOCALAPPDATA%\ErizoCoach`, y no se tocan al actualizar ni al desinstalar. Si venías de una
+versión con el nombre antiguo (LoL Coach, hasta la 0.20), su carpeta `%LOCALAPPDATA%\LoLCoach` y tu
+clave de Riot guardada pasan solas al nombre nuevo la primera vez que abres la app.
 
 </details>
 
@@ -366,24 +368,24 @@ comandos de texto, por ejemplo `erizocoach-consola.exe stats descargar`). Tus da
 <summary><b>Comandos y configuración</b></summary>
 
 ```bash
-uv run lolcoach             # la app con su ventana de escritorio
-uv run lolcoach --check     # comprueba la conexión con el cliente y sale
-uv run lolcoach --debug     # muestra también los mensajes técnicos
-uv run lolcoach --demo      # abre la ventana con una partida de ejemplo (para verla sin jugar)
-uv run lolcoach --browser   # ventana con Edge en lugar de la de escritorio
-uv run lolcoach --no-window # sin ventana (solo consola)
-uv run lolcoach stats clave          # guarda tu clave de la API de Riot (cifrada)
-uv run lolcoach stats descargar      # descarga partidas de alto elo (--horas 2, --partidas N)
-uv run lolcoach stats estado         # cuántas partidas hay descargadas
-uv run lolcoach stats olvidar-clave  # borra la clave guardada
-uv run lolcoach stats publicar       # publica ya tus estadísticas para quien no tiene clave
+uv run erizocoach             # la app con su ventana de escritorio
+uv run erizocoach --check     # comprueba la conexión con el cliente y sale
+uv run erizocoach --debug     # muestra también los mensajes técnicos
+uv run erizocoach --demo      # abre la ventana con una partida de ejemplo (para verla sin jugar)
+uv run erizocoach --browser   # ventana con Edge en lugar de la de escritorio
+uv run erizocoach --no-window # sin ventana (solo consola)
+uv run erizocoach stats clave          # guarda tu clave de la API de Riot (cifrada)
+uv run erizocoach stats descargar      # descarga partidas de alto elo (--horas 2, --partidas N)
+uv run erizocoach stats estado         # cuántas partidas hay descargadas
+uv run erizocoach stats olvidar-clave  # borra la clave guardada
+uv run erizocoach stats publicar       # publica ya tus estadísticas para quien no tiene clave
 ```
 
 Con la ventana de escritorio, al cerrarla se cierra Erizo Coach. En modo `--browser` o
 `--no-window` se sale con **Ctrl+C**.
 
-Los registros se guardan en `%LOCALAPPDATA%\LoLCoach\logs\lolcoach.log`
-(máximo 4 MB, rotativos). Configuración opcional en `%LOCALAPPDATA%\LoLCoach\config.toml`:
+Los registros se guardan en `%LOCALAPPDATA%\ErizoCoach\logs\erizocoach.log`
+(máximo 4 MB, rotativos). Configuración opcional en `%LOCALAPPDATA%\ErizoCoach\config.toml`:
 
 ```toml
 league_dir = "D:/Riot Games/League of Legends"  # solo si no se detecta sola
@@ -417,7 +419,7 @@ stats_shared = true          # sin clave (o con pocos datos): usar las estadíst
   (de la API de Riot con tu clave, o el paquete compartido público) y, si lo configuras, la
   publicación de ese paquete. **Nada tuyo** (Riot ID, partidas, claves) sale de tu PC.
 - La conexión TLS **solo confía en la autoridad de certificación de Riot**
-  (`src/lolcoach/lcu/certs/riotgames.pem`) y verifica que el certificado es para
+  (`src/erizocoach/lcu/certs/riotgames.pem`) y verifica que el certificado es para
   `127.0.0.1`. Si otro programa intentara hacerse pasar por el cliente, se rechaza.
 - La contraseña temporal del cliente nunca se muestra ni se guarda en los registros.
   La sesión de la selección (que incluye tu Riot ID y credenciales del chat) tampoco.
@@ -432,7 +434,7 @@ stats_shared = true          # sin clave (o con pocos datos): usar las estadíst
 <summary><b>🏗️ Estructura del código</b></summary>
 
 ```
-src/lolcoach/
+src/erizocoach/
   __main__.py          Punto de entrada y opciones
   app.py               Montaje de módulos y diagnóstico (--check)
   bus.py               Bus de eventos interno (los módulos se comunican por eventos)

@@ -68,7 +68,7 @@ class UiServer:
         self._sockets: set[web.WebSocketResponse] = set()
         self._icons = IconProvider(gamedata, connector)
         self._runner: web.AppRunner | None = None
-        self._static = files("lolcoach.ui.web").joinpath("static")
+        self._static = files("erizocoach.ui.web").joinpath("static")
 
         app = web.Application(middlewares=[self._security])
         app.router.add_get("/", self._index)

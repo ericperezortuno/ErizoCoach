@@ -9,10 +9,10 @@ import pytest
 import trustme
 from keyring.backend import KeyringBackend
 
-from lolcoach.lcu import launcher
-from lolcoach.lcu.tls import create_ssl_context
-from lolcoach.stats import pack
-from lolcoach.stats.pack import PackError
+from erizocoach.lcu import launcher
+from erizocoach.lcu.tls import create_ssl_context
+from erizocoach.stats import pack
+from erizocoach.stats.pack import PackError
 
 from .fake_lcu import FakeLcu
 
@@ -38,6 +38,12 @@ def no_real_keyring() -> Iterator[None]:
     keyring.set_keyring(_EmptyKeyring())
     yield
     keyring.set_keyring(previous)
+
+
+@pytest.fixture(autouse=True)
+def no_real_data_dir(monkeypatch: pytest.MonkeyPatch, tmp_path_factory) -> None:
+    """Las pruebas nunca tocan tu carpeta de datos real (ni la mueven del nombre antiguo)."""
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path_factory.mktemp("localappdata")))
 
 
 @pytest.fixture(autouse=True)

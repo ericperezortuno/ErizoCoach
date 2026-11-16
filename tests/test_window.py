@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from lolcoach.ui.web import window
-from lolcoach.ui.web.window import AppWindow, Monitor, window_geometry
+from erizocoach.ui.web import window
+from erizocoach.ui.web.window import AppWindow, Monitor, window_geometry
 
 PRIMARY = Monitor(0, 0, 1920, 1032, True)
 

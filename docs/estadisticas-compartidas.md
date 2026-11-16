@@ -10,7 +10,7 @@ Erizo Coach puede **publicar** sus estadísticas ya calculadas y el suyo las **d
   las runas y los hechizos más jugados de cada campeón y posición, y cuántas partidas hay
   detrás. **No lleva ningún nombre, Riot ID, PUUID ni partida concreta**, ni tu clave.
 - **Dónde:** en un repositorio público de GitHub solo para datos (por ejemplo,
-  `LoLCoach-datos`). El código del programa sigue en su repositorio privado.
+  `ErizoCoach-datos`). El código del programa sigue en su repositorio privado.
 - **Cuándo:** tu app lo publica sola tras sus descargas automáticas. Cuando hay un parche
   nuevo, en cuanto tiene 100 partidas; si no, como mucho cada 3 horas. Cada publicación
   sustituye a la anterior: el repositorio siempre tiene un solo commit.
@@ -20,21 +20,21 @@ Erizo Coach puede **publicar** sus estadísticas ya calculadas y el suyo las **d
 
 ## Configurarlo (solo quien publica)
 
-1. Crea en GitHub un repositorio **público** y **vacío** (sin README) llamado `LoLCoach-datos`.
+1. Crea en GitHub un repositorio **público** y **vacío** (sin README) llamado `ErizoCoach-datos`.
 2. En ese repositorio: **Settings → Deploy keys → Add deploy key**. Pega la clave pública
-   (`C:\Users\<usuario>\.ssh\lolcoach_datos_ed25519.pub`), marca **Allow write access** y
+   (`C:\Users\<usuario>\.ssh\erizocoach_datos_ed25519.pub`), marca **Allow write access** y
    guarda. Esa clave solo puede escribir en ese repositorio.
-3. Añade a `%LOCALAPPDATA%\LoLCoach\config.toml`:
+3. Añade a `%LOCALAPPDATA%\ErizoCoach\config.toml`:
 
    ```toml
-   stats_publish_repo = "git@github.com:<usuario>/LoLCoach-datos.git"
-   stats_publish_key = "C:/Users/<usuario>/.ssh/lolcoach_datos_ed25519"
+   stats_publish_repo = "git@github.com:<usuario>/ErizoCoach-datos.git"
+   stats_publish_key = "C:/Users/<usuario>/.ssh/erizocoach_datos_ed25519"
    ```
 
 4. Para publicar ya, sin esperar, con el cliente de LoL abierto:
 
    ```bash
-   uv run lolcoach stats publicar
+   uv run erizocoach stats publicar
    ```
 
 Hace falta tener `git` instalado. Si una publicación falla (sin red, clave rechazada...),

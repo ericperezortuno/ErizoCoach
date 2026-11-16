@@ -25,7 +25,7 @@ INSTALLER = ROOT / "packaging" / "installer.py"
 VERSION_INFO = ROOT / "packaging" / "version_info.txt"
 
 sys.path.insert(0, str(ROOT / "src"))
-from lolcoach import __version__  # noqa: E402
+from erizocoach import __version__  # noqa: E402
 
 
 def make_payload(app: Path, payload: Path) -> int:

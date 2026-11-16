@@ -8,12 +8,13 @@ from pathlib import Path
 
 import pytest
 
-from lolcoach.bus import EventBus
-from lolcoach.config import load_settings
-from lolcoach.lcu.websocket import parse_message, topic_for
-from lolcoach.logs import RedactingFilter
-from lolcoach.models import ClientInfo, GameflowPhase, QueueInfo
-from lolcoach.single_instance import SingleInstanceLock
+from erizocoach.__main__ import legacy_copy_running
+from erizocoach.bus import EventBus
+from erizocoach.config import Settings, default_data_dir, load_settings, migrate_data_dir
+from erizocoach.lcu.websocket import parse_message, topic_for
+from erizocoach.logs import RedactingFilter
+from erizocoach.models import ClientInfo, GameflowPhase, QueueInfo
+from erizocoach.single_instance import SingleInstanceLock
 
 # --- Bus -------------------------------------------------------------------
 
@@ -194,6 +195,62 @@ def test_settings_broken_file_warns(tmp_path: Path) -> None:
     (tmp_path / "config.toml").write_text("esto no es toml = = =")
     _, warnings = load_settings(data_dir=tmp_path)
     assert len(warnings) == 1
+
+
+# --- Carpeta de datos con el nombre antiguo (LoL Coach, hasta la 0.20) -----------------------
+
+
+def test_data_of_lol_coach_move_to_the_new_folder(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    old = tmp_path / "LoLCoach"
+    (old / "stats").mkdir(parents=True)
+    (old / "config.toml").write_text('riot_region = "kr"\n', encoding="utf-8")
+    (old / "stats" / "matches.sqlite3").write_bytes(b"partidas")
+    (old / "lolcoach.lock").write_bytes(b"")
+    notes: list[str] = []
+    data_dir = default_data_dir(notes)
+    assert data_dir == tmp_path / "ErizoCoach" and not old.exists()
+    assert (data_dir / "stats" / "matches.sqlite3").read_bytes() == b"partidas"
+    assert not (data_dir / "lolcoach.lock").exists()  # el bloqueo viejo ya no sirve
+    assert load_settings(data_dir=data_dir)[0].riot_region == "kr"  # tus ajustes siguen
+    assert len(notes) == 1 and "ErizoCoach" in notes[0]
+    assert default_data_dir() == data_dir  # la segunda vez no hay nada que mover
+
+
+def test_existing_new_folder_wins_and_the_old_one_is_left_alone(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    (tmp_path / "LoLCoach").mkdir()
+    (tmp_path / "ErizoCoach").mkdir()
+    assert default_data_dir() == tmp_path / "ErizoCoach"
+    assert (tmp_path / "LoLCoach").exists()
+
+
+def test_folder_in_use_by_the_old_version_is_used_as_it_is(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    old, new = tmp_path / "LoLCoach", tmp_path / "ErizoCoach"
+    old.mkdir()
+
+    def busy(self: Path, target: Path) -> None:
+        raise PermissionError("en uso")
+
+    monkeypatch.setattr(Path, "rename", busy)
+    notes: list[str] = []
+    assert migrate_data_dir(old, new, notes) == old  # se reintenta la próxima vez
+    assert not new.exists() and len(notes) == 1
+
+
+def test_old_version_still_open_counts_as_running(tmp_path: Path) -> None:
+    settings = Settings(data_dir=tmp_path)
+    assert not legacy_copy_running(settings)  # sin bloqueo antiguo: nada que mirar
+    with SingleInstanceLock(settings.legacy_lock_path):  # LoL Coach abierto en esa carpeta
+        assert legacy_copy_running(settings)
+    assert not legacy_copy_running(settings)  # ya cerrado: el archivo sobrante se borra
+    assert not settings.legacy_lock_path.exists()
 
 
 # --- Instancia única ---------------------------------------------------------------

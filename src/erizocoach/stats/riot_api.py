@@ -263,7 +263,7 @@ class RiotApiClient:
                 raise RiotApiKeyError(
                     f"Riot rechaza la clave (HTTP {status}: {error_text or 'sin detalle'}). "
                     "Las claves de desarrollo duran 24 h: genera una nueva en "
-                    "developer.riotgames.com y guárdala con «lolcoach stats clave»",
+                    "developer.riotgames.com y guárdala con «erizocoach stats clave»",
                     status,
                     error_text,
                 )

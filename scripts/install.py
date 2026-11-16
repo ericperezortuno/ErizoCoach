@@ -6,7 +6,7 @@ Uso:
     uv run python scripts/install.py --desinstalar
 
 * Se instala en %LOCALAPPDATA%\\Programs\\Erizo Coach (no hacen falta permisos de administrador).
-* Tus datos (estadísticas, configuración, registros) están en %LOCALAPPDATA%\\LoLCoach y
+* Tus datos (estadísticas, configuración, registros) están en %LOCALAPPDATA%\\ErizoCoach y
   no se tocan ni al actualizar ni al desinstalar.
 """
 
@@ -116,7 +116,7 @@ def uninstall() -> int:
     print("Eliminado:" if removed else "No estaba instalado.")
     for path in removed:
         print(f"  {path}")
-    print("Tus datos (%LOCALAPPDATA%\\LoLCoach) se conservan.")
+    print("Tus datos (%LOCALAPPDATA%\\ErizoCoach) se conservan.")
     return 0
 
 

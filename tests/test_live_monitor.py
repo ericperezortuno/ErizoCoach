@@ -6,14 +6,14 @@ import asyncio
 import ssl
 from typing import Any, Self
 
-from lolcoach.builds.recommender import BuildRecommender
-from lolcoach.bus import EventBus
-from lolcoach.events import GameflowPhaseChanged, LiveGameEnded, LiveGameUpdated
-from lolcoach.ingame.client import LiveClientUnavailable
-from lolcoach.ingame.monitor import LiveGameMonitor
-from lolcoach.models import GameflowPhase, Position
-from lolcoach.stats.aggregate import ChampionStats
-from lolcoach.stats.source import StatsBuildSource
+from erizocoach.builds.recommender import BuildRecommender
+from erizocoach.bus import EventBus
+from erizocoach.events import GameflowPhaseChanged, LiveGameEnded, LiveGameUpdated
+from erizocoach.ingame.client import LiveClientUnavailable
+from erizocoach.ingame.monitor import LiveGameMonitor
+from erizocoach.models import GameflowPhase, Position
+from erizocoach.stats.aggregate import ChampionStats
+from erizocoach.stats.source import StatsBuildSource
 
 from .gamedata_fixture import FixtureClient, loaded_gamedata
 from .harness import wait_until

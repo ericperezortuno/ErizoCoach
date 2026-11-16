@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import ssl
 
-from lolcoach.bus import EventBus
-from lolcoach.champselect.parser import parse_session
-from lolcoach.champselect.tracker import ChampSelectTracker
-from lolcoach.events import (
+from erizocoach.bus import EventBus
+from erizocoach.champselect.parser import parse_session
+from erizocoach.champselect.tracker import ChampSelectTracker
+from erizocoach.events import (
     ChampSelectStarted,
     LoadoutApplied,
     LoadoutPreview,
     LoadoutReady,
     MyPickPreviewChanged,
 )
-from lolcoach.lcu import endpoints
-from lolcoach.loadout.recommender import LoadoutRecommender
-from lolcoach.models import GameflowPhase
-from lolcoach.ui.web.presenter import UiPresenter
+from erizocoach.lcu import endpoints
+from erizocoach.loadout.recommender import LoadoutRecommender
+from erizocoach.models import GameflowPhase
+from erizocoach.ui.web.presenter import UiPresenter
 
 from .factories import AHRI, YASUO, ZED, DraftScenario, action, player, session
 from .fake_lcu import FakeLcu

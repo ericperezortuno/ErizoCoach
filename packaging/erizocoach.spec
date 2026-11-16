@@ -14,9 +14,9 @@ from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 ROOT = Path(SPECPATH).parent
 ICON = str(ROOT / "assets" / "erizocoach.ico")
 
-datas = collect_data_files("lolcoach")  # certificado de Riot e interfaz (HTML/CSS/JS)
+datas = collect_data_files("erizocoach")  # certificado de Riot e interfaz (HTML/CSS/JS)
 hiddenimports = (
-    collect_submodules("lolcoach")
+    collect_submodules("erizocoach")
     + collect_submodules("keyring.backends")  # Administrador de credenciales de Windows
     + ["win32ctypes.core", "webview.platforms.winforms", "webview.platforms.edgechromium"]
 )

@@ -4,8 +4,8 @@ Uso:  uv run python scripts/make_icon.py
 Crea:
 * assets/erizocoach.ico   (16-256 px) icono del .exe, la barra de tareas y la bandeja.
 * assets/erizocoach.png   (512 px) el dibujo entero, recortado y cuadrado.
-* src/lolcoach/ui/web/static/logo.png        (256 px) el erizo grande del centro de la ventana.
-* src/lolcoach/ui/web/static/logo-mini.png   (96 px) el de la barra superior (recorte).
+* src/erizocoach/ui/web/static/logo.png        (256 px) el erizo grande del centro de la ventana.
+* src/erizocoach/ui/web/static/logo-mini.png   (96 px) el de la barra superior (recorte).
 
 En los tamaños pequeños (16-32 px: barra de tareas, bandeja y barra superior) el dibujo entero no se
 distingue, así que se usa un recorte del erizo con su sombrero.
@@ -20,7 +20,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "docs" / "img" / "ErizoCoach.png"
 ASSETS = ROOT / "assets"
-WEB_STATIC = ROOT / "src" / "lolcoach" / "ui" / "web" / "static"
+WEB_STATIC = ROOT / "src" / "erizocoach" / "ui" / "web" / "static"
 LARGE_SIZES = (48, 64, 128, 256)
 SMALL_SIZES = (16, 24, 32)
 # Recorte del erizo (sombrero + cara) en coordenadas relativas al dibujo cuadrado.

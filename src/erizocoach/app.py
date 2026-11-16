@@ -39,7 +39,7 @@ from .ui.web.server import UiServer
 from .ui.web.window import AppWindow
 
 log = logging.getLogger(__name__)
-ui = logging.getLogger("lolcoach.ui")
+ui = logging.getLogger("erizocoach.ui")
 
 
 class UiMode(StrEnum):

@@ -12,14 +12,14 @@ from typing import Any
 
 import pytest
 
-from lolcoach.builds.models import ItemCount
-from lolcoach.config import load_settings
-from lolcoach.stats import pack
-from lolcoach.stats.aggregate import ChampionStats, Stats, stats_payload
-from lolcoach.stats.pack import PackError, SharedStats, decode_pack, encode_pack
-from lolcoach.stats.publish import MIN_MATCHES, PackPublisher, PublishTarget
-from lolcoach.stats.service import StatsService, choose
-from lolcoach.stats.source import StatsBuildSource
+from erizocoach.builds.models import ItemCount
+from erizocoach.config import load_settings
+from erizocoach.stats import pack
+from erizocoach.stats.aggregate import ChampionStats, Stats, stats_payload
+from erizocoach.stats.pack import PackError, SharedStats, decode_pack, encode_pack
+from erizocoach.stats.publish import MIN_MATCHES, PackPublisher, PublishTarget
+from erizocoach.stats.service import StatsService, choose
+from erizocoach.stats.source import StatsBuildSource
 
 from .stats_helpers import fill_store
 
@@ -225,7 +225,7 @@ class FakeGit:
 def publisher(tmp_path: Path, git: FakeGit, clock: Clock) -> PackPublisher:
     key = tmp_path / "clave"
     key.write_text("x", encoding="utf-8")
-    target = PublishTarget("git@github.com:alguien/LoLCoach-datos.git", key)
+    target = PublishTarget("git@github.com:alguien/ErizoCoach-datos.git", key)
     return PackPublisher(target, tmp_path, runner=git, clock=clock, every_seconds=3600)
 
 
@@ -237,7 +237,7 @@ def test_publishes_when_it_makes_sense(tmp_path: Path) -> None:
     assert publisher_.maybe_publish(stats("16.22", 500))
     assert decode_pack(git.pushed)[:2] == ("16.22", 500)
     push = git.calls[-1]
-    assert push[3:] == ["push", "-q", "--force", "git@github.com:alguien/LoLCoach-datos.git",
+    assert push[3:] == ["push", "-q", "--force", "git@github.com:alguien/ErizoCoach-datos.git",
                         "HEAD:main"]  # fmt: skip
     assert "IdentitiesOnly=yes" in git.envs[-1]["GIT_SSH_COMMAND"]
     assert "BatchMode=yes" in git.envs[-1]["GIT_SSH_COMMAND"]

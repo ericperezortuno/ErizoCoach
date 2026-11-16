@@ -10,14 +10,14 @@ from typing import Any
 
 import pytest
 
-from lolcoach.bus import EventBus
-from lolcoach.champselect.parser import parse_session
-from lolcoach.events import ChampSelectStarted, LoadoutPreview
-from lolcoach.gamedata.runes import RunePage, validate_page
-from lolcoach.loadout.models import StatsRuneOption
-from lolcoach.loadout.recommender import LoadoutRecommender
-from lolcoach.models import Position, QueueInfo
-from lolcoach.stats.aggregate import (
+from erizocoach.bus import EventBus
+from erizocoach.champselect.parser import parse_session
+from erizocoach.events import ChampSelectStarted, LoadoutPreview
+from erizocoach.gamedata.runes import RunePage, validate_page
+from erizocoach.loadout.models import StatsRuneOption
+from erizocoach.loadout.recommender import LoadoutRecommender
+from erizocoach.models import Position, QueueInfo
+from erizocoach.stats.aggregate import (
     ChampionStats,
     aggregate,
     is_fresh,
@@ -25,10 +25,10 @@ from lolcoach.stats.aggregate import (
     save_stats,
     stats_payload,
 )
-from lolcoach.stats.extract import PlayerBuild
-from lolcoach.stats.pack import PackError, decode_pack, encode_pack
-from lolcoach.stats.source import StatsBuildSource
-from lolcoach.ui.web.presenter import UiPresenter
+from erizocoach.stats.extract import PlayerBuild
+from erizocoach.stats.pack import PackError, decode_pack, encode_pack
+from erizocoach.stats.source import StatsBuildSource
+from erizocoach.ui.web.presenter import UiPresenter
 
 from .factories import AHRI, LUX, DraftScenario
 from .gamedata_fixture import FixtureClient, loaded_gamedata
@@ -203,7 +203,7 @@ async def test_the_window_lists_the_options() -> None:
 
 async def test_the_recommended_page_says_where_it_comes_from() -> None:
     """Base de alto elo sin datos por piedra angular (paquete antiguo): no dice «de Riot»."""
-    from lolcoach.loadout.models import StatsLoadout
+    from erizocoach.loadout.models import StatsLoadout
 
     class OnlyBase(Stats):
         def loadout_for(self, champion_id: int, position: Position) -> StatsLoadout | None:

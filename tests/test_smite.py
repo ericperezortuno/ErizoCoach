@@ -4,12 +4,17 @@ from __future__ import annotations
 
 import ssl
 
-from lolcoach.bus import EventBus
-from lolcoach.champselect.parser import parse_session
-from lolcoach.events import ChampSelectStarted, LoadoutInClient, LoadoutPreview, SpellsEditRequested
-from lolcoach.lcu import endpoints
-from lolcoach.loadout.models import MatchContext
-from lolcoach.loadout.rules import (
+from erizocoach.bus import EventBus
+from erizocoach.champselect.parser import parse_session
+from erizocoach.events import (
+    ChampSelectStarted,
+    LoadoutInClient,
+    LoadoutPreview,
+    SpellsEditRequested,
+)
+from erizocoach.lcu import endpoints
+from erizocoach.loadout.models import MatchContext
+from erizocoach.loadout.rules import (
     FLASH,
     HEAL,
     IGNITE,
@@ -20,8 +25,8 @@ from lolcoach.loadout.rules import (
     smite_problem,
     smite_rule,
 )
-from lolcoach.models import GameflowPhase, Position, QueueInfo
-from lolcoach.ui.web.presenter import UiPresenter
+from erizocoach.models import GameflowPhase, Position, QueueInfo
+from erizocoach.ui.web.presenter import UiPresenter
 
 from .factories import AHRI, DraftScenario
 from .fake_lcu import FakeLcu

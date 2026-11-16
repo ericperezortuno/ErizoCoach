@@ -1,6 +1,6 @@
 [project]
-name = "lolcoach"
-version = "0.20.1"
+name = "erizocoach"
+version = "0.21.0"
 description = "Asistente local para League of Legends: runas, hechizos y builds recomendadas."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-lolcoach = "lolcoach.__main__:main"
+erizocoach = "erizocoach.__main__:main"
 
 [dependency-groups]
 dev = [
@@ -29,7 +29,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/lolcoach"]
+packages = ["src/erizocoach"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

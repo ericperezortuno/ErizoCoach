@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from lolcoach.lcu.discovery import (
+from erizocoach.lcu.discovery import (
     ClientLocator,
     LcuCredentials,
     LockfileError,
@@ -53,7 +53,7 @@ def test_network_errors_never_expose_authorization_header() -> None:
     from multidict import CIMultiDict, CIMultiDictProxy
     from yarl import URL
 
-    from lolcoach.lcu.client import describe_error
+    from erizocoach.lcu.client import describe_error
 
     creds = LcuCredentials(port=1234, password="s3cr3t-token")
     url = URL("https://127.0.0.1:1234/")
@@ -86,8 +86,8 @@ def test_locator_reads_lockfile_of_running_process(tmp_path: Path) -> None:
 
 def test_locator_ignores_stale_lockfile(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (tmp_path / "lockfile").write_text("LeagueClient:999999:5555:pwd:https")
-    monkeypatch.setattr("lolcoach.lcu.discovery.psutil.pid_exists", lambda pid: False)
-    monkeypatch.setattr("lolcoach.lcu.discovery.psutil.process_iter", lambda attrs: iter(()))
+    monkeypatch.setattr("erizocoach.lcu.discovery.psutil.pid_exists", lambda pid: False)
+    monkeypatch.setattr("erizocoach.lcu.discovery.psutil.process_iter", lambda attrs: iter(()))
     assert ClientLocator(tmp_path).locate() is None
 
 
@@ -106,7 +106,7 @@ def test_locator_finds_process_and_remembers_folder(
             return []
 
     monkeypatch.setattr(
-        "lolcoach.lcu.discovery.psutil.process_iter", lambda attrs: iter([FakeProcess()])
+        "erizocoach.lcu.discovery.psutil.process_iter", lambda attrs: iter([FakeProcess()])
     )
     locator = ClientLocator()
     creds = locator.locate()

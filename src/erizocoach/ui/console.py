@@ -31,7 +31,7 @@ from ..ingame.analysis import Strength
 from ..loadout.models import LANE_CONFIDENCE
 from .labels import GAMEFLOW_LABELS, POSITION_LABELS
 
-log = logging.getLogger("lolcoach.ui")
+log = logging.getLogger("erizocoach.ui")
 
 
 class ConsoleReporter:

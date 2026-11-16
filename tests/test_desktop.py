@@ -11,13 +11,13 @@ from pathlib import Path
 
 import pytest
 
-from lolcoach.__main__ import choose_ui_mode
-from lolcoach.app import UiMode
-from lolcoach.bus import EventBus
-from lolcoach.config import Settings
-from lolcoach.ui import desktop
-from lolcoach.ui.desktop import DesktopBridge, build_html, render_script
-from lolcoach.ui.web.presenter import UiPresenter
+from erizocoach.__main__ import choose_ui_mode
+from erizocoach.app import UiMode
+from erizocoach.bus import EventBus
+from erizocoach.config import Settings
+from erizocoach.ui import desktop
+from erizocoach.ui.desktop import DesktopBridge, build_html, render_script
+from erizocoach.ui.web.presenter import UiPresenter
 
 from .gamedata_fixture import loaded_gamedata
 
@@ -70,7 +70,8 @@ def test_each_launch_uses_a_new_nonce() -> None:
 
 def test_render_script_is_safe_json() -> None:
     script = render_script({"phaseLabel": "</script><b>hola</b>   ñ"})
-    payload = script.removeprefix("window.lolcoach && window.lolcoach.render(").removesuffix(")")
+    prefix = "window.erizocoach && window.erizocoach.render("
+    payload = script.removeprefix(prefix).removesuffix(")")
     assert json.loads(payload)["phaseLabel"].startswith("</script>")
     assert "ñ" not in script and " " not in script  # solo ASCII
 
@@ -111,7 +112,7 @@ def test_bridge_exposes_only_six_methods() -> None:
 def test_bridge_set_spells_only_passes_two_spells(
     running_loop: asyncio.AbstractEventLoop,
 ) -> None:
-    from lolcoach.events import SpellsEditRequested
+    from erizocoach.events import SpellsEditRequested
 
     bus = EventBus()
     seen: list[SpellsEditRequested] = []
@@ -125,7 +126,7 @@ def test_bridge_set_spells_only_passes_two_spells(
 def test_bridge_set_runes_only_passes_a_rune_page(
     running_loop: asyncio.AbstractEventLoop,
 ) -> None:
-    from lolcoach.events import RunesEditRequested
+    from erizocoach.events import RunesEditRequested
 
     bus = EventBus()
     seen: list[RunesEditRequested] = []
@@ -215,7 +216,7 @@ def broken_window(*, shown: bool) -> type:
 def test_desktop_window_that_never_opens_falls_back_to_edge(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from lolcoach import __main__ as entry
+    from erizocoach import __main__ as entry
 
     monkeypatch.setattr(entry, "Application", FakeApp)
     monkeypatch.setattr(desktop, "DesktopWindow", broken_window(shown=False))
@@ -223,7 +224,7 @@ def test_desktop_window_that_never_opens_falls_back_to_edge(
 
 
 def test_errors_after_the_window_opened_are_not_hidden(monkeypatch: pytest.MonkeyPatch) -> None:
-    from lolcoach import __main__ as entry
+    from erizocoach import __main__ as entry
 
     monkeypatch.setattr(entry, "Application", FakeApp)
     monkeypatch.setattr(desktop, "DesktopWindow", broken_window(shown=True))
@@ -234,7 +235,7 @@ def test_errors_after_the_window_opened_are_not_hidden(monkeypatch: pytest.Monke
 def test_main_reopens_in_edge_when_the_desktop_window_fails(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    from lolcoach import __main__ as entry
+    from erizocoach import __main__ as entry
 
     class OneShotApp(FakeApp):
         async def run(self) -> None:  # en modo Edge: arranca y se cierra enseguida

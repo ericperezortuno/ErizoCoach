@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from lolcoach.champselect.models import ChampSelectPhase, Position
-from lolcoach.champselect.parser import parse_session
+from erizocoach.champselect.models import ChampSelectPhase, Position
+from erizocoach.champselect.parser import parse_session
 
 from .factories import (
     AHRI,

@@ -70,5 +70,5 @@ Guárdala igual que la de desarrollo. Sustituye a la anterior:
 erizocoach-consola stats clave
 ```
 
-Desde el código fuente: `uv run lolcoach stats clave`. Erizo Coach la usará en la siguiente
+Desde el código fuente: `uv run erizocoach stats clave`. Erizo Coach la usará en la siguiente
 descarga automática; no hace falta cambiar nada más.

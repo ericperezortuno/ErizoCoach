@@ -13,8 +13,8 @@ let retries = 0;
 let socket = null;    // navegador: canal con la app (también para cambiar las runas)
 let lastState = null; // para repintar al tocar el editor de runas sin esperar a la app
 
-// La app llama a window.lolcoach.render(estado) cuando algo cambia (escritorio).
-window.lolcoach = { render: (state) => render(state) };
+// La app llama a window.erizocoach.render(estado) cuando algo cambia (escritorio).
+window.erizocoach = { render: (state) => render(state) };
 
 function startDesktop() {
   window.addEventListener("pywebviewready", async () => {

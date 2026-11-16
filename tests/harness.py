@@ -9,11 +9,11 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from lolcoach.builds.service import BuildService
-from lolcoach.bus import EventBus
-from lolcoach.champselect.tracker import ChampSelectTracker
-from lolcoach.config import Settings
-from lolcoach.events import (
+from erizocoach.builds.service import BuildService
+from erizocoach.bus import EventBus
+from erizocoach.champselect.tracker import ChampSelectTracker
+from erizocoach.config import Settings
+from erizocoach.events import (
     BuildApplied,
     BuildReady,
     ChampionLocked,
@@ -30,13 +30,13 @@ from lolcoach.events import (
     MyPickPreviewChanged,
     PicksFinalized,
 )
-from lolcoach.gamedata.catalog import GameData
-from lolcoach.lcu import endpoints
-from lolcoach.lcu.connector import LcuConnector
-from lolcoach.lcu.discovery import LcuCredentials
-from lolcoach.loadout.service import LoadoutService
-from lolcoach.models import GameflowPhase
-from lolcoach.monitor import ClientMonitor
+from erizocoach.gamedata.catalog import GameData
+from erizocoach.lcu import endpoints
+from erizocoach.lcu.connector import LcuConnector
+from erizocoach.lcu.discovery import LcuCredentials
+from erizocoach.loadout.service import LoadoutService
+from erizocoach.models import GameflowPhase
+from erizocoach.monitor import ClientMonitor
 
 from .factories import DraftScenario
 from .fake_lcu import FakeLcu

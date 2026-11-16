@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import pytest
 
-from lolcoach.champselect.models import ChampSelectSnapshot
-from lolcoach.champselect.parser import parse_session
-from lolcoach.gamedata.catalog import ChampionProfile, SummonerSpell
-from lolcoach.gamedata.runes import RecommendedPage, RunePage, validate_page
-from lolcoach.loadout import recommender as recommender_module
-from lolcoach.loadout.models import Loadout, MatchContext, StatsLoadout, StatsRuneOption
-from lolcoach.loadout.positions import infer_positions, lane_opponent, resolve_my_position
-from lolcoach.loadout.recommender import LoadoutRecommender
-from lolcoach.loadout.rules import (
+from erizocoach.champselect.models import ChampSelectSnapshot
+from erizocoach.champselect.parser import parse_session
+from erizocoach.gamedata.catalog import ChampionProfile, SummonerSpell
+from erizocoach.gamedata.runes import RecommendedPage, RunePage, validate_page
+from erizocoach.loadout import recommender as recommender_module
+from erizocoach.loadout.models import Loadout, MatchContext, StatsLoadout, StatsRuneOption
+from erizocoach.loadout.positions import infer_positions, lane_opponent, resolve_my_position
+from erizocoach.loadout.recommender import LoadoutRecommender
+from erizocoach.loadout.rules import (
     BARRIER,
     CLEANSE,
     EXHAUST,
@@ -23,7 +23,7 @@ from lolcoach.loadout.rules import (
     adjust_spells,
     keep_flash_key,
 )
-from lolcoach.models import LANE_POSITIONS, Position, QueueInfo
+from erizocoach.models import LANE_POSITIONS, Position, QueueInfo
 
 from .factories import (
     AHRI,

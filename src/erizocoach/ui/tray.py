@@ -23,7 +23,8 @@ from pathlib import Path
 
 log = logging.getLogger(__name__)
 
-WINDOW_CLASS = "LoLCoachTrayWindow"
+WINDOW_CLASS = "ErizoCoachTrayWindow"
+LEGACY_WINDOW_CLASS = "LoLCoachTrayWindow"  # versiones hasta la 0.20 (LoL Coach)
 TOOLTIP = "Erizo Coach (en marcha)"
 
 # Mensajes propios (WM_APP = 0x8000)
@@ -35,11 +36,17 @@ MENU_OPEN = 1
 MENU_QUIT = 2
 
 
-def signal_running(window_class: str = WINDOW_CLASS) -> bool:
+def signal_running(*window_classes: str) -> bool:
     """Pide a la copia de Erizo Coach que ya está abierta que muestre su ventana.
 
-    Devuelve True si había una copia con icono en la bandeja y se le ha avisado.
+    Devuelve True si había una copia con icono en la bandeja y se le ha avisado. Sin
+    argumentos busca la copia actual y la de una versión antigua (LoL Coach).
     """
+    classes = window_classes or (WINDOW_CLASS, LEGACY_WINDOW_CLASS)
+    return any(_signal_one(window_class) for window_class in classes)
+
+
+def _signal_one(window_class: str) -> bool:
     if sys.platform != "win32":
         return False
     import ctypes
@@ -98,7 +105,7 @@ class TrayIcon:
             return False
         if self._thread is not None:
             return self._win is not None
-        self._thread = threading.Thread(target=self._run, name="lolcoach-tray", daemon=True)
+        self._thread = threading.Thread(target=self._run, name="erizocoach-tray", daemon=True)
         self._thread.start()
         self._ready.wait(timeout)
         return self._win is not None

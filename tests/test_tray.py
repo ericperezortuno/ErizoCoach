@@ -10,12 +10,12 @@ from typing import Any
 
 import pytest
 
-from lolcoach.bus import EventBus
-from lolcoach.config import Settings
-from lolcoach.ui import desktop, tray
-from lolcoach.ui.desktop import BACKGROUND_NOTICE, DesktopWindow
-from lolcoach.ui.tray import TrayIcon, default_icon_path, signal_running
-from lolcoach.ui.web.presenter import UiPresenter
+from erizocoach.bus import EventBus
+from erizocoach.config import Settings
+from erizocoach.ui import desktop, tray
+from erizocoach.ui.desktop import BACKGROUND_NOTICE, DesktopWindow
+from erizocoach.ui.tray import TrayIcon, default_icon_path, signal_running
+from erizocoach.ui.web.presenter import UiPresenter
 
 from .gamedata_fixture import loaded_gamedata
 
@@ -27,7 +27,7 @@ windows_only = pytest.mark.skipif(sys.platform != "win32", reason="bandeja de Wi
 
 def unique_class() -> str:
     """Nombre propio en cada prueba: nunca se confunde con un Erizo Coach de verdad abierto."""
-    return f"LoLCoachTrayTest{uuid.uuid4().hex}"
+    return f"ErizoCoachTrayTest{uuid.uuid4().hex}"
 
 
 @windows_only
@@ -171,7 +171,7 @@ def test_page_has_the_background_button() -> None:
 
 
 def test_relaunch_opens_the_running_copy(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    from lolcoach import __main__ as entry
+    from erizocoach import __main__ as entry
 
     shown: list[Any] = []
 

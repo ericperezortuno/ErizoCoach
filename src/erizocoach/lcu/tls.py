@@ -16,7 +16,7 @@ RIOT_CA_RESOURCE = "certs/riotgames.pem"
 
 
 def load_riot_ca() -> str:
-    return files("lolcoach.lcu").joinpath(RIOT_CA_RESOURCE).read_text(encoding="ascii")
+    return files("erizocoach.lcu").joinpath(RIOT_CA_RESOURCE).read_text(encoding="ascii")
 
 
 def create_ssl_context(ca_pem: str | None = None) -> ssl.SSLContext:

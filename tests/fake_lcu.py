@@ -15,8 +15,8 @@ from typing import Any
 
 from aiohttp import WSMsgType, web
 
-from lolcoach.lcu import endpoints
-from lolcoach.lcu.websocket import WAMP_EVENT, WAMP_SUBSCRIBE, topic_for
+from erizocoach.lcu import endpoints
+from erizocoach.lcu.websocket import WAMP_EVENT, WAMP_SUBSCRIBE, topic_for
 
 from .gamedata_fixture import static_route
 

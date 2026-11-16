@@ -9,7 +9,7 @@ lo graba con Microsoft Edge sin ventana (protocolo DevTools):
 
 * Datos del juego: los del parche 16.22 de las pruebas, con las rutas de los iconos.
 * Iconos: CommunityDragon (copia pública de los archivos del cliente: las mismas imágenes).
-* Builds, runas y hechizos: el paquete público de estadísticas de alto elo (LoLCoach-datos).
+* Builds, runas y hechizos: el paquete público de estadísticas de alto elo (ErizoCoach-datos).
 
 No necesita el cliente de LoL ni toca tus datos: no escribe nada fuera de ``docs/img`` y
 de la caché en ``build/capturas``.
@@ -42,10 +42,10 @@ from tests.factories import AHRI, DraftScenario  # noqa: E402
 from tests.gamedata_fixture import FixtureClient, fixture  # noqa: E402
 from tests.live_factories import ME_RIOT_ID, all_game_data, live_player  # noqa: E402
 
-from lolcoach.builds.recommender import BuildRecommender  # noqa: E402
-from lolcoach.bus import EventBus  # noqa: E402
-from lolcoach.champselect.parser import parse_session  # noqa: E402
-from lolcoach.events import (  # noqa: E402
+from erizocoach.builds.recommender import BuildRecommender  # noqa: E402
+from erizocoach.bus import EventBus  # noqa: E402
+from erizocoach.champselect.parser import parse_session  # noqa: E402
+from erizocoach.events import (  # noqa: E402
     BuildReady,
     ChampSelectStarted,
     GameflowPhaseChanged,
@@ -56,24 +56,24 @@ from lolcoach.events import (  # noqa: E402
     RunesEditRequested,
     SpellsEditRequested,
 )
-from lolcoach.gamedata.catalog import GameData  # noqa: E402
-from lolcoach.ingame.advisor import advise  # noqa: E402
-from lolcoach.ingame.analysis import analyze, item_value  # noqa: E402
-from lolcoach.ingame.gold import GoldTracker  # noqa: E402
-from lolcoach.ingame.models import parse_all_game_data  # noqa: E402
-from lolcoach.loadout.recommender import LoadoutRecommender  # noqa: E402
-from lolcoach.models import GameflowPhase, Position, QueueInfo  # noqa: E402
-from lolcoach.stats.pack import decode_pack  # noqa: E402
-from lolcoach.stats.source import StatsBuildSource  # noqa: E402
-from lolcoach.ui.web.presenter import UiPresenter  # noqa: E402
-from lolcoach.ui.web.server import UiServer  # noqa: E402
+from erizocoach.gamedata.catalog import GameData  # noqa: E402
+from erizocoach.ingame.advisor import advise  # noqa: E402
+from erizocoach.ingame.analysis import analyze, item_value  # noqa: E402
+from erizocoach.ingame.gold import GoldTracker  # noqa: E402
+from erizocoach.ingame.models import parse_all_game_data  # noqa: E402
+from erizocoach.loadout.recommender import LoadoutRecommender  # noqa: E402
+from erizocoach.models import GameflowPhase, Position, QueueInfo  # noqa: E402
+from erizocoach.stats.pack import decode_pack  # noqa: E402
+from erizocoach.stats.source import StatsBuildSource  # noqa: E402
+from erizocoach.ui.web.presenter import UiPresenter  # noqa: E402
+from erizocoach.ui.web.server import UiServer  # noqa: E402
 
 OUT = ROOT / "docs" / "img"
 CACHE = ROOT / "build" / "capturas"
 EDGE = Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
 CDRAGON = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/"
 PACK_URL = (
-    "https://raw.githubusercontent.com/ericperezortuno/LoLCoach-datos/main/estadisticas.json.gz"
+    "https://raw.githubusercontent.com/ericperezortuno/ErizoCoach-datos/main/estadisticas.json.gz"
 )
 ASSETS = "/lol-game-data/assets/"
 SR = QueueInfo(420, "Clasificatoria en solitario", "CLASSIC", 11)

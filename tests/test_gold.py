@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
-from lolcoach.ingame.analysis import analyze, item_value
-from lolcoach.ingame.gold import (
+from erizocoach.ingame.analysis import analyze, item_value
+from erizocoach.ingame.gold import (
     FIRST_BLOOD_BONUS,
     JUNGLE_CS_GOLD,
     GoldTracker,
@@ -16,8 +16,8 @@ from lolcoach.ingame.gold import (
     passive_gold,
     turret_gold,
 )
-from lolcoach.ingame.models import CHAOS, ORDER, LiveGame, parse_all_game_data
-from lolcoach.models import Position
+from erizocoach.ingame.models import CHAOS, ORDER, LiveGame, parse_all_game_data
+from erizocoach.models import Position
 
 from .gamedata_fixture import loaded_gamedata
 from .live_factories import ME_RIOT_ID, all_game_data, live_player

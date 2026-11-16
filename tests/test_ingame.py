@@ -6,14 +6,14 @@ import dataclasses
 
 import pytest
 
-from lolcoach.builds.models import BuildPlan
-from lolcoach.builds.recommender import BuildRecommender
-from lolcoach.gamedata.catalog import DamageType
-from lolcoach.ingame.advisor import advise, purchase_order
-from lolcoach.ingame.analysis import GameReport, Strength, analyze
-from lolcoach.ingame.models import LiveGame, parse_all_game_data
-from lolcoach.ingame.role_slot import HiddenBoots, RoleSlotBoots
-from lolcoach.models import Position
+from erizocoach.builds.models import BuildPlan
+from erizocoach.builds.recommender import BuildRecommender
+from erizocoach.gamedata.catalog import DamageType
+from erizocoach.ingame.advisor import advise, purchase_order
+from erizocoach.ingame.analysis import GameReport, Strength, analyze
+from erizocoach.ingame.models import LiveGame, parse_all_game_data
+from erizocoach.ingame.role_slot import HiddenBoots, RoleSlotBoots
+from erizocoach.models import Position
 
 from .gamedata_fixture import FixtureClient, loaded_gamedata
 from .live_factories import ME_RIOT_ID, all_game_data, bot_game, live_player, standard_game
@@ -439,7 +439,7 @@ async def test_magical_footwear_boots_are_not_your_boots() -> None:
     remaining = {s.item_id: s for s in boots.build}
     assert not remaining[BERSERKER].owned
     # Al comprarlas se mejora como unas Botas: su valor se descuenta
-    from lolcoach.ingame.advisor import _purchase
+    from erizocoach.ingame.advisor import _purchase
 
     purchase = _purchase(BERSERKER, "", (MAGICAL_FOOTWEAR,), 0, gd.item)
     assert purchase.remaining_gold == berserker.price_total - 300
@@ -544,7 +544,7 @@ async def test_an_upgraded_item_counts_as_its_base_item() -> None:
 
 
 def test_upgrade_chains_are_followed() -> None:
-    from lolcoach.gamedata.items import with_upgraded
+    from erizocoach.gamedata.items import with_upgraded
 
     gd = loaded_gamedata()
     assert gd.item(SERAPH).upgraded_from == ARCHANGEL  # type: ignore[union-attr]
@@ -556,7 +556,7 @@ def test_upgrade_chains_are_followed() -> None:
 
 
 def test_a_broken_upgrade_loop_in_the_data_does_not_hang() -> None:
-    from lolcoach.gamedata.items import Item, with_upgraded
+    from erizocoach.gamedata.items import Item, with_upgraded
 
     def fake(item_id: int) -> Item:  # 1 ← 2 ← 1: datos rotos
         return Item(item_id, "x", 0, (), (), frozenset(), False, False, "", "", "", 3 - item_id)

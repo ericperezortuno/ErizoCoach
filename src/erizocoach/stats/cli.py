@@ -1,4 +1,4 @@
-"""Comandos ``lolcoach stats ...``: clave, descarga y estado de las estadísticas."""
+"""Comandos ``erizocoach stats ...``: clave, descarga y estado de las estadísticas."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ from .service import prepare_stats
 from .store import DATABASE, MatchStore
 from .updater import download_lock
 
-ui = logging.getLogger("lolcoach.ui")
+ui = logging.getLogger("erizocoach.ui")
 PROGRESS_EVERY_SECONDS = 30
 
 
@@ -103,7 +103,7 @@ def cmd_forget_key() -> int:
 def cmd_update(settings: Settings, hours: float, max_matches: int | None) -> int:
     key = keystore.load_key()
     if not key:
-        ui.error("No hay clave de Riot guardada. Primero: «uv run lolcoach stats clave».")
+        ui.error("No hay clave de Riot guardada. Primero: «uv run erizocoach stats clave».")
         return 1
     lock = download_lock(settings.stats_dir)
     if not lock.acquire():
@@ -238,7 +238,7 @@ def cmd_status(settings: Settings) -> int:
     ui.info("Clave de Riot guardada: %s", "sí" if keystore.load_key() else "no")
     database = settings.stats_dir / DATABASE
     if not database.exists():
-        ui.info("Aún no hay partidas descargadas («uv run lolcoach stats descargar»).")
+        ui.info("Aún no hay partidas descargadas («uv run erizocoach stats descargar»).")
         return 0
     store = MatchStore(database)
     _warn_if_set_aside(store)

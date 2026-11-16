@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import ClassVar
 
-LOG_FILE_NAME = "lolcoach.log"
+LOG_FILE_NAME = "erizocoach.log"
 LOG_FILE_MAX_BYTES = 1_000_000
 LOG_FILE_BACKUPS = 3
 
@@ -66,7 +66,7 @@ class ConsoleFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         message = record.getMessage()
-        if self._debug and not record.name.startswith("lolcoach.ui"):
+        if self._debug and not record.name.startswith("erizocoach.ui"):
             message = f"{record.name}: {message}"
         timestamp = self.formatTime(record, "%H:%M:%S")
         line = f"[{timestamp}] {self._MARKS.get(record.levelno, '')}{message}"
@@ -85,7 +85,7 @@ def setup_logging(log_dir: Path, *, debug: bool = False) -> None:
     root.setLevel(logging.WARNING)  # librerías externas: solo avisos y errores
     for handler in list(root.handlers):
         root.removeHandler(handler)
-    logging.getLogger("lolcoach").setLevel(logging.DEBUG)
+    logging.getLogger("erizocoach").setLevel(logging.DEBUG)
 
     if has_console:
         console = logging.StreamHandler(sys.stdout)

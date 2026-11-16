@@ -39,7 +39,7 @@ from .riot_api import RiotApiClient, RiotApiError, RiotApiKeyError
 from .store import DATABASE, MatchStore, is_corrupt, set_aside
 
 log = logging.getLogger(__name__)
-ui = logging.getLogger("lolcoach.ui")
+ui = logging.getLogger("erizocoach.ui")
 
 PAUSE_PHASES = frozenset(
     {

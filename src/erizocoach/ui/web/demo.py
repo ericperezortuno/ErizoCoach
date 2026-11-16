@@ -1,4 +1,4 @@
-"""Partida de demostración (``lolcoach --demo``) para ver la ventana sin jugar.
+"""Partida de demostración (``erizocoach --demo``) para ver la ventana sin jugar.
 
 Usa el análisis y el consejero reales sobre una partida inventada: Ahri en medio
 contra un Zed que va muy fuerte y una Soraka que cura mucho.

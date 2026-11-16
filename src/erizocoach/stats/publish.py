@@ -2,8 +2,8 @@
 
 Solo lo hace quien lo configura en ``config.toml``::
 
-    stats_publish_repo = "git@github.com:<usuario>/LoLCoach-datos.git"
-    stats_publish_key = "C:/Users/<usuario>/.ssh/lolcoach_datos_ed25519"
+    stats_publish_repo = "git@github.com:<usuario>/ErizoCoach-datos.git"
+    stats_publish_key = "C:/Users/<usuario>/.ssh/erizocoach_datos_ed25519"
 
 La clave SSH debe ser una «deploy key» con escritura **solo** en ese repositorio de
 datos. Cada publicación sube un único commit nuevo (el repositorio no crece con el
@@ -126,7 +126,7 @@ class PackPublisher:
         if not self._target.key.is_file():
             raise OSError(f"no existe la clave {self._target.key}")
         patch, matches, _ = stats
-        with tempfile.TemporaryDirectory(prefix="lolcoach-publicar-") as tmp:
+        with tempfile.TemporaryDirectory(prefix="erizocoach-publicar-") as tmp:
             work = Path(tmp)
             (work / PACK_FILE).write_bytes(encode_pack(stats))
             readme = README.format(patch=patch, matches=matches)
@@ -144,9 +144,9 @@ class PackPublisher:
             "GIT_SSH_COMMAND": f'ssh -i "{key}" -o IdentitiesOnly=yes -o BatchMode=yes',
             "GIT_TERMINAL_PROMPT": "0",
             "GIT_AUTHOR_NAME": "Erizo Coach",
-            "GIT_AUTHOR_EMAIL": "lolcoach@localhost",
+            "GIT_AUTHOR_EMAIL": "erizocoach@localhost",
             "GIT_COMMITTER_NAME": "Erizo Coach",
-            "GIT_COMMITTER_EMAIL": "lolcoach@localhost",
+            "GIT_COMMITTER_EMAIL": "erizocoach@localhost",
         }
         result = self._run(
             [git, "-c", "commit.gpgsign=false", *args],

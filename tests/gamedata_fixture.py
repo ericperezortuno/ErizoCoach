@@ -8,7 +8,7 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
-from lolcoach.gamedata.catalog import GameData
+from erizocoach.gamedata.catalog import GameData
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "gamedata.json"
 _RECOMMENDED = re.compile(

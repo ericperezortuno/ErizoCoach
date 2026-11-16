@@ -9,14 +9,14 @@ from pathlib import Path
 
 import pytest
 
-from lolcoach.bus import EventBus
-from lolcoach.config import Settings
-from lolcoach.events import GameflowPhaseChanged, StatsStatus
-from lolcoach.models import ClientInfo, GameflowPhase
-from lolcoach.stats.crawler import Crawler, CrawlProgress
-from lolcoach.stats.riot_api import RiotApiClient
-from lolcoach.stats.store import MatchStore
-from lolcoach.stats.updater import StatsUpdater, download_lock
+from erizocoach.bus import EventBus
+from erizocoach.config import Settings
+from erizocoach.events import GameflowPhaseChanged, StatsStatus
+from erizocoach.models import ClientInfo, GameflowPhase
+from erizocoach.stats.crawler import Crawler, CrawlProgress
+from erizocoach.stats.riot_api import RiotApiClient
+from erizocoach.stats.store import MatchStore
+from erizocoach.stats.updater import StatsUpdater, download_lock
 
 from .fake_riot_api import API_KEY, FakeRiotApi
 from .stats_helpers import corrupt_database, corruption_error, fill_store
@@ -208,7 +208,7 @@ async def test_a_busy_database_is_retried_without_setting_it_aside(
 async def test_waits_while_another_download_runs(riot: FakeRiotApi, tmp_path: Path) -> None:
     updater, _bus, _refresher, statuses = make_updater(riot, tmp_path)
     lock = download_lock(tmp_path / "stats")
-    assert lock.acquire()  # «lolcoach stats descargar» en la consola
+    assert lock.acquire()  # «erizocoach stats descargar» en la consola
     try:
         await updater._on_connect(None, INFO)
         await asyncio.sleep(0.1)

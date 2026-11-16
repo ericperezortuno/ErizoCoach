@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from lolcoach.builds import archetypes, rules
-from lolcoach.builds.archetypes import (
+from erizocoach.builds import archetypes, rules
+from erizocoach.builds.archetypes import (
     ARCHETYPE_ITEMS,
     ARCHETYPE_OVERRIDES,
     ITEM_OVERRIDES,
@@ -16,12 +16,12 @@ from lolcoach.builds.archetypes import (
     classify,
     starting_items,
 )
-from lolcoach.builds.itemset import build_item_set, is_ours, set_title
-from lolcoach.builds.models import Archetype, BaseBuild, BuildPlan, ItemCount
-from lolcoach.builds.recommender import BuildRecommender
-from lolcoach.champselect.models import ChampSelectSnapshot
-from lolcoach.champselect.parser import parse_session
-from lolcoach.models import LANE_POSITIONS, Position, QueueInfo
+from erizocoach.builds.itemset import build_item_set, is_ours, set_title
+from erizocoach.builds.models import Archetype, BaseBuild, BuildPlan, ItemCount
+from erizocoach.builds.recommender import BuildRecommender
+from erizocoach.champselect.models import ChampSelectSnapshot
+from erizocoach.champselect.parser import parse_session
+from erizocoach.models import LANE_POSITIONS, Position, QueueInfo
 
 from .factories import action, player, session
 from .gamedata_fixture import FixtureClient, loaded_gamedata

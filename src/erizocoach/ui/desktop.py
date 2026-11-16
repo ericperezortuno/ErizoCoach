@@ -91,7 +91,7 @@ def desktop_available() -> bool:
 
 def build_html(nonce: str | None = None) -> str:
     """La misma página que la versión web, con estilos y código incrustados y CSP estricta."""
-    static = files("lolcoach.ui.web").joinpath("static")
+    static = files("erizocoach.ui.web").joinpath("static")
     html = static.joinpath("index.html").read_text(encoding="utf-8")
     css = static.joinpath("style.css").read_text(encoding="utf-8")
     for image in LOGOS:  # la CSP solo deja imágenes data:
@@ -199,7 +199,7 @@ class DesktopBridge:
 def render_script(state: State) -> str:
     """Código que la app ejecuta en la página para pintar un estado nuevo."""
     payload = json.dumps(state, ensure_ascii=True)
-    return f"window.lolcoach && window.lolcoach.render({payload})"
+    return f"window.erizocoach && window.erizocoach.render({payload})"
 
 
 class DesktopWindow:

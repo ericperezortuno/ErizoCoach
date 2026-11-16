@@ -9,8 +9,8 @@ from typing import Any
 
 import aiohttp
 
-from lolcoach.bus import EventBus
-from lolcoach.events import (
+from erizocoach.bus import EventBus
+from erizocoach.events import (
     ChampSelectStarted,
     LoadoutApplied,
     LoadoutInClient,
@@ -18,12 +18,12 @@ from lolcoach.events import (
     RunesBy,
     RunesEditRequested,
 )
-from lolcoach.gamedata.runes import RunePage
-from lolcoach.lcu import endpoints
-from lolcoach.models import GameflowPhase
-from lolcoach.ui.web.icons import IconProvider
-from lolcoach.ui.web.presenter import UiPresenter
-from lolcoach.ui.web.server import UiServer
+from erizocoach.gamedata.runes import RunePage
+from erizocoach.lcu import endpoints
+from erizocoach.models import GameflowPhase
+from erizocoach.ui.web.icons import IconProvider
+from erizocoach.ui.web.presenter import UiPresenter
+from erizocoach.ui.web.server import UiServer
 
 from .factories import AHRI, DraftScenario
 from .fake_lcu import FakeLcu
@@ -206,8 +206,8 @@ async def test_runes_are_only_edited_in_champ_select(
 
 
 async def test_the_window_shows_the_runes_in_your_client() -> None:
-    from lolcoach.champselect.parser import parse_session
-    from lolcoach.loadout.recommender import LoadoutRecommender
+    from erizocoach.champselect.parser import parse_session
+    from erizocoach.loadout.recommender import LoadoutRecommender
 
     from .gamedata_fixture import FixtureClient
 
@@ -322,7 +322,7 @@ def test_rune_and_spell_icons_come_only_from_the_game() -> None:
 async def test_spells_chosen_in_the_window_go_to_the_client(
     fake: FakeLcu, client_ssl: ssl.SSLContext
 ) -> None:
-    from lolcoach.events import SpellsEditRequested
+    from erizocoach.events import SpellsEditRequested
 
     async with Harness(credentials_for(fake), client_ssl) as app:
         scenario = await start_hovering(fake, app, spells=(4, 14))
@@ -341,7 +341,7 @@ async def test_spells_chosen_in_the_window_go_to_the_client(
 async def test_impossible_spells_from_the_window_are_rejected(
     fake: FakeLcu, client_ssl: ssl.SSLContext
 ) -> None:
-    from lolcoach.events import SpellsEditRequested
+    from erizocoach.events import SpellsEditRequested
 
     async with Harness(credentials_for(fake), client_ssl) as app:
         await start_hovering(fake, app)
@@ -352,8 +352,8 @@ async def test_impossible_spells_from_the_window_are_rejected(
 
 
 async def test_the_window_offers_the_spells_of_the_mode() -> None:
-    from lolcoach.champselect.parser import parse_session
-    from lolcoach.models import QueueInfo
+    from erizocoach.champselect.parser import parse_session
+    from erizocoach.models import QueueInfo
 
     gd = loaded_gamedata()
     snapshot = parse_session(DraftScenario().state(3))
@@ -368,7 +368,7 @@ async def test_the_window_offers_the_spells_of_the_mode() -> None:
 
 
 async def test_the_window_can_only_ask_for_two_different_spells() -> None:
-    from lolcoach.events import SpellsEditRequested
+    from erizocoach.events import SpellsEditRequested
 
     bus = EventBus()
     seen: list[SpellsEditRequested] = []
@@ -383,7 +383,7 @@ async def test_the_window_can_only_ask_for_two_different_spells() -> None:
 
 
 async def test_spell_changes_arrive_through_the_websocket() -> None:
-    from lolcoach.events import SpellsEditRequested
+    from erizocoach.events import SpellsEditRequested
 
     bus = EventBus()
     seen: list[SpellsEditRequested] = []

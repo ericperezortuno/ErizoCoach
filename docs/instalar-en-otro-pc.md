@@ -69,7 +69,7 @@ compartir):
 
    Pega la clave (no se ve al escribir) y pulsa Intro. Con Erizo Coach abierto, las
    estadísticas se descargan solas en segundo plano.
-3. Si no juegas en EUW, crea `%LOCALAPPDATA%\LoLCoach\config.toml` con la línea
+3. Si no juegas en EUW, crea `%LOCALAPPDATA%\ErizoCoach\config.toml` con la línea
    `riot_region = "na1"` (o `eun1`, `tr1`, `kr`). Por defecto descarga de EUW, Corea y
    Norteamérica a la vez; para cambiarlo, `stats_regions = ["euw1"]`.
 
@@ -78,4 +78,4 @@ compartir):
 - **Actualizar:** abre el instalador de la versión nueva con Erizo Coach cerrado.
 - **Desinstalar:** *Configuración → Aplicaciones → Aplicaciones instaladas → Erizo Coach →
   Desinstalar*. Se quitan la app y los accesos directos; los datos
-  (`%LOCALAPPDATA%\LoLCoach`) se conservan por si vuelves a instalarlo.
+  (`%LOCALAPPDATA%\ErizoCoach`) se conservan por si vuelves a instalarlo.

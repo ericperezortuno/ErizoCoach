@@ -5,9 +5,9 @@ from __future__ import annotations
 import dataclasses
 from typing import Any
 
-from lolcoach.bus import EventBus
-from lolcoach.champselect.models import ChampSelectPhase, ChampSelectSnapshot, PlayerSlot
-from lolcoach.events import (
+from erizocoach.bus import EventBus
+from erizocoach.champselect.models import ChampSelectPhase, ChampSelectSnapshot, PlayerSlot
+from erizocoach.events import (
     ChampionLocked,
     ChampSelectEnded,
     ChampSelectOutcome,
@@ -15,8 +15,8 @@ from lolcoach.events import (
     CountersUpdated,
     MyChampionChanged,
 )
-from lolcoach.lcu.client import LcuError
-from lolcoach.loadout.counters import (
+from erizocoach.lcu.client import LcuError
+from erizocoach.loadout.counters import (
     MIN_GAMES,
     PRIOR_WEIGHT,
     CounterService,
@@ -24,12 +24,12 @@ from lolcoach.loadout.counters import (
     lane_rival,
     matchup_for,
 )
-from lolcoach.models import Position, QueueInfo
-from lolcoach.stats.aggregate import ChampionStats, lane_matchups, with_matchups
-from lolcoach.stats.extract import PlayerBuild
-from lolcoach.stats.pack import decode_pack, encode_pack, is_sane
-from lolcoach.stats.source import StatsBuildSource
-from lolcoach.ui.web.presenter import UiPresenter
+from erizocoach.models import Position, QueueInfo
+from erizocoach.stats.aggregate import ChampionStats, lane_matchups, with_matchups
+from erizocoach.stats.extract import PlayerBuild
+from erizocoach.stats.pack import decode_pack, encode_pack, is_sane
+from erizocoach.stats.source import StatsBuildSource
+from erizocoach.ui.web.presenter import UiPresenter
 
 from .gamedata_fixture import loaded_gamedata
 

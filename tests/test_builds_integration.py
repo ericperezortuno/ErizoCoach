@@ -6,9 +6,9 @@ import copy
 import ssl
 from pathlib import Path
 
-from lolcoach.config import Settings
-from lolcoach.events import BuildApplied, BuildReady
-from lolcoach.lcu import endpoints
+from erizocoach.config import Settings
+from erizocoach.events import BuildApplied, BuildReady
+from erizocoach.lcu import endpoints
 
 from .factories import AHRI, JINX
 from .fake_lcu import FakeLcu, user_item_set

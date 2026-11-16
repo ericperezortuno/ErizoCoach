@@ -1,9 +1,10 @@
-"""Punto de entrada: ``lolcoach``, ``python -m lolcoach`` o ``Erizo Coach.exe``."""
+"""Punto de entrada: ``erizocoach``, ``python -m erizocoach`` o ``Erizo Coach.exe``."""
 
 from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import logging
 import sys
 import threading
@@ -11,16 +12,16 @@ from pathlib import Path
 
 from . import __version__
 from .app import Application, UiMode, run_check
-from .config import Settings, load_settings
+from .config import Settings, default_data_dir, load_settings
 from .logs import setup_logging
 from .single_instance import SingleInstanceLock
 
-log = logging.getLogger("lolcoach.ui")
+log = logging.getLogger("erizocoach.ui")
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="lolcoach", description="Asistente local para League of Legends."
+        prog="erizocoach", description="Asistente local para League of Legends."
     )
     parser.add_argument(
         "--check", action="store_true", help="comprueba la conexión con el cliente y sale"
@@ -97,7 +98,9 @@ def run_desktop(settings: Settings, *, demo: bool) -> bool:
     from .ui.desktop import DesktopWindow
 
     app = Application(settings, demo=demo, ui_mode=UiMode.DESKTOP)
-    worker = threading.Thread(target=_run_in_thread, args=(app,), name="lolcoach-app", daemon=True)
+    worker = threading.Thread(
+        target=_run_in_thread, args=(app,), name="erizocoach-app", daemon=True
+    )
     worker.start()
     if not app.started.wait(timeout=15):
         log.error("Erizo Coach no ha podido arrancar.")
@@ -127,12 +130,16 @@ def _run_in_thread(app: Application) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    notes: list[str] = []
     settings, warnings = load_settings(
+        data_dir=default_data_dir(notes),  # mueve la carpeta del nombre antiguo, si la hay
         league_dir=args.league_dir,
         debug=args.debug or None,
         window_flag=False if args.no_window else None,
     )
     setup_logging(settings.log_dir, debug=settings.debug)
+    for note in notes:
+        log.info(note)
     for warning in warnings:
         log.warning(warning)
 
@@ -142,7 +149,11 @@ def main(argv: list[str] | None = None) -> int:
         return run_stats(args, settings)
 
     lock = SingleInstanceLock(settings.lock_path)
-    if not lock.acquire():
+    acquired = lock.acquire()
+    if acquired and legacy_copy_running(settings):
+        lock.release()
+        acquired = False
+    if not acquired:
         from .ui.tray import signal_running
 
         if signal_running():  # estaba en segundo plano (o detrás): se abre su ventana
@@ -166,6 +177,24 @@ def main(argv: list[str] | None = None) -> int:
         lock.release()
         log.info("Erizo Coach cerrado. ¡Hasta la próxima!")
     return 0
+
+
+def legacy_copy_running(settings: Settings) -> bool:
+    """¿Sigue abierta una versión con el nombre antiguo (LoL Coach) sobre estos datos?
+
+    Solo puede pasar si su carpeta no se ha podido mover porque esa copia la está usando:
+    entonces sus datos y su bloqueo (``lolcoach.lock``) siguen ahí. Si el bloqueo ya no lo
+    tiene nadie, el archivo sobra y se borra.
+    """
+    path = settings.legacy_lock_path
+    if not path.exists():
+        return False
+    with SingleInstanceLock(path) as free:
+        if not free:
+            return True
+    with contextlib.suppress(OSError):
+        path.unlink()
+    return False
 
 
 def _show_message(text: str) -> None:

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from lolcoach.gamedata.catalog import GameData
-from lolcoach.lcu import endpoints
-from lolcoach.lcu.client import LcuUnavailable
+from erizocoach.gamedata.catalog import GameData
+from erizocoach.lcu import endpoints
+from erizocoach.lcu.client import LcuUnavailable
 
 from .gamedata_fixture import static_route
 

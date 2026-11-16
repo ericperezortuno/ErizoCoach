@@ -19,12 +19,12 @@ import pytest
 import trustme
 from aiohttp import web
 
-from lolcoach.bus import EventBus
-from lolcoach.events import ClientConnected, LaunchClientRequested
-from lolcoach.lcu import client
-from lolcoach.lcu.launcher import LAUNCH_PATH, ClientLauncher, read_riot_lockfile
-from lolcoach.lcu.tls import create_ssl_context
-from lolcoach.models import ClientInfo
+from erizocoach.bus import EventBus
+from erizocoach.events import ClientConnected, LaunchClientRequested
+from erizocoach.lcu import client
+from erizocoach.lcu.launcher import LAUNCH_PATH, ClientLauncher, read_riot_lockfile
+from erizocoach.lcu.tls import create_ssl_context
+from erizocoach.models import ClientInfo
 
 
 class FakeRiotClient:

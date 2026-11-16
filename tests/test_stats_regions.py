@@ -9,15 +9,15 @@ from pathlib import Path
 
 import pytest
 
-from lolcoach.bus import EventBus
-from lolcoach.config import DEFAULT_STATS_REGIONS, Settings, load_settings
-from lolcoach.events import StatsStatus
-from lolcoach.models import ClientInfo
-from lolcoach.stats.crawler import APEX_TIERS, Crawler, crawl_regions
-from lolcoach.stats.extract import extract_builds
-from lolcoach.stats.riot_api import RiotApiClient, distinct_routes, match_prefix
-from lolcoach.stats.store import MatchStore, players_refreshed_key
-from lolcoach.stats.updater import StatsUpdater
+from erizocoach.bus import EventBus
+from erizocoach.config import DEFAULT_STATS_REGIONS, Settings, load_settings
+from erizocoach.events import StatsStatus
+from erizocoach.models import ClientInfo
+from erizocoach.stats.crawler import APEX_TIERS, Crawler, crawl_regions
+from erizocoach.stats.extract import extract_builds
+from erizocoach.stats.riot_api import RiotApiClient, distinct_routes, match_prefix
+from erizocoach.stats.store import MatchStore, players_refreshed_key
+from erizocoach.stats.updater import StatsUpdater
 
 from .fake_riot_api import API_KEY, FakeRiotApi, build_match
 

@@ -13,15 +13,15 @@ import keyring
 import pytest
 from keyring.backend import KeyringBackend
 
-from lolcoach.builds.models import Archetype, ItemCount
-from lolcoach.builds.recommender import BuildRecommender
-from lolcoach.logs import REDACTOR
-from lolcoach.models import Position
-from lolcoach.stats import keystore
-from lolcoach.stats.aggregate import ChampionStats, aggregate, load_stats, save_stats
-from lolcoach.stats.crawler import Crawler
-from lolcoach.stats.extract import PlayerBuild, extract_builds, extract_loadout, patch_of
-from lolcoach.stats.riot_api import (
+from erizocoach.builds.models import Archetype, ItemCount
+from erizocoach.builds.recommender import BuildRecommender
+from erizocoach.logs import REDACTOR
+from erizocoach.models import Position
+from erizocoach.stats import keystore
+from erizocoach.stats.aggregate import ChampionStats, aggregate, load_stats, save_stats
+from erizocoach.stats.crawler import Crawler
+from erizocoach.stats.extract import PlayerBuild, extract_builds, extract_loadout, patch_of
+from erizocoach.stats.riot_api import (
     RateLimiter,
     RiotApiClient,
     RiotApiError,
@@ -29,9 +29,9 @@ from lolcoach.stats.riot_api import (
     RiotApiStaleIdError,
     parse_limits,
 )
-from lolcoach.stats.service import prepare_stats
-from lolcoach.stats.source import StatsBuildSource
-from lolcoach.stats.store import MatchStore, is_corrupt, players_refreshed_key
+from erizocoach.stats.service import prepare_stats
+from erizocoach.stats.source import StatsBuildSource
+from erizocoach.stats.store import MatchStore, is_corrupt, players_refreshed_key
 
 from .fake_riot_api import AHRI_RUNES, API_KEY, FakeRiotApi, build_match
 from .gamedata_fixture import FixtureClient, loaded_gamedata
@@ -86,11 +86,42 @@ def test_key_is_validated_stored_and_redacted() -> None:
         with pytest.raises(keystore.KeyStoreError):
             keystore.save_key("RGAPI-mala")
         keystore.save_key(f"  {API_KEY}\n")
-        assert backend.data[("LoLCoach", "riot_api_key")] == API_KEY
+        assert backend.data[("ErizoCoach", "riot_api_key")] == API_KEY
         assert keystore.load_key() == API_KEY
         assert API_KEY in REDACTOR._secrets  # nunca aparecerá en los registros
         assert keystore.delete_key() and keystore.load_key() is None
         assert not keystore.delete_key()
+    finally:
+        keyring.set_keyring(previous)
+
+
+def test_key_saved_by_lol_coach_moves_to_the_new_name() -> None:
+    """Hasta la 0.20 la clave se guardaba como «LoLCoach»: se pasa a «ErizoCoach» sin perderla."""
+    backend = MemoryKeyring()
+    backend.data[("LoLCoach", "riot_api_key")] = API_KEY
+    previous = keyring.get_keyring()
+    keyring.set_keyring(backend)
+    try:
+        assert keystore.load_key() == API_KEY
+        assert backend.data == {("ErizoCoach", "riot_api_key"): API_KEY}
+        assert keystore.load_key() == API_KEY  # ya con el nombre nuevo
+    finally:
+        keyring.set_keyring(previous)
+
+
+def test_old_key_is_kept_if_it_cannot_be_moved() -> None:
+    class ReadOnly(MemoryKeyring):
+        def set_password(self, service: str, username: str, password: str) -> None:
+            raise keyring.errors.PasswordSetError("sin permiso")
+
+    backend = ReadOnly()
+    backend.data[("LoLCoach", "riot_api_key")] = API_KEY
+    previous = keyring.get_keyring()
+    keyring.set_keyring(backend)
+    try:
+        assert keystore.load_key() == API_KEY  # se sigue usando
+        assert backend.data == {("LoLCoach", "riot_api_key"): API_KEY}  # y no se borra
+        assert keystore.delete_key() and backend.data == {}  # «olvidar clave» quita también esa
     finally:
         keyring.set_keyring(previous)
 

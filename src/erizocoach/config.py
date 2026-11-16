@@ -1,7 +1,7 @@
 """Ajustes de la aplicación.
 
 Todo funciona sin configurar nada. Opcionalmente se puede crear
-``%LOCALAPPDATA%\\LoLCoach\\config.toml`` con, por ejemplo::
+``%LOCALAPPDATA%\\ErizoCoach\\config.toml`` con, por ejemplo::
 
     league_dir = "D:/Riot Games/League of Legends"
     debug = false
@@ -23,12 +23,13 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
 
 Para publicar tus estadísticas para los demás (ver ``stats/publish.py``)::
 
-    stats_publish_repo = "git@github.com:<usuario>/LoLCoach-datos.git"
-    stats_publish_key = "C:/Users/<usuario>/.ssh/lolcoach_datos_ed25519"
+    stats_publish_repo = "git@github.com:<usuario>/ErizoCoach-datos.git"
+    stats_publish_key = "C:/Users/<usuario>/.ssh/erizocoach_datos_ed25519"
 """
 
 from __future__ import annotations
 
+import contextlib
 import os
 import tomllib
 from dataclasses import dataclass
@@ -37,16 +38,51 @@ from typing import Any
 
 from .stats.riot_api import REGIONS, distinct_routes
 
-APP_DIR_NAME = "LoLCoach"
+APP_DIR_NAME = "ErizoCoach"
+# Hasta la 0.20 la app se llamaba «LoL Coach» y sus datos estaban en %LOCALAPPDATA%\LoLCoach:
+# la primera vez que se abre la versión nueva, esa carpeta pasa a llamarse ErizoCoach.
+LEGACY_DIR_NAME = "LoLCoach"
+LOCK_FILE_NAME = "erizocoach.lock"
+LEGACY_LOCK_FILE_NAME = "lolcoach.lock"  # el de las versiones antiguas, abiertas o no
 DEFAULT_TARGET_MATCHES = 20_000
 # Una región por servidor de partidas (europe, asia, americas): cada una suma su propio límite
 DEFAULT_STATS_REGIONS = ("euw1", "kr", "na1")
 CONFIG_FILE_NAME = "config.toml"
 
 
-def default_data_dir() -> Path:
+def default_data_dir(notes: list[str] | None = None) -> Path:
+    """``%LOCALAPPDATA%\\ErizoCoach``; si solo existe la carpeta antigua, se mueve antes."""
     base = os.environ.get("LOCALAPPDATA")
-    return Path(base) / APP_DIR_NAME if base else Path.home() / f".{APP_DIR_NAME.lower()}"
+    if base:
+        root, new, old = Path(base), APP_DIR_NAME, LEGACY_DIR_NAME
+    else:  # fuera de Windows
+        root, new, old = Path.home(), f".{APP_DIR_NAME.lower()}", f".{LEGACY_DIR_NAME.lower()}"
+    return migrate_data_dir(root / old, root / new, notes)
+
+
+def migrate_data_dir(legacy: Path, target: Path, notes: list[str] | None = None) -> Path:
+    """Mueve la carpeta de datos del nombre antiguo al nuevo (estadísticas, ajustes, registros).
+
+    Es un cambio de nombre en el mismo disco: no se copia nada ni se puede quedar a medias.
+    Si la carpeta antigua está en uso (una versión antigua sigue abierta), se usa tal cual
+    y se vuelve a intentar la próxima vez. Si ya existe la nueva, la antigua no se toca.
+    """
+    if target.exists() or not legacy.is_dir():
+        return target
+    try:
+        legacy.rename(target)
+    except OSError as exc:
+        _note(notes, f"No se ha podido renombrar {legacy} a {target} ({exc}): se usa la antigua.")
+        return legacy
+    with contextlib.suppress(OSError):
+        (target / LEGACY_LOCK_FILE_NAME).unlink(missing_ok=True)
+    _note(notes, f"Tus datos se han movido de {legacy} a {target}.")
+    return target
+
+
+def _note(notes: list[str] | None, text: str) -> None:
+    if notes is not None:
+        notes.append(text)
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,7 +123,11 @@ class Settings:
 
     @property
     def lock_path(self) -> Path:
-        return self.data_dir / "lolcoach.lock"
+        return self.data_dir / LOCK_FILE_NAME
+
+    @property
+    def legacy_lock_path(self) -> Path:
+        return self.data_dir / LEGACY_LOCK_FILE_NAME
 
 
 def load_settings(

@@ -8,21 +8,21 @@ from pathlib import Path
 
 import pytest
 
-from lolcoach.bus import EventBus
-from lolcoach.events import (
+from erizocoach.bus import EventBus
+from erizocoach.events import (
     ClientConnected,
     ClientDisconnected,
     ClientLaunchStatus,
     LaunchClientRequested,
     LaunchState,
 )
-from lolcoach.lcu.launcher import (
+from erizocoach.lcu.launcher import (
     LAUNCH_ARGS,
     ClientLauncher,
     find_riot_client,
 )
-from lolcoach.models import ClientInfo
-from lolcoach.ui.web.presenter import UiPresenter
+from erizocoach.models import ClientInfo
+from erizocoach.ui.web.presenter import UiPresenter
 
 from .gamedata_fixture import loaded_gamedata
 

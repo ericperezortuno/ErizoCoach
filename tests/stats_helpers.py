@@ -5,8 +5,8 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-from lolcoach.stats.extract import extract_builds
-from lolcoach.stats.store import MatchStore
+from erizocoach.stats.extract import extract_builds
+from erizocoach.stats.store import MatchStore
 
 from .fake_riot_api import build_match
 
