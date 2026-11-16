@@ -503,3 +503,14 @@ cliente abierto.
 16. **Aplastar obligatorio en la jungla y prohibido en las demás posiciones** ✅
 17. **Erizo Coach: nuevo nombre, logo y botón para abrir el LoL** ✅
 18. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
+
+## ⚖️ Aviso legal
+
+Erizo Coach no está respaldado por Riot Games y no refleja las opiniones de Riot Games ni de
+nadie que participe oficialmente en la producción o gestión de las propiedades de Riot Games.
+Riot Games y todas sus propiedades asociadas son marcas comerciales o marcas registradas de
+Riot Games, Inc.
+
+*Erizo Coach isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot
+Games or anyone officially involved in producing or managing Riot Games properties. Riot Games,
+and all associated properties are trademarks or registered trademarks of Riot Games, Inc.*
