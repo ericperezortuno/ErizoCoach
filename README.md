@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <img alt="Versión 0.21.0" src="https://img.shields.io/badge/versi%C3%B3n-0.21.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.22.0" src="https://img.shields.io/badge/versi%C3%B3n-0.22.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
-  <img alt="440 pruebas" src="https://img.shields.io/badge/pruebas-440-4fd6a2?style=for-the-badge&labelColor=0c1b35">
+  <img alt="450 pruebas" src="https://img.shields.io/badge/pruebas-450-4fd6a2?style=for-the-badge&labelColor=0c1b35">
   <img alt="Solo la API oficial de Riot" src="https://img.shields.io/badge/API-solo%20la%20oficial%20de%20Riot-c8aa6e?style=for-the-badge&labelColor=0c1b35">
 </p>
 
@@ -274,6 +274,8 @@ Durante la partida se actualiza cada 3 segundos.
 
 **Abrir League of Legends**: con el cliente cerrado, la ventana tiene un botón que lo abre. Abre el cliente de Riot como su acceso directo y, en cuanto tienes la sesión iniciada, le pide el LoL por su API local (lo mismo que su botón «Jugar»), porque si el cliente de Riot ya estaba abierto su acceso directo solo lo pone delante.
 
+**Intro al abrirlo**: al pulsar ese botón, tu monitor principal se llena durante unos 5 segundos con una intro propia (bandas de cine, el medallón del erizo cayendo con onda expansiva y chispas, «LEAGUE OF LEGENDS» letra a letra en oro) y luego se desvanece. No te quita el teclado, los clics la atraviesan (si el cliente de Riot aparece antes, puedes usarlo) y no sale en la barra de tareas. Con las animaciones de Windows desactivadas solo hay fundidos. Se quita con `launch_intro = false`.
+
 **Segundo plano**: el botón **Segundo plano** de la cabecera esconde la ventana (tampoco sale
 en la barra de tareas) y Erizo Coach **sigue funcionando igual**: runas, hechizos, build en la
 tienda y descarga de estadísticas. Mientras tanto la ventana no se repinta, así que no gasta.
@@ -398,6 +400,7 @@ window = true           # false = sin ventana del segundo monitor
 window_on_secondary = true  # false = abrir la ventana en el monitor principal
 window_mode = "escritorio"  # "navegador" = usar Edge en lugar de la ventana de escritorio
 window_on_top = false       # true = ventana siempre encima
+launch_intro = true         # intro de 5 s en el monitor principal al abrir el LoL desde la app
 live_poll_interval = 1  # segundos entre lecturas de la partida (1-10)
 riot_region = "euw1"    # tu región: euw1, eun1, tr1, na1, kr
 stats_regions = ["euw1", "kr", "na1"]  # regiones de las que se descargan partidas

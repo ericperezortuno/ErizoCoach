@@ -23,14 +23,15 @@ import base64
 import contextlib
 import json
 import logging
-import secrets
 import sys
 import threading
 from collections.abc import Callable
-from importlib.resources import files
 from typing import TYPE_CHECKING, Any
 
 from ..config import Settings
+from ..events import LaunchState
+from .intro import LaunchIntro
+from .page import inline_page
 from .tray import TrayIcon, default_icon_path
 from .web.icons import KINDS, IconProvider
 from .web.presenter import State, UiPresenter
@@ -91,31 +92,14 @@ def desktop_available() -> bool:
 
 def build_html(nonce: str | None = None) -> str:
     """La misma página que la versión web, con estilos y código incrustados y CSP estricta."""
-    static = files("erizocoach.ui.web").joinpath("static")
-    html = static.joinpath("index.html").read_text(encoding="utf-8")
-    css = static.joinpath("style.css").read_text(encoding="utf-8")
-    for image in LOGOS:  # la CSP solo deja imágenes data:
-        data = base64.b64encode(static.joinpath(image).read_bytes()).decode("ascii")
-        css = css.replace(f"/static/{image}", f"data:image/png;base64,{data}")
-    script = static.joinpath("app.js").read_text(encoding="utf-8")
-    nonce = nonce or secrets.token_urlsafe(18)
-    csp = (
-        f"default-src 'none'; script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'; "
-        "img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"
+    return inline_page(
+        "index.html",
+        css="style.css",
+        script="app.js",
+        images=LOGOS,
+        replacements={'<html lang="es">': '<html lang="es" data-mode="desktop">'},
+        nonce=nonce,
     )
-    replacements = {
-        '<html lang="es">': '<html lang="es" data-mode="desktop">',
-        '<meta charset="utf-8">': (
-            f'<meta charset="utf-8">\n  <meta http-equiv="Content-Security-Policy" content="{csp}">'
-        ),
-        '<link rel="stylesheet" href="/static/style.css">': f'<style nonce="{nonce}">{css}</style>',
-        '<script src="/static/app.js"></script>': f'<script nonce="{nonce}">{script}</script>',
-    }
-    for old, new in replacements.items():
-        if old not in html:
-            raise RuntimeError(f"index.html ha cambiado: falta {old!r}")
-        html = html.replace(old, new, 1)
-    return html
 
 
 class DesktopBridge:
@@ -214,6 +198,8 @@ class DesktopWindow:
         self._noticed = False  # el aviso de «sigue en marcha» sale solo la primera vez
         self._visibility = threading.Lock()
         self._tray: TrayIcon | None = None
+        self._intro = LaunchIntro()
+        self._launch = ""  # último estado del botón «Abrir League of Legends»
 
     def run(self) -> None:
         """Abre la ventana y espera a que la cierres (ocupa el hilo principal)."""
@@ -309,10 +295,19 @@ class DesktopWindow:
         self._app.request_stop()
 
     async def _push(self, state: State) -> None:
+        self._intro_on_launch(state)
         if self._loaded and not self._hidden:  # escondida no se repinta (ahorra trabajo)
             await asyncio.get_running_loop().run_in_executor(
                 None, self._evaluate, render_script(state)
             )
+
+    def _intro_on_launch(self, state: State) -> None:
+        """Intro en el monitor principal cuando empieza a abrirse el LoL (una vez por clic)."""
+        launch = state.get("launch", "")
+        starting = launch == LaunchState.STARTING and not state.get("connected")
+        if starting and self._launch != LaunchState.STARTING and self._settings.launch_intro:
+            self._intro.play()
+        self._launch = launch
 
     def _evaluate(self, script: str) -> None:
         try:

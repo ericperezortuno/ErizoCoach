@@ -13,6 +13,7 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     window_on_secondary = true # false = abrirla en el monitor principal
     window_mode = "escritorio" # "escritorio" (ventana propia) o "navegador" (Edge)
     window_on_top = false      # true = ventana siempre encima
+    launch_intro = true        # intro de 5 s en el monitor principal al abrir el LoL desde la app
     live_poll_interval = 1     # segundos entre lecturas de la partida (1-10)
     riot_region = "euw1"       # tu región (euw1, eun1, tr1, na1, kr)
     stats_regions = ["euw1", "kr", "na1"] # regiones de las que se descargan partidas
@@ -98,6 +99,7 @@ class Settings:
     window_on_secondary: bool = True  # False = en el monitor principal
     window_mode: str = "escritorio"  # "escritorio" (ventana propia) o "navegador" (Edge)
     window_on_top: bool = False  # mantener la ventana siempre encima
+    launch_intro: bool = True  # intro en el monitor principal al pulsar «Abrir League of Legends»
     live_poll_interval: float = 1.0  # segundos entre lecturas de la partida
     riot_region: str = "euw1"  # tu región (API de Riot)
     # Regiones de las que se descargan partidas a la vez (Riot limita cada una por separado)
@@ -157,6 +159,7 @@ def load_settings(
     window = _bool(values, "window", True, warnings)
     window_on_secondary = _bool(values, "window_on_secondary", True, warnings)
     window_on_top = _bool(values, "window_on_top", False, warnings)
+    launch_intro = _bool(values, "launch_intro", True, warnings)
     window_mode = values.get("window_mode", "escritorio")
     if window_mode not in ("escritorio", "navegador"):
         warnings.append('config.toml: \'window_mode\' debe ser "escritorio" o "navegador".')
@@ -219,6 +222,7 @@ def load_settings(
         window_on_secondary=window_on_secondary,
         window_mode=window_mode,
         window_on_top=window_on_top,
+        launch_intro=launch_intro,
         live_poll_interval=float(poll),
         riot_region=region,
         stats_regions=stats_regions,

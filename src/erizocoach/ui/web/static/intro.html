@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Erizo Coach</title>
+  <link rel="stylesheet" href="/static/intro.css">
+</head>
+<body>
+  <!-- Intro de ~5 s al abrir League of Legends (ui/intro.py). Empieza con erizoIntro.play(). -->
+  <div id="stage" class="stage" role="status" aria-label="Abriendo League of Legends">
+    <div class="world" aria-hidden="true">
+      <div class="sky"></div>
+      <div class="rays"></div>
+      <canvas id="sparks" class="sparks"></canvas>
+      <div class="streak"></div>
+      <svg class="rings" viewBox="-100 -100 200 200" focusable="false">
+        <defs>
+          <linearGradient id="gold" x1="0" y1="-1" x2="0" y2="1" gradientUnits="objectBoundingBox">
+            <stop offset="0" stop-color="#fff3d1"/>
+            <stop offset=".45" stop-color="#c8aa6e"/>
+            <stop offset="1" stop-color="#6b4d1d"/>
+          </linearGradient>
+        </defs>
+        <g class="ring r1">
+          <circle r="96" fill="none" stroke="url(#gold)" stroke-width=".7"/>
+          <circle r="91" fill="none" stroke="url(#gold)" stroke-width="2.4" stroke-dasharray="1.2 5.4" opacity=".75"/>
+        </g>
+        <g class="ring r2">
+          <circle r="82" fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-dasharray="46 6 8 6" stroke-linecap="round"/>
+          <path d="M0 -88 L3.4 -82 L0 -76 L-3.4 -82 Z M0 88 L3.4 82 L0 76 L-3.4 82 Z M-88 0 L-82 3.4 L-76 0 L-82 -3.4 Z M88 0 L82 3.4 L76 0 L82 -3.4 Z" fill="#f2dfae"/>
+        </g>
+        <g class="ring r3">
+          <circle r="70" fill="none" stroke="#9cceff" stroke-width=".6" stroke-dasharray="2 3" opacity=".55"/>
+          <circle r="66" fill="none" stroke="url(#gold)" stroke-width="1" stroke-dasharray="18 4 2 4" opacity=".9"/>
+        </g>
+      </svg>
+      <div class="shock"></div>
+      <div class="medallion"><div class="crest"></div></div>
+      <div class="title">
+        <div class="eyebrow">Erizo Coach</div>
+        <div class="line big" data-text="LEAGUE" data-first="0"></div>
+        <div class="line small" data-text="OF LEGENDS" data-first="6"></div>
+        <div class="charge"><span></span></div>
+        <div class="caption">Abriendo el cliente…</div>
+      </div>
+    </div>
+    <div class="bars" aria-hidden="true"></div>
+    <div class="flash" aria-hidden="true"></div>
+  </div>
+  <script src="/static/intro.js"></script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+/* Erizo Coach · intro de ~5 s al abrir League of Legends (ui/intro.py).
+ *
+ * Todo arranca a la vez al añadir .play a #stage; cada pieza entra con su retraso:
+ *   0.0-1.0  la pantalla se apaga en azul abisal, bandas de cine y un destello dorado
+ *   1.25     impacto: el medallón del erizo cae, onda expansiva, fogonazo, temblor, chispas
+ *   1.8-4.0  «LEAGUE OF LEGENDS» letra a letra en oro, anillos, rayos y la barra de carga
+ *   4.15-5   todo se abre y se apaga (la ventana se desvanece desde ui/intro.py)
+ * Solo transform/opacity/filter: va fluido a pantalla completa.
+ */
+
+:root {
+  --abyss: #02050c;
+  --deep: #071a33;
+  --hextech: #123a63;
+  --gold: #c8aa6e;
+  --gold-bright: #f2dfae;
+  --gold-deep: #7a5b26;
+  --ice: #9cceff;
+  --cy: 35%; /* altura del medallón (centro de anillos, destello y chispas) */
+  --impact: 1.25s;
+  --title: 1.85s;
+  --out: 4.15s;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-slam: cubic-bezier(.2, 1.35, .35, 1);
+  --serif: "Sitka Banner", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --sans: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--abyss);
+  cursor: none;
+  user-select: none;
+}
+
+.stage, .world { position: fixed; inset: 0; }
+.stage { overflow: hidden; }
+.world > *, .bars, .flash { position: absolute; }
+
+/* Antes de play() no se ve nada (la ventana aún es invisible, pero por si acaso). */
+.stage:not(.play) .world, .stage:not(.play) .bars, .stage:not(.play) .flash { visibility: hidden; }
+
+/* --- Fondo -------------------------------------------------------------------------- */
+
+.sky {
+  inset: -10%;
+  background:
+    radial-gradient(ellipse 60% 48% at 50% 35%, rgba(18, 58, 99, .95), rgba(7, 26, 51, .7) 45%, transparent 75%),
+    radial-gradient(circle at 50% 35%, rgba(200, 170, 110, .16), transparent 30%),
+    var(--abyss);
+  opacity: 0;
+}
+.play .sky { animation: sky 1.1s var(--ease-out) both, sky-out .8s ease-in var(--out) forwards; }
+
+.rays {
+  left: 50%;
+  top: var(--cy);
+  width: 190vmax;
+  height: 190vmax;
+  margin: -95vmax 0 0 -95vmax;
+  background: repeating-conic-gradient(from 0deg, rgba(242, 223, 174, .13) 0deg 3deg, transparent 3deg 14deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, .55) 18%, transparent 46%);
+  mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, .55) 18%, transparent 46%);
+  opacity: 0;
+}
+.play .rays {
+  animation: rays-in 1.2s ease-out var(--impact) both, spin 26s linear var(--impact) both,
+    fade-out .7s ease-in var(--out) forwards;
+}
+
+.sparks { inset: 0; width: 100%; height: 100%; }
+
+/* Destello horizontal que cruza la pantalla a la altura del medallón */
+.streak {
+  left: 0;
+  right: 0;
+  top: var(--cy);
+  height: .5vmin;
+  margin-top: -.25vmin;
+  background: linear-gradient(90deg, transparent, rgba(242, 223, 174, .25) 18%, #fff8e6 50%, rgba(242, 223, 174, .25) 82%, transparent);
+  box-shadow: 0 0 2vmin .4vmin rgba(242, 223, 174, .55), 0 0 9vmin 2vmin rgba(98, 175, 255, .25);
+  transform: scaleX(0);
+  opacity: 0;
+}
+.play .streak { animation: streak 1.5s var(--ease-out) .25s both; }
+
+/* --- Anillos y medallón ------------------------------------------------------------- */
+
+.rings {
+  left: 50%;
+  top: var(--cy);
+  width: 52vmin;
+  height: 52vmin;
+  margin: -26vmin 0 0 -26vmin;
+  overflow: visible;
+  filter: drop-shadow(0 0 1.2vmin rgba(200, 170, 110, .5));
+  opacity: 0;
+}
+.play .rings {
+  animation: rings-in 1.1s var(--ease-out) .6s both, rings-out .6s ease-in var(--out) forwards;
+}
+.ring { transform-origin: 0 0; }
+.play .r1 { animation: spin 18s linear both; }
+.play .r2 { animation: spin-back 11s linear both; }
+.play .r3 { animation: spin 7s linear both; }
+
+.shock {
+  left: 50%;
+  top: var(--cy);
+  width: 26vmin;
+  height: 26vmin;
+  margin: -13vmin 0 0 -13vmin;
+  border-radius: 50%;
+  border: .6vmin solid var(--gold-bright);
+  box-shadow: 0 0 4vmin 1vmin rgba(242, 223, 174, .6), inset 0 0 4vmin rgba(242, 223, 174, .5);
+  opacity: 0;
+}
+.play .shock {
+  animation: portal .9s var(--ease-out) .35s both, shock .95s cubic-bezier(.1, .7, .3, 1) var(--impact) forwards;
+}
+
+.medallion {
+  left: 50%;
+  top: var(--cy);
+  width: 26vmin;
+  height: 26vmin;
+  margin: -13vmin 0 0 -13vmin;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #1d4475, #0b1e3b 58%, #050c1a);
+  box-shadow:
+    0 0 0 .55vmin var(--gold),
+    0 0 0 1.1vmin rgba(5, 12, 26, .95),
+    0 0 0 1.45vmin var(--gold-deep),
+    0 0 7vmin 1vmin rgba(200, 170, 110, .42),
+    inset 0 0 4vmin rgba(98, 175, 255, .35);
+  opacity: 0;
+}
+.play .medallion {
+  animation: medallion .55s var(--ease-slam) var(--impact) both,
+    breathe 2.4s ease-in-out calc(var(--impact) + .6s) infinite,
+    medallion-out .7s ease-in var(--out) forwards;
+}
+.crest {
+  position: absolute;
+  inset: 9%;
+  background: url("/static/logo.png") center / contain no-repeat;
+  filter: drop-shadow(0 .6vmin 1vmin rgba(0, 0, 0, .55));
+}
+
+/* --- Título ------------------------------------------------------------------------- */
+
+.title {
+  left: 0;
+  right: 0;
+  top: 61%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 2vmin;
+  font: 600 1.9vmin/1 var(--sans);
+  letter-spacing: .55em;
+  padding-left: .55em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+  opacity: 0;
+}
+.eyebrow::before, .eyebrow::after {
+  content: "";
+  width: 14vmin;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+  transform: scaleX(0);
+  transform-origin: right;
+}
+.eyebrow::after { transform-origin: left; background: linear-gradient(90deg, var(--gold), transparent); }
+.play .eyebrow { animation: eyebrow .8s var(--ease-out) 1.65s both, fade-out .5s ease-in var(--out) forwards; }
+.play .eyebrow::before, .play .eyebrow::after { animation: grow .9s var(--ease-out) 1.75s both; }
+
+.line { position: relative; white-space: nowrap; }
+.big {
+  margin-top: 1.6vmin;
+  padding-left: .16em;
+  font: 700 11.5vmin/1 var(--serif);
+  letter-spacing: .16em;
+}
+.small {
+  margin-top: 1.2vmin;
+  padding-left: .62em;
+  font: 700 3.4vmin/1 var(--serif);
+  letter-spacing: .62em;
+}
+
+.ch {
+  display: inline-block;
+  background: linear-gradient(180deg, #fffaf0 0%, var(--gold-bright) 28%, var(--gold) 55%, var(--gold-deep) 78%, #e8cf98 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  --glow: drop-shadow(0 0 .12em rgba(200, 170, 110, .45)) drop-shadow(0 .05em .05em rgba(0, 0, 0, .6));
+  filter: var(--glow);
+  opacity: 0;
+}
+.play .big .ch { animation: slam .5s var(--ease-slam) calc(var(--title) + var(--i) * 75ms) both; }
+.play .small .ch {
+  animation: rise .6s var(--ease-out) calc(var(--title) + .55s + (var(--i) - 6) * 40ms) both;
+}
+
+/* Brillo que recorre el título (mismo texto encima, recortado a un degradado que se mueve) */
+.line::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  padding-left: inherit;
+  background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .95) 50%, transparent 65%) 120% 0 / 250% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  pointer-events: none;
+  opacity: 0;
+}
+.play .big::after { animation: shine 1s ease-in-out 3s both; }
+.play .small::after { animation: shine 1s ease-in-out 3.15s both; }
+.play .line { animation: title-out .7s cubic-bezier(.5, 0, .75, 0) var(--out) forwards; }
+
+/* Barra de «carga» bajo el título */
+.charge {
+  position: relative;
+  width: 34vmin;
+  height: 2px;
+  margin-top: 3.2vmin;
+  background: rgba(200, 170, 110, .18);
+  opacity: 0;
+}
+.charge > span {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright));
+  box-shadow: 0 0 1.2vmin rgba(242, 223, 174, .8);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.charge > span::after {
+  content: "";
+  position: absolute;
+  right: -.6vmin;
+  top: 50%;
+  width: 1.2vmin;
+  height: 1.2vmin;
+  margin-top: -.6vmin;
+  border-radius: 50%;
+  background: #fff8e6;
+  box-shadow: 0 0 1.6vmin .4vmin rgba(242, 223, 174, .9);
+}
+.play .charge { animation: fade-in .5s ease-out 2.55s both, fade-out .4s ease-in var(--out) forwards; }
+.play .charge > span { animation: charge 1.5s cubic-bezier(.45, 0, .2, 1) 2.65s both; }
+
+.caption {
+  margin-top: 1.8vmin;
+  font: 400 1.7vmin/1.2 var(--sans);
+  letter-spacing: .08em;
+  color: rgba(197, 208, 224, .8);
+  opacity: 0;
+}
+.play .caption { animation: fade-in .6s ease-out 2.8s both, fade-out .4s ease-in var(--out) forwards; }
+
+/* --- Bandas de cine, temblor y fogonazos -------------------------------------------- */
+
+.bars { inset: 0; pointer-events: none; }
+.bars::before, .bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8vh;
+  background: #000;
+  transform: scaleY(0);
+}
+.bars::before { top: 0; transform-origin: top; box-shadow: 0 1px 0 rgba(200, 170, 110, .25); }
+.bars::after { bottom: 0; transform-origin: bottom; box-shadow: 0 -1px 0 rgba(200, 170, 110, .25); }
+.play .bars::before, .play .bars::after { animation: bar .7s var(--ease-out) both; }
+
+.play .world { animation: shake .4s linear var(--impact) both; }
+
+.flash {
+  inset: 0;
+  background: radial-gradient(circle at 50% 35%, #fffaf0, rgba(242, 223, 174, .6) 25%, transparent 65%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+.play .flash {
+  animation: flash .6s ease-out var(--impact) both, flash-out .55s ease-out calc(var(--out) + .05s) forwards;
+}
+
+/* --- Fotogramas --------------------------------------------------------------------- */
+
+@keyframes sky { from { opacity: 0; transform: scale(1.25); } to { opacity: 1; transform: none; } }
+@keyframes sky-out { to { opacity: .35; transform: scale(1.06); } }
+@keyframes rays-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes spin-back { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes grow { to { transform: scaleX(1); } }
+@keyframes bar { to { transform: scaleY(1); } }
+
+@keyframes streak {
+  0% { opacity: 0; transform: scaleX(0); }
+  15% { opacity: 1; }
+  55% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: .22; transform: scaleX(1) scaleY(.5); }
+}
+
+@keyframes rings-in {
+  from { opacity: 0; transform: scale(1.5) rotate(-50deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rings-out { to { opacity: 0; transform: scale(1.35); } }
+
+@keyframes portal { from { opacity: 0; transform: scale(.15); } to { opacity: .85; transform: scale(.62); } }
+@keyframes shock {
+  0% { opacity: 1; transform: scale(.6); }
+  100% { opacity: 0; transform: scale(4.2); border-width: .1vmin; }
+}
+
+@keyframes medallion {
+  0% { opacity: 0; transform: scale(2.6); filter: blur(14px) brightness(2.2); }
+  60% { opacity: 1; filter: blur(0) brightness(1.4); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes breathe {
+  0%, 100% { box-shadow: 0 0 0 .55vmin var(--gold), 0 0 0 1.1vmin rgba(5, 12, 26, .95), 0 0 0 1.45vmin var(--gold-deep), 0 0 7vmin 1vmin rgba(200, 170, 110, .42), inset 0 0 4vmin rgba(98, 175, 255, .35); }
+  50% { box-shadow: 0 0 0 .55vmin var(--gold-bright), 0 0 0 1.1vmin rgba(5, 12, 26, .95), 0 0 0 1.45vmin var(--gold), 0 0 10vmin 2vmin rgba(242, 223, 174, .55), inset 0 0 5vmin rgba(98, 175, 255, .5); }
+}
+@keyframes medallion-out {
+  to { opacity: 0; transform: scale(1.3); filter: brightness(2) blur(6px); }
+}
+
+@keyframes eyebrow {
+  from { opacity: 0; letter-spacing: 1.2em; }
+  to { opacity: 1; letter-spacing: .55em; }
+}
+
+@keyframes slam {
+  0% { opacity: 0; transform: translateY(-.18em) scale(2.3); filter: var(--glow) blur(.12em) brightness(2.4); }
+  55% { opacity: 1; filter: var(--glow) blur(0) brightness(1.5); }
+  100% { opacity: 1; transform: none; filter: var(--glow) blur(0) brightness(1); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(.6em); filter: var(--glow) blur(.1em); }
+  to { opacity: 1; transform: none; filter: var(--glow) blur(0); }
+}
+@keyframes shine {
+  0% { opacity: 1; background-position: 120% 0; }
+  100% { opacity: 1; background-position: -20% 0; }
+}
+@keyframes title-out {
+  to { opacity: 0; letter-spacing: .42em; filter: blur(.08em) brightness(1.8); }
+}
+
+@keyframes charge { to { transform: scaleX(1); } }
+
+@keyframes shake {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-.9vmin, .6vmin); }
+  22% { transform: translate(.8vmin, -.7vmin); }
+  36% { transform: translate(-.6vmin, -.4vmin); }
+  50% { transform: translate(.5vmin, .5vmin); }
+  66% { transform: translate(-.3vmin, .2vmin); }
+  82% { transform: translate(.15vmin, -.1vmin); }
+  100% { transform: none; }
+}
+
+@keyframes flash { 0% { opacity: 0; } 12% { opacity: .9; } 100% { opacity: 0; } }
+@keyframes flash-out { 0% { opacity: 0; } 30% { opacity: .55; } 100% { opacity: 0; } }
+
+/* Windows con las animaciones desactivadas: solo fundidos, sin temblor, golpes ni chispas */
+@media (prefers-reduced-motion: reduce) {
+  .play .world, .play .ring, .play .rays, .play .streak, .play .shock { animation: none; }
+  .play .rays, .play .streak, .play .shock, .sparks { display: none; }
+  .play .medallion, .play .rings, .play .sky, .play .eyebrow, .play .charge, .play .caption,
+  .play .line .ch { animation: fade-in .6s ease-out .2s both; }
+  .play .line::after, .play .flash { animation: none; }
+  .play .charge > span { animation: none; transform: scaleX(1); }
+}
