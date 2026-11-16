@@ -51,6 +51,17 @@ async def _cut(request: web.Request) -> web.StreamResponse:
     return response
 
 
+async def _chunked(request: web.Request) -> web.StreamResponse:
+    """Sin Content-Length (troceado): solo se puede vigilar el tamaño mientras llega."""
+    response = web.StreamResponse()
+    response.enable_chunked_encoding()
+    await response.prepare(request)
+    amount = int(request.query["bytes"])
+    await response.write(PAYLOAD[:amount])
+    await response.write_eof()
+    return response
+
+
 @pytest.fixture
 async def server() -> AsyncIterator[TestServer]:
     app = web.Application()
@@ -61,6 +72,7 @@ async def server() -> AsyncIterator[TestServer]:
     app.router.add_get("/relative", _relative)
     app.router.add_get("/loop", _loop)
     app.router.add_get("/cut", _cut)
+    app.router.add_get("/chunked", _chunked)
     test_server = TestServer(app, host="127.0.0.1")
     await test_server.start_server()
     yield test_server
@@ -162,4 +174,29 @@ async def test_download_cut_halfway_leaves_no_file(server: TestServer, tmp_path:
     target = tmp_path / "setup.exe"
     with pytest.raises(UpdateError):
         await downloader().to_file(url(server, "/cut"), target, len(PAYLOAD), DIGEST, _ignore)
+    assert os.listdir(tmp_path) == []
+
+
+async def test_chunked_fetch_respects_limit(server: TestServer) -> None:
+    chunked = url(server, f"/chunked?bytes={len(PAYLOAD)}")
+    with pytest.raises(UpdateError, match="demasiado grande"):
+        await downloader().fetch(chunked, len(PAYLOAD) - 1)
+    assert await downloader().fetch(chunked, len(PAYLOAD)) == PAYLOAD
+
+
+async def test_chunked_download_too_long_leaves_no_file(server: TestServer, tmp_path: Path) -> None:
+    target = tmp_path / "setup.exe"
+    chunked = url(server, f"/chunked?bytes={len(PAYLOAD)}")
+    with pytest.raises(UpdateError, match="más grande"):
+        await downloader().to_file(chunked, target, len(PAYLOAD) - 1, DIGEST, _ignore)
+    assert os.listdir(tmp_path) == []
+
+
+async def test_chunked_download_too_short_leaves_no_file(
+    server: TestServer, tmp_path: Path
+) -> None:
+    target = tmp_path / "setup.exe"
+    chunked = url(server, f"/chunked?bytes={len(PAYLOAD) - 1}")
+    with pytest.raises(UpdateError, match="incompleto"):
+        await downloader().to_file(chunked, target, len(PAYLOAD), DIGEST, _ignore)
     assert os.listdir(tmp_path) == []
