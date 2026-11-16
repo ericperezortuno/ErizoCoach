@@ -336,6 +336,7 @@ version = "0.22.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
+    { name = "cryptography" },
     { name = "keyring" },
     { name = "psutil" },
     { name = "pywebview" },
@@ -354,6 +355,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.11" },
+    { name = "cryptography", specifier = ">=44" },
     { name = "keyring", specifier = ">=25" },
     { name = "psutil", specifier = ">=6.1" },
     { name = "pywebview", specifier = ">=5.3" },
