@@ -92,7 +92,7 @@ async def _ignore(_percent: int) -> None:
 
 
 def test_allowed_urls() -> None:
-    assert allowed_url("https://github.com/ericperezortuno/ErizoCoach/releases")
+    assert allowed_url("https://github.com/eriizzo/ErizoCoach/releases")
     assert allowed_url("https://GitHub.com/x")
     assert allowed_url("https://objects.githubusercontent.com/abc")
     for bad in (

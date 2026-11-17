@@ -57,7 +57,7 @@ from erizocoach.update.manifest import (  # noqa: E402
 SERVICE = "ErizoCoach-publicar"
 TOKEN_ACCOUNT = "github_token"
 KEY_ACCOUNT = "clave_firma"
-REPO = "ericperezortuno/ErizoCoach"
+REPO = "eriizzo/ErizoCoach"
 MANIFEST_NAME = "erizocoach-version.json"
 SIGNATURE_NAME = MANIFEST_NAME + ".sig"
 API = "https://api.github.com"

@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <img alt="Versión 0.22.0" src="https://img.shields.io/badge/versi%C3%B3n-0.22.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
+  <img alt="Versión 0.23.0" src="https://img.shields.io/badge/versi%C3%B3n-0.23.0-c8aa6e?style=for-the-badge&labelColor=0c1b35">
   <img alt="Windows 10 y 11" src="https://img.shields.io/badge/Windows-10%20%C2%B7%2011-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=windows&logoColor=f2dfae">
   <img alt="Python 3.13" src="https://img.shields.io/badge/Python-3.13-c8aa6e?style=for-the-badge&labelColor=0c1b35&logo=python&logoColor=f2dfae">
-  <img alt="450 pruebas" src="https://img.shields.io/badge/pruebas-450-4fd6a2?style=for-the-badge&labelColor=0c1b35">
+  <img alt="561 pruebas" src="https://img.shields.io/badge/pruebas-561-4fd6a2?style=for-the-badge&labelColor=0c1b35">
   <img alt="Solo la API oficial de Riot" src="https://img.shields.io/badge/API-solo%20la%20oficial%20de%20Riot-c8aa6e?style=for-the-badge&labelColor=0c1b35">
 </p>
 
@@ -340,10 +340,17 @@ Si faltara WebView2, Erizo Coach usa como respaldo Edge en modo aplicación con 
 escritorio. Para salir, cierra su ventana (o, si está en segundo plano, clic derecho en su
 icono junto al reloj → *Cerrar Erizo Coach*).
 
-**Pasárselo a otra persona**: `scripts/build_installer.py` crea `dist\Instalar Erizo Coach
-<versión>.exe`, un solo archivo que se instala con doble clic (sin permisos de administrador)
-y se desinstala desde *Aplicaciones instaladas*. Guía para quien lo instala:
-[docs/instalar-en-otro-pc.md](docs/instalar-en-otro-pc.md).
+**Descargarlo o pasárselo a otra persona**: la última versión está siempre en
+[Releases](https://github.com/eriizzo/ErizoCoach/releases/latest)
+(`Instalar-Erizo-Coach-<versión>.exe`), un solo archivo que se instala con doble clic (sin
+permisos de administrador) y se desinstala desde *Aplicaciones instaladas*. Guía para quien lo
+instala: [docs/instalar-en-otro-pc.md](docs/instalar-en-otro-pc.md).
+
+**Actualizar**: cuando hay una versión nueva, la ventana enseña «Erizo Coach X disponible» con
+el botón **Actualizar** (solo con el LoL cerrado, en el menú o en la sala; nunca en cola, en la
+selección ni en partida). Un clic la descarga, comprueba que está **firmada por el autor**,
+cierra la app, la instala sin preguntas y la vuelve a abrir. La app lo mira 30 s después de
+abrirse y luego cada 6 horas; se quita con `update_check = false`.
 
 <details>
 <summary><b>Instalar o actualizar desde el código</b></summary>
@@ -356,6 +363,20 @@ uv run python scripts/build_exe.py   # crea dist/Erizo Coach/ con los ejecutable
 uv run python scripts/install.py     # lo instala con accesos directos (--desinstalar para quitarlo)
 uv run python scripts/build_installer.py  # instalador de un archivo para pasárselo a otra persona
 ```
+
+**Publicar una versión** (solo el autor): tras el commit, la etiqueta `vX.Y.Z` y subirlos,
+
+```bash
+uv run python scripts/publicar_version.py --crear-clave  # una vez: clave de firma (privada en Windows)
+uv run python scripts/publicar_version.py --token        # una vez: token fine-grained de GitHub
+uv run python scripts/publicar_version.py                # construye, firma y publica la release
+```
+
+El token es *fine-grained*, solo para este repositorio y con el permiso *Contents: Read and
+write*; se guarda cifrado en el Administrador de credenciales, igual que la clave privada de
+firma (la pública está en `src/erizocoach/update/signing_key.py`). El script comprueba que no
+hay cambios sin guardar y que la etiqueta apunta al commit actual también en GitHub, crea la
+release como borrador, sube instalador, firma y manifiesto, y solo entonces la publica.
 
 Se instala en `%LOCALAPPDATA%\Programs\Erizo Coach` (sin permisos de administrador) con dos
 ejecutables: **`Erizo Coach.exe`** (la aplicación, sin consola) y **`erizocoach-consola.exe`** (los
@@ -401,6 +422,7 @@ window_on_secondary = true  # false = abrir la ventana en el monitor principal
 window_mode = "escritorio"  # "navegador" = usar Edge en lugar de la ventana de escritorio
 window_on_top = false       # true = ventana siempre encima
 launch_intro = true         # intro de 5 s en el monitor principal al abrir el LoL desde la app
+update_check = true         # false = no mirar si hay versiones nuevas
 live_poll_interval = 1  # segundos entre lecturas de la partida (1-10)
 riot_region = "euw1"    # tu región: euw1, eun1, tr1, na1, kr
 stats_regions = ["euw1", "kr", "na1"]  # regiones de las que se descargan partidas
@@ -430,6 +452,10 @@ stats_shared = true          # sin clave (o con pocos datos): usar las estadíst
   Riot o no se envía nada. Cada objeto de la build se valida contra el parche.
 - Tus páginas de runas y tus conjuntos de objetos no se tocan (ver arriba).
 - Solo puede haber una copia abierta (evita aplicar runas dos veces).
+- Las actualizaciones solo se instalan si su manifiesto está **firmado con la clave del autor**
+  (Ed25519; la privada no sale de su PC) y el instalador descargado tiene exactamente el tamaño
+  y el SHA-256 firmados. Solo se descarga por HTTPS de `github.com` y `*.githubusercontent.com`:
+  aunque alguien entrara en la cuenta de GitHub, no podría colar una actualización.
 - Una prueba automática comprueba, con el cliente abierto, que su contraseña temporal no
   aparece en ningún archivo del proyecto.
 
@@ -502,7 +528,8 @@ cliente abierto.
 15. **Counters contra tu rival de línea en la selección** ✅
 16. **Aplastar obligatorio en la jungla y prohibido en las demás posiciones** ✅
 17. **Erizo Coach: nuevo nombre, logo y botón para abrir el LoL** ✅
-18. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
+18. **Intro al abrir el LoL y botón «Actualizar» con versiones firmadas** ✅
+19. Siguientes mejoras posibles: IA opcional (de pago), historial de tus partidas.
 
 ## ⚖️ Aviso legal
 

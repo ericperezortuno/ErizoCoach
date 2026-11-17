@@ -31,7 +31,7 @@ from .extract import RUNE_FIELDS
 log = logging.getLogger(__name__)
 
 DEFAULT_PACK_URL = (
-    "https://raw.githubusercontent.com/ericperezortuno/ErizoCoach-datos/main/estadisticas.json.gz"
+    "https://raw.githubusercontent.com/eriizzo/ErizoCoach-datos/main/estadisticas.json.gz"
 )
 PACK_FILE = "estadisticas.json.gz"  # nombre en el repositorio público
 CACHE_FILE = "compartidas.json.gz"  # copia local de la última descarga buena

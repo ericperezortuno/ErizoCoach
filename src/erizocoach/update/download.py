@@ -32,7 +32,7 @@ from .manifest import Manifest, UpdateError
 
 log = logging.getLogger(__name__)
 
-RELEASES = "https://github.com/ericperezortuno/ErizoCoach/releases"
+RELEASES = "https://github.com/eriizzo/ErizoCoach/releases"
 MANIFEST_URL = f"{RELEASES}/latest/download/erizocoach-version.json"
 SIGNATURE_URL = MANIFEST_URL + ".sig"
 

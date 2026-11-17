@@ -4,16 +4,20 @@ Guía para pasarle Erizo Coach a otra persona (por ejemplo, a un amigo para que 
 
 ## Para quien lo pasa
 
-1. Construye la app y el instalador (en una terminal, en la carpeta del proyecto):
+Lo más fácil: pásale el enlace de la última versión,
+<https://github.com/eriizzo/ErizoCoach/releases/latest>, y que descargue
+`Instalar-Erizo-Coach-<versión>.exe` (unos 35 MB). Lleva todo dentro; lo que falte en su PC lo
+descarga él solo. A partir de ahí se actualiza desde la propia app.
 
-   ```bash
-   uv run python scripts/build_exe.py
-   uv run python scripts/build_installer.py
-   ```
+También puedes construirlo tú y enviarle el archivo por Discord, Google Drive, WeTransfer o
+como prefieras (en una terminal, en la carpeta del proyecto):
 
-2. Envía **solo** el archivo `dist\Instalar Erizo Coach <versión>.exe` (unos 35 MB) por
-   Discord, Google Drive, WeTransfer o como prefieras. Lleva todo dentro; lo que falte en
-   su PC lo descarga él solo.
+```bash
+uv run python scripts/build_exe.py
+uv run python scripts/build_installer.py
+```
+
+y envía **solo** `dist\Instalar Erizo Coach <versión>.exe`.
 
 No va dentro nada tuyo: ni tu clave de Riot (está cifrada en tu Windows), ni tus
 estadísticas, ni tu configuración.
@@ -75,7 +79,12 @@ compartir):
 
 ### Actualizar y desinstalar
 
-- **Actualizar:** abre el instalador de la versión nueva con Erizo Coach cerrado.
+- **Actualizar:** desde la 0.23.0, cuando hay una versión nueva la ventana enseña
+  «Erizo Coach X disponible» con el botón **Actualizar** (con el LoL cerrado, en el menú o en
+  la sala). Un clic y se descarga, se comprueba que es la versión firmada por el autor, se
+  instala sola y Erizo Coach se vuelve a abrir. Con una versión anterior a la 0.23.0, descarga
+  una vez a mano la última de <https://github.com/eriizzo/ErizoCoach/releases/latest> y abre el
+  instalador con Erizo Coach cerrado; desde entonces ya se actualiza con el botón.
 - **Desinstalar:** *Configuración → Aplicaciones → Aplicaciones instaladas → Erizo Coach →
   Desinstalar*. Se quitan la app y los accesos directos; los datos
   (`%LOCALAPPDATA%\ErizoCoach`) se conservan por si vuelves a instalarlo.

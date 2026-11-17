@@ -25,8 +25,8 @@ publisher = load("erizocoach_publicar_version", ROOT / "scripts" / "publicar_ver
 
 TOKEN = "github_pat_SECRETO_123"
 SERVICE = "ErizoCoach-publicar"
-API = "https://api.github.com/repos/ericperezortuno/ErizoCoach/releases"
-UPLOADS = "https://uploads.github.com/repos/ericperezortuno/ErizoCoach/releases"
+API = "https://api.github.com/repos/eriizzo/ErizoCoach/releases"
+UPLOADS = "https://uploads.github.com/repos/eriizzo/ErizoCoach/releases"
 
 
 class MemoryKeyring(KeyringBackend):

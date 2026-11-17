@@ -72,9 +72,7 @@ OUT = ROOT / "docs" / "img"
 CACHE = ROOT / "build" / "capturas"
 EDGE = Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
 CDRAGON = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/"
-PACK_URL = (
-    "https://raw.githubusercontent.com/ericperezortuno/ErizoCoach-datos/main/estadisticas.json.gz"
-)
+PACK_URL = "https://raw.githubusercontent.com/eriizzo/ErizoCoach-datos/main/estadisticas.json.gz"
 ASSETS = "/lol-game-data/assets/"
 SR = QueueInfo(420, "Clasificatoria en solitario", "CLASSIC", 11)
 WIDTH, HEIGHT = 1056, 700  # el tamaño con el que se abre la ventana de Erizo Coach
