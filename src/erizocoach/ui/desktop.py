@@ -4,10 +4,10 @@
   diseño que la versión web.
 * La ventana y la app se comunican directamente con el puente de pywebview: **no hay
   servidor ni puerto abierto** en tu PC.
-* La página solo puede pedir cinco cosas a la app (``DesktopBridge``): el estado actual,
+* La página solo puede pedir siete cosas a la app (``DesktopBridge``): el estado actual,
   el icono de un objeto, campeón, runa o hechizo por su id numérico, pasar a segundo
-  plano y poner otra página de runas u otros hechizos (solo números, que la app valida
-  antes de escribir).
+  plano, abrir el cliente de LoL, poner otra página de runas u otros hechizos (solo números,
+  que la app valida antes de escribir) y actualizar Erizo Coach.
 * Se carga con una política de seguridad estricta: solo su propio código (marcado con
   un *nonce* aleatorio en cada arranque), iconos incrustados y ninguna conexión de red.
 * Al cerrar la ventana se cierra Erizo Coach.
@@ -169,6 +169,15 @@ class DesktopBridge:
             log.exception("No se pudo pedir que se abra el cliente de LoL")
             return False
 
+    def update_app(self) -> bool:
+        """Actualiza Erizo Coach a la versión nueva (botón «Actualizar» de la ventana)."""
+        future = asyncio.run_coroutine_threadsafe(self._presenter.request_update(), self._loop)
+        try:
+            return bool(future.result(timeout=ICON_TIMEOUT))
+        except Exception:
+            log.exception("No se pudo pedir la actualización")
+            return False
+
     def background(self) -> bool:
         """Esconde la ventana; la app sigue funcionando. False si no se puede (sin bandeja)."""
         if self._to_background is None:
@@ -234,6 +243,7 @@ class DesktopWindow:
         self._window.events.restored += self._on_restored
         self._window.events.maximized += self._on_restored
         self._app.presenter.add_listener(self._push)
+        self._app.quit = self.quit  # actualizar cierra la ventana (y con ella, la app)
         tray = TrayIcon(on_open=self.bring_back, on_quit=self.quit, icon_path=default_icon_path())
         self._tray = tray if tray.start() else None
         try:

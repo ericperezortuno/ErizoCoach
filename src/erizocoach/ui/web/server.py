@@ -155,8 +155,8 @@ class UiServer:
         return ws
 
     async def _command(self, data: str) -> None:
-        """Lo único que la ventana puede pedir por el canal: otras runas, otros hechizos o
-        abrir el cliente de LoL."""
+        """Lo único que la ventana puede pedir por el canal: otras runas, otros hechizos,
+        abrir el cliente de LoL o actualizar Erizo Coach."""
         if len(data) > MAX_COMMAND_SIZE:
             return
         try:
@@ -171,6 +171,8 @@ class UiServer:
             await self._presenter.request_spells(command.get("spells"))
         elif command.get("type") == "launchClient":
             await self._presenter.request_launch()
+        elif command.get("type") == "updateApp":
+            await self._presenter.request_update()
 
     async def _broadcast(self, state: State) -> None:
         for ws in list(self._sockets):

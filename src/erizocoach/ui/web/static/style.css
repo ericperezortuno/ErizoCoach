@@ -1211,6 +1211,13 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
 .card.notice::before { background: linear-gradient(160deg, rgba(255, 93, 110, .9), rgba(255, 93, 110, .25) 45%, rgba(255, 93, 110, .5)); }
 .card.notice h2 { color: #ffb3bb; }
 
+/* --- Actualización disponible ---------------------------------------------------------------- */
+
+.update-notes { margin-bottom: 10px; white-space: pre-line; color: var(--muted); }
+.update .warn { color: var(--orange); margin-bottom: 10px; }
+.update-action { display: flex; }
+.update .meter { margin-bottom: 0; }
+
 /* --- Pie ----------------------------------------------------------------------------------- */
 
 .footer {
@@ -1311,6 +1318,8 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
   .topbar::before, .card::before, .scene { display: none; }
   .badge, .tag, .chip, .pill { border: 1px solid CanvasText; }
   .cta { border: 1px solid ButtonText; }
+  .update .meter { border: 1px solid CanvasText; }
+  .update .meter .fill { background: Highlight; box-shadow: none; }
   .ls-ch { color: CanvasText; text-shadow: none; }
   .ls-line::after, .ls-rings { display: none; }
   .rune-option { opacity: 1; filter: none; border: 1px solid transparent; }

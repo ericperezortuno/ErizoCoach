@@ -102,11 +102,28 @@ def test_bridge_rejects_anything_else(
     assert icons.calls == []  # ni siquiera se intenta
 
 
-def test_bridge_exposes_only_six_methods() -> None:
+def test_bridge_exposes_only_seven_methods() -> None:
     public = [name for name in dir(DesktopBridge) if not name.startswith("_")]
     assert public == [
         "background", "get_state", "icon", "launch_client", "set_runes", "set_spells",
+        "update_app",
     ]  # fmt: skip
+
+
+def test_bridge_update_app(running_loop: asyncio.AbstractEventLoop) -> None:
+    from erizocoach.events import UpdateRequested, UpdateState, UpdateStatus
+
+    bus = EventBus()
+    seen: list[UpdateRequested] = []
+    bus.subscribe(UpdateRequested, seen.append)
+    bridge = DesktopBridge(UiPresenter(bus, loaded_gamedata()), FakeIcons(), running_loop)  # type: ignore[arg-type]
+    assert not bridge.update_app()  # aún no hay versión nueva
+    assert seen == []
+    asyncio.run_coroutine_threadsafe(
+        bus.publish(UpdateStatus("0.30.0", "", UpdateState.AVAILABLE)), running_loop
+    ).result(timeout=5)
+    assert bridge.update_app()
+    assert len(seen) == 1
 
 
 def test_bridge_set_spells_only_passes_two_spells(

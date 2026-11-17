@@ -244,6 +244,7 @@ function render(state, boot = false) {
   if (state.stats && state.stats.problem) {
     sections.unshift(card("Aviso", [el("div", { text: state.stats.text })], { className: "notice wide" }));
   }
+  if (updateShown(state)) sections.unshift(renderUpdate(state.update));
   // Se repinta todo: el botón que tenías enfocado (teclado) recupera el foco.
   const focused = document.activeElement && document.activeElement.dataset
     ? document.activeElement.dataset.focusKey : null;
@@ -358,6 +359,55 @@ function launchClient() {
     if (api && api.launch_client) api.launch_client().catch(() => {});
   } else if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify({ type: "launchClient" }));
+  }
+}
+
+// --- Actualización de Erizo Coach ------------------------------------------------------
+// Solo se ofrece con el cliente cerrado o en una fase en la que cerrar la app no molesta
+// (nunca en selección ni en partida). Copia de SAFE_PHASES en update/service.py: un test
+// comprueba que las dos listas coinciden. La app lo vuelve a comprobar antes de instalar.
+const UPDATE_SAFE_PHASES = ["None", "Lobby", "EndOfGame"];
+
+function updateShown(state) {
+  return Boolean(state.update) && (!state.connected || UPDATE_SAFE_PHASES.includes(state.phase));
+}
+
+function renderUpdate(update) {
+  const children = [];
+  if (update.state === "downloading") {
+    const percent = Math.max(0, Math.min(100, Math.round(update.progress || 0)));
+    const fill = el("span", { class: "fill" });
+    fill.style.setProperty("--p", (percent / 100).toFixed(2));
+    children.push(
+      el("div", { class: "small", text: `Descargando… ${percent} %` }),
+      el("div", {
+        class: "meter", role: "progressbar", "aria-label": "Descarga de la actualización",
+        "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(percent),
+      }, [fill]),
+    );
+  } else if (update.state === "installing") {
+    children.push(el("div", { role: "status", text: "Instalando… Erizo Coach se volverá a abrir solo" }));
+  } else {
+    if (update.notes) children.push(el("div", { class: "update-notes small", text: update.notes }));
+    if (update.state === "failed" && update.error) {
+      children.push(el("div", { class: "small warn", role: "alert", text: update.error }));
+    }
+    const button = el("button", { class: "cta", type: "button", "data-focus-key": "update-app" }, [
+      svgGlyph("M8 2.5v7M4.8 6.8 8 10l3.2-3.2M3.5 12.5h9"),
+      el("span", { text: "Actualizar" }),
+    ]);
+    button.addEventListener("click", updateApp);
+    children.push(el("div", { class: "update-action" }, [button]));
+  }
+  return card(`Erizo Coach ${update.version} disponible`, children, { className: "update wide" });
+}
+
+function updateApp() {
+  if (DESKTOP) {
+    const api = window.pywebview && window.pywebview.api;
+    if (api && api.update_app) api.update_app().catch(() => {});
+  } else if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ type: "updateApp" }));
   }
 }
 

@@ -32,6 +32,9 @@ from ...events import (
     RunesEditRequested,
     SpellsEditRequested,
     StatsStatus,
+    UpdateRequested,
+    UpdateState,
+    UpdateStatus,
 )
 from ...gamedata.catalog import DamageType, GameData
 from ...gamedata.runes import (
@@ -101,6 +104,7 @@ class UiPresenter:
             "spellRule": "",  # Aplastar: "required" (jungla), "forbidden" (otra posición) o libre
             "smiteId": SMITE,
             "launch": LaunchState.IDLE.value,  # botón «Abrir League of Legends»
+            "update": None,  # versión nueva de Erizo Coach (tarjeta «Actualizar»)
         }
         bus.subscribe(ClientConnected, self._on_connected)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
@@ -116,6 +120,7 @@ class UiPresenter:
         bus.subscribe(StatsStatus, self._on_stats)
         bus.subscribe(CountersUpdated, self._on_counters)
         bus.subscribe(ClientLaunchStatus, self._on_launch)
+        bus.subscribe(UpdateStatus, self._on_update)
 
     @property
     def state(self) -> State:
@@ -147,6 +152,29 @@ class UiPresenter:
         if self._state["connected"]:
             return False
         await self._bus.publish(LaunchClientRequested())
+        return True
+
+    async def _on_update(self, event: UpdateStatus) -> None:
+        await self._set(
+            update={
+                "version": event.version,
+                "notes": event.notes,
+                "state": event.state.value,
+                "progress": event.progress,
+                "error": event.error,
+            }
+        )
+
+    async def request_update(self) -> bool:
+        """La ventana pide actualizar Erizo Coach (solo si hay versión nueva y no está en
+        marcha ya)."""
+        update = self._state["update"]
+        if update is None or update["state"] in (
+            UpdateState.DOWNLOADING.value,
+            UpdateState.INSTALLING.value,
+        ):
+            return False
+        await self._bus.publish(UpdateRequested())
         return True
 
     async def _on_disconnected(self, _event: ClientDisconnected) -> None:

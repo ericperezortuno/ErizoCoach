@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 import dataclasses
+import re
 from collections.abc import AsyncIterator
+from pathlib import Path
 
 import aiohttp
 import pytest
@@ -16,6 +19,9 @@ from erizocoach.events import (
     GameflowPhaseChanged,
     LiveGameEnded,
     LiveGameUpdated,
+    UpdateRequested,
+    UpdateState,
+    UpdateStatus,
 )
 from erizocoach.ingame.advisor import advise
 from erizocoach.ingame.analysis import analyze
@@ -23,6 +29,7 @@ from erizocoach.ingame.models import LivePlayer, parse_all_game_data
 from erizocoach.models import GameflowPhase, Position
 from erizocoach.ui.web.presenter import UiPresenter
 from erizocoach.ui.web.server import UiServer
+from erizocoach.update.service import SAFE_PHASES
 
 from .gamedata_fixture import FixtureClient, loaded_gamedata
 from .live_factories import standard_game
@@ -307,3 +314,66 @@ async def test_without_lanes_there_are_no_matchups() -> None:
     presenter = UiPresenter(EventBus(), loaded_gamedata())
     await presenter._on_live(dataclasses.replace(event, report=report))
     assert presenter.state["game"]["matchups"] == []  # la ventana pinta las dos listas
+
+
+# --- Actualización -------------------------------------------------------------------
+
+
+async def test_update_status_reaches_the_window() -> None:
+    bus = EventBus()
+    presenter = UiPresenter(bus, loaded_gamedata())
+    assert presenter.state["update"] is None
+    await bus.publish(UpdateStatus("0.30.0", "Novedades", UpdateState.DOWNLOADING, progress=42))
+    assert presenter.state["update"] == {
+        "version": "0.30.0",
+        "notes": "Novedades",
+        "state": "downloading",
+        "progress": 42,
+        "error": "",
+    }
+
+
+async def test_request_update_publishes_only_when_available() -> None:
+    bus = EventBus()
+    presenter = UiPresenter(bus, loaded_gamedata())
+    requests: list[UpdateRequested] = []
+    bus.subscribe(UpdateRequested, requests.append)
+    assert await presenter.request_update() is False  # no hay versión nueva
+    for state in (UpdateState.DOWNLOADING, UpdateState.INSTALLING):
+        await bus.publish(UpdateStatus("0.30.0", "", state))
+        assert await presenter.request_update() is False  # ya está en marcha
+    assert requests == []
+    for state in (UpdateState.AVAILABLE, UpdateState.FAILED):  # y tras un fallo, otra vez
+        await bus.publish(UpdateStatus("0.30.0", "", state))
+        assert await presenter.request_update() is True
+    assert len(requests) == 2
+
+
+async def test_ws_update_command(server: tuple[UiServer, EventBus]) -> None:
+    ui, bus = server
+    requests: list[UpdateRequested] = []
+    bus.subscribe(UpdateRequested, requests.append)
+    await bus.publish(UpdateStatus("0.30.0", "", UpdateState.AVAILABLE))
+    async with (
+        aiohttp.ClientSession() as http,
+        http.ws_connect(
+            f"http://127.0.0.1:{ui.port}/ws?t={ui.token}",
+            headers={"Origin": f"http://127.0.0.1:{ui.port}"},
+        ) as ws,
+    ):
+        await ws.receive_json(timeout=5)
+        await ws.send_json({"type": "updateApp"})
+        for _ in range(50):
+            if requests:
+                break
+            await asyncio.sleep(0.05)
+    assert len(requests) == 1
+
+
+def test_window_and_service_agree_on_the_safe_phases() -> None:
+    """app.js repite las fases seguras (no puede importarlas): que no se separen."""
+    js = Path(__file__).parents[1].joinpath("src/erizocoach/ui/web/static/app.js")
+    found = re.search(r"const UPDATE_SAFE_PHASES = \[([^\]]*)\]", js.read_text(encoding="utf-8"))
+    assert found is not None
+    in_window = set(re.findall(r'"([^"]*)"', found.group(1)))
+    assert in_window == {phase.value for phase in SAFE_PHASES}
