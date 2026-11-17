@@ -30,6 +30,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import urllib.request
 import zipfile
 from collections.abc import Callable
@@ -62,11 +63,15 @@ MICROSOFT_SIGNER = "O=Microsoft Corporation"
 
 UPDATE_FLAG = "--actualizar"
 UPDATE_WAIT_SECONDS = 30  # lo que se espera a que la app se cierre antes de instalar
+# Tras cerrarse la app, sus procesos de WebView2 pueden tardar un momento en soltar la carpeta.
+RENAME_RETRY_SECONDS = 10
 SYNCHRONIZE = 0x00100000
 WAIT_OBJECT_0 = 0
 
 MB_OK, MB_YESNO, MB_ICONINFO, MB_ICONWARN, MB_ICONERROR, IDYES = 0, 4, 0x40, 0x30, 0x10, 6
 CREATE_NO_WINDOW = 0x08000000
+DETACHED_PROCESS = 0x00000008
+CREATE_NEW_PROCESS_GROUP = 0x00000200
 
 # Desinstalador: quita accesos directos, la entrada de «Aplicaciones» y la carpeta de la
 # app (PowerShell lee el script entero antes de ejecutarlo, así que puede borrarse a sí
@@ -148,9 +153,40 @@ def extract(payload: Path, target: Path) -> None:
         shutil.rmtree(staging, ignore_errors=True)
         archive.extractall(staging)
     (staging / UNINSTALL_SCRIPT).write_text(UNINSTALL_PS1, encoding="utf-8-sig")
+    # La versión anterior no se borra hasta que la nueva está en su sitio: primero se aparta
+    # (un cambio de nombre, que en Windows falla entero si algo la está usando) y solo al
+    # final se borra. Así nunca se queda a medias, como el 17/11 con la carpeta en uso.
+    old = target.with_name(target.name + ".viejo")
+    shutil.rmtree(old, ignore_errors=True)
     if target.exists():
-        shutil.rmtree(target)
-    staging.rename(target)  # la versión anterior solo se quita cuando la nueva está lista
+        try:
+            rename_with_retry(target, old)
+        except OSError as exc:
+            shutil.rmtree(staging, ignore_errors=True)
+            raise InstallError(
+                f"La carpeta de {APP_NAME} está en uso por otro programa: ciérralo (o reinicia "
+                "el PC) y vuelve a intentarlo. Tu versión actual sigue instalada."
+            ) from exc
+    try:
+        rename_with_retry(staging, target)
+    except OSError:
+        if old.exists() and not target.exists():
+            old.rename(target)  # se deja todo como estaba
+        raise
+    shutil.rmtree(old, ignore_errors=True)  # si algo queda, se quita en la siguiente
+
+
+def rename_with_retry(source: Path, target: Path) -> None:
+    """Cambia el nombre; si está en uso, lo reintenta durante ``RENAME_RETRY_SECONDS``."""
+    deadline = time.monotonic() + RENAME_RETRY_SECONDS
+    while True:
+        try:
+            source.rename(target)
+            return
+        except OSError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(0.25)
 
 
 def create_shortcut(link: Path, exe: Path) -> None:
@@ -441,12 +477,33 @@ def reopen(exe: Path) -> None:
     subprocess.Popen(["explorer.exe", str(exe)], creationflags=CREATE_NO_WINDOW)
 
 
+def inside(path: Path, folder: Path) -> bool:
+    """¿Está ``path`` dentro de ``folder`` (o es ella)? Sin distinguir mayúsculas."""
+    try:
+        resolved, base = path.resolve(), folder.resolve()
+    except OSError:
+        return False
+    return os.path.normcase(str(resolved)) == os.path.normcase(str(base)) or any(
+        os.path.normcase(str(parent)) == os.path.normcase(str(base)) for parent in resolved.parents
+    )
+
+
 def update(args: list[str], version: str) -> int:
     """Modo ``--actualizar <pid>``: sin preguntas; solo se muestra algo si falla."""
     pid = int(args[1]) if len(args) == 2 and args[1].isascii() and args[1].isdigit() else 0
     if pid <= 0:
         message(f"Uso: {UPDATE_FLAG} <pid de Erizo Coach>", MB_OK | MB_ICONERROR)
         return 1
+    if inside(Path.cwd(), default_places().target):
+        # La app nos abre con su carpeta como carpeta de trabajo, y mientras un proceso la
+        # use Windows no deja sustituirla. Nos relanzamos desde la carpeta temporal y este
+        # proceso (con su lanzador) termina enseguida.
+        subprocess.Popen(  # el propio ejecutable de este instalador; argumentos fijos
+            [sys.executable, UPDATE_FLAG, str(pid)],
+            cwd=tempfile.gettempdir(),
+            creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
+        )
+        return 0
     if not wait_for_exit(pid, UPDATE_WAIT_SECONDS):
         message(
             f"{APP_NAME} no se ha cerrado a tiempo: ciérralo, vuelve a abrirlo y "

@@ -271,7 +271,8 @@ def run_update(
     seen: dict[str, list] = {"messages": [], "waits": [], "installs": [], "opened": []}
     monkeypatch.setattr(installer, "bundled", lambda name: tmp_path / name)
     (tmp_path / installer.VERSION_FILE).write_text("9.9.9", encoding="utf-8")
-    monkeypatch.setattr(installer, "default_places", lambda: None)
+    places = installer.Places(tmp_path / "Programs" / "Erizo Coach", ())  # no es la cwd
+    monkeypatch.setattr(installer, "default_places", lambda: places)
 
     def fake_install(*_a: object, **_kw: object) -> Path:
         seen["installs"].append(1)
@@ -389,3 +390,83 @@ def test_exe_version_info_matches_the_app_version() -> None:
     numbers = ", ".join(__version__.split(".")) + ", 0"
     assert text.count(f"({numbers})") == 2
     assert text.count(f"'{__version__}'") == 2
+
+
+# --- Carpeta de la app ocupada (fallo real del 17/11: el instalador heredó la carpeta) -------
+
+
+def busy_folder(folder: Path):  # type: ignore[no-untyped-def]
+    """Un proceso con ``folder`` como carpeta de trabajo: Windows no deja moverla ni borrarla."""
+    import subprocess
+
+    return subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"], cwd=folder)
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="el bloqueo de carpetas es de Windows")
+def test_folder_in_use_keeps_the_old_version_intact(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(installer, "RENAME_RETRY_SECONDS", 0.5)
+    target = tmp_path / "Erizo Coach"
+    installer.extract(payload_of(fake_app(tmp_path / "v1"), tmp_path, "v1.zip"), target)
+    holder = busy_folder(target)
+    try:
+        with pytest.raises(installer.InstallError, match="en uso"):
+            installer.extract(
+                payload_of(fake_app(tmp_path / "v2", "v2"), tmp_path, "v2.zip"), target
+            )
+        assert (target / "Erizo Coach.exe").read_text(encoding="utf-8") == "v1"  # intacta
+        assert (target / "_internal" / "base_library.zip").exists()
+        assert not target.with_name("Erizo Coach.nuevo").exists()
+    finally:
+        holder.kill()
+        holder.wait()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="el bloqueo de carpetas es de Windows")
+def test_folder_busy_for_a_moment_is_retried(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    import threading
+
+    monkeypatch.setattr(installer, "RENAME_RETRY_SECONDS", 10)
+    target = tmp_path / "Erizo Coach"
+    installer.extract(payload_of(fake_app(tmp_path / "v1"), tmp_path, "v1.zip"), target)
+    holder = busy_folder(target)
+    threading.Timer(1.0, holder.kill).start()  # p. ej., WebView2 tardando en cerrarse
+    try:
+        installer.extract(payload_of(fake_app(tmp_path / "v2", "v2"), tmp_path, "v2.zip"), target)
+        assert (target / "Erizo Coach.exe").read_text(encoding="utf-8") == "v2"
+        assert not target.with_name("Erizo Coach.viejo").exists()
+    finally:
+        holder.kill()
+        holder.wait()
+
+
+def test_update_mode_started_inside_the_app_folder_relaunches_from_temp(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """La app (0.23/0.24.0) lo abre con su carpeta como carpeta de trabajo: se relanza fuera."""
+    target = tmp_path / "Programs" / "Erizo Coach"
+    (target / "_internal").mkdir(parents=True)
+    monkeypatch.setattr(installer, "default_places", lambda: installer.Places(target, ()))
+    monkeypatch.setattr(installer.Path, "cwd", classmethod(lambda cls: target / "_internal"))
+    launched: list[tuple[list[str], dict[str, object]]] = []
+    monkeypatch.setattr(
+        installer.subprocess, "Popen", lambda args, **kw: launched.append((args, kw))
+    )
+    monkeypatch.setattr(installer, "wait_for_exit", lambda *_a: pytest.fail("no debe esperar"))
+    monkeypatch.setattr(installer, "install_all", lambda *_a: pytest.fail("no debe instalar"))
+    monkeypatch.setattr(installer, "bundled", lambda _n: _version_file(tmp_path))
+    assert installer.main(["--actualizar", "123"]) == 0
+    ((args, kwargs),) = launched
+    assert args == [sys.executable, "--actualizar", "123"]
+    assert Path(str(kwargs["cwd"])) == Path(installer.tempfile.gettempdir())
+    flags = int(kwargs["creationflags"])  # type: ignore[call-overload]
+    assert flags & 0x00000008 and flags & 0x00000200  # independiente de quien lo abrió
+
+
+def _version_file(tmp_path: Path) -> Path:
+    path = tmp_path / "version.txt"
+    path.write_text("0.24.1", encoding="utf-8")
+    return path

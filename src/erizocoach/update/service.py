@@ -77,9 +77,14 @@ def default_download_dir() -> Path:
 
 
 def launch_installer_detached(path: Path) -> None:
-    """Lanza el instalador aparte (sobrevive al cierre de la app) y le pasa nuestro PID."""
+    """Lanza el instalador aparte (sobrevive al cierre de la app) y le pasa nuestro PID.
+
+    Se lanza desde su propia carpeta: si heredara la de la app como carpeta de trabajo,
+    Windows no le dejaría sustituirla (fallo real con la 0.24.0).
+    """
     subprocess.Popen(  # ruta descargada y verificada; argumentos fijos
         [str(path), "--actualizar", str(os.getpid())],
+        cwd=str(path.parent),
         creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
     )
 
