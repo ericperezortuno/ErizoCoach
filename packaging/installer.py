@@ -501,6 +501,9 @@ def update(args: list[str], version: str) -> int:
         subprocess.Popen(  # el propio ejecutable de este instalador; argumentos fijos
             [sys.executable, UPDATE_FLAG, str(pid)],
             cwd=tempfile.gettempdir(),
+            # Copia independiente, con su propia carpeta _MEI: sin esto PyInstaller le hace
+            # usar la de este proceso, que se borra al terminar (y se pierde el payload).
+            env={**os.environ, "PYINSTALLER_RESET_ENVIRONMENT": "1"},
             creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
         )
         return 0

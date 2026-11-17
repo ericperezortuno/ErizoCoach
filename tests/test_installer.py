@@ -462,6 +462,9 @@ def test_update_mode_started_inside_the_app_folder_relaunches_from_temp(
     ((args, kwargs),) = launched
     assert args == [sys.executable, "--actualizar", "123"]
     assert Path(str(kwargs["cwd"])) == Path(installer.tempfile.gettempdir())
+    # Copia independiente (su propia carpeta _MEI): si no, usa la de este proceso, que se
+    # borra al terminar, y no encuentra el payload (fallo real al actualizar a la 0.24.1).
+    assert kwargs["env"]["PYINSTALLER_RESET_ENVIRONMENT"] == "1"  # type: ignore[index]
     flags = int(kwargs["creationflags"])  # type: ignore[call-overload]
     assert flags & 0x00000008 and flags & 0x00000200  # independiente de quien lo abrió
 

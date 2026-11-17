@@ -331,6 +331,8 @@ def test_launch_installer_detached_passes_pid(monkeypatch: pytest.MonkeyPatch) -
     service_module.launch_installer_detached(Path("C:/x/Instalar.exe"))
     # Desde su propia carpeta: nunca con la de la app como carpeta de trabajo.
     assert captured["kwargs"]["cwd"] == str(Path("C:/x"))  # type: ignore[index]
+    env = captured["kwargs"]["env"]  # type: ignore[index]
+    assert env["PYINSTALLER_RESET_ENVIRONMENT"] == "1"  # el instalador, independiente de la app
     args = captured["args"]
     assert args == [str(Path("C:/x/Instalar.exe")), "--actualizar", str(os.getpid())]
     flags = captured["kwargs"]["creationflags"]  # type: ignore[index]

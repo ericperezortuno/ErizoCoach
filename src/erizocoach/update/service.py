@@ -85,6 +85,8 @@ def launch_installer_detached(path: Path) -> None:
     subprocess.Popen(  # ruta descargada y verificada; argumentos fijos
         [str(path), "--actualizar", str(os.getpid())],
         cwd=str(path.parent),
+        # Otro ejecutable de PyInstaller: que no herede el entorno de la app empaquetada.
+        env={**os.environ, "PYINSTALLER_RESET_ENVIRONMENT": "1"},
         creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
     )
 
