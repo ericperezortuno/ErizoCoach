@@ -190,3 +190,53 @@ def test_relaunch_opens_the_running_copy(monkeypatch: pytest.MonkeyPatch, tmp_pa
     monkeypatch.setattr(tray, "signal_running", lambda: False)
     assert entry.main([]) == 1
     assert shown == ["Erizo Coach ya está abierto."]
+
+
+def test_run_makes_quit_close_the_window(monkeypatch: pytest.MonkeyPatch) -> None:
+    """«Actualizar» cierra la app por la ventana: `app.quit` pasa a ser el cierre de la ventana."""
+    import types
+
+    class Handlers(list):
+        def __iadd__(self, other):  # type: ignore[no-untyped-def]
+            self.append(other)
+            return self
+
+    class Created(FakeWindow):
+        def __init__(self) -> None:
+            super().__init__()
+            self.events = types.SimpleNamespace(
+                loaded=Handlers(),
+                closed=Handlers(),
+                minimized=Handlers(),
+                restored=Handlers(),
+                maximized=Handlers(),
+            )
+
+    created = Created()
+    started: list[dict[str, object]] = []
+    fake_webview = types.SimpleNamespace(
+        create_window=lambda *_a, **_kw: created,
+        start=lambda **kw: started.append(kw),
+    )
+    monkeypatch.setitem(sys.modules, "webview", fake_webview)
+    monkeypatch.setattr(desktop, "_set_app_user_model_id", lambda: None)
+    monkeypatch.setattr(desktop, "list_monitors", lambda: [])
+
+    class NoTray:
+        def __init__(self, **_kw: object) -> None:
+            pass
+
+        def start(self) -> bool:
+            return False
+
+    monkeypatch.setattr(desktop, "TrayIcon", NoTray)
+    app = FakeApp()
+    app.loop = object()  # type: ignore[attr-defined]
+    app.icons = object()  # type: ignore[attr-defined]
+    app.quit = lambda: None  # type: ignore[attr-defined]
+    window = DesktopWindow(app, Settings(data_dir=Path(".")))  # type: ignore[arg-type]
+    window.run()
+    assert started  # la ventana se abrió
+    assert app.quit == window.quit  # type: ignore[attr-defined]
+    app.quit()  # type: ignore[attr-defined]
+    assert created.calls == ["destroy"]

@@ -428,6 +428,13 @@ def _publish(
     published = datetime.now(UTC).isoformat(timespec="seconds")
     manifest = encode_manifest(build_manifest(installer, version, notes, published))
     signature = sign(manifest, private)
+    try:  # antes de tocar GitHub: lo que se va a subir tiene que verificarse con la clave pública
+        verify_manifest(manifest, signature, public)
+    except UpdateError as exc:
+        raise PublishError(
+            f"La firma del manifiesto no se verifica con la clave pública del repo ({exc}): "
+            "no se ha subido nada a GitHub."
+        ) from exc
     manifest_file = dist / MANIFEST_NAME
     signature_file = dist / SIGNATURE_NAME
     manifest_file.write_bytes(manifest)

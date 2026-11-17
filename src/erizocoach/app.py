@@ -41,7 +41,7 @@ from .ui.web.presenter import UiPresenter
 from .ui.web.server import UiServer
 from .ui.web.window import AppWindow
 from .update.download import Downloader
-from .update.service import UpdateService, should_check
+from .update.service import UpdateService, disabled_reason
 from .update.signing_key import PUBLIC_KEY
 
 log = logging.getLogger(__name__)
@@ -64,6 +64,7 @@ class Application:
         self.started = threading.Event()  # el bucle ya funciona (para la ventana de escritorio)
         self.loop: asyncio.AbstractEventLoop | None = None
         self._main_task: asyncio.Task[None] | None = None
+        self._stop_requested = False  # la cancelación de la tarea principal es una salida pedida
         self.bus = EventBus()
         self.gamedata = GameData()
         self.tracker = ChampSelectTracker(self.bus)
@@ -148,6 +149,7 @@ class Application:
         """Para la app desde otro hilo (p. ej., al cerrar la ventana de escritorio)."""
         loop, task = self.loop, self._main_task
         if loop is not None and task is not None and not loop.is_closed():
+            self._stop_requested = True
             loop.call_soon_threadsafe(task.cancel)
 
     async def _publish_demo(self, client: LcuClient, _info: object) -> None:
@@ -156,6 +158,17 @@ class Application:
         ui.info("Modo demostración: la ventana muestra una partida de ejemplo.")
 
     async def run(self) -> None:
+        """Funciona hasta que se pide parar; parar a petición es una salida normal."""
+        try:
+            await self._run()
+        except asyncio.CancelledError:
+            if not self._stop_requested:
+                raise  # otra cancelación (p. ej. de asyncio.run al pulsar Ctrl+C): se respeta
+            task = asyncio.current_task()
+            if task is not None:
+                task.uncancel()  # la petición ya está atendida: la tarea termina con normalidad
+
+    async def _run(self) -> None:
         self.loop = asyncio.get_running_loop()
         self._main_task = asyncio.current_task()
         self.started.set()
@@ -167,8 +180,11 @@ class Application:
             else:
                 ui.info("Ventana disponible en: %s", self.ui_server.url)
         updates_task = None
-        if should_check(self.settings, PUBLIC_KEY):
+        reason = disabled_reason(self.settings, PUBLIC_KEY)
+        if reason is None:
             updates_task = asyncio.create_task(self.updates.run())
+        else:
+            log.info("Sin búsqueda de versiones nuevas: %s", reason)
         try:
             await self.connector.run()
         finally:

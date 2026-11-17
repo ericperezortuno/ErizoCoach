@@ -391,6 +391,23 @@ def test_publish_end_to_end(tmp_path: Path) -> None:
     assert base64.b64decode(opener.bodies["erizocoach-version.json.sig"], validate=True)
 
 
+def test_publish_verifies_the_signature_locally_before_touching_github(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys,  # type: ignore[no-untyped-def]
+) -> None:
+    def broken(*_args: object) -> None:
+        raise UpdateError("firma no válida")
+
+    monkeypatch.setattr(publisher, "verify_manifest", broken)
+    opener = FakeOpener()
+    code, _, _, verified = run_publish(tmp_path, opener)
+    out = capsys.readouterr().out
+    assert code == 1 and verified == []
+    assert opener.calls() == ["GET"]  # solo la consulta previa: no se crea ni se sube nada
+    assert "no se ha subido nada" in out
+
+
 def test_failed_upload_deletes_the_draft(tmp_path: Path, capsys) -> None:  # type: ignore[no-untyped-def]
     opener = FakeOpener(fail_upload="json.sig")
     code, _, _, verified = run_publish(tmp_path, opener)

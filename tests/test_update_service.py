@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import sys
 from collections.abc import Awaitable, Callable
@@ -26,7 +27,7 @@ from erizocoach.models import ClientInfo, GameflowPhase
 from erizocoach.update import service as service_module
 from erizocoach.update.download import MANIFEST_URL, installer_url
 from erizocoach.update.manifest import Manifest, UpdateError, encode_manifest, sign
-from erizocoach.update.service import UpdateService, should_check
+from erizocoach.update.service import UpdateService, disabled_reason, should_check
 
 SHA = "b" * 64
 CURRENT = "0.22.0"
@@ -251,7 +252,8 @@ async def test_phase_turns_unsafe_during_download(tmp_path: Path) -> None:
     await h.request()
     assert h.launched == [] and "quit" not in h.calls
     assert h.statuses[-1].state is UpdateState.FAILED
-    assert "partida" in h.statuses[-1].error
+    assert h.statuses[-1].error == service_module.UNSAFE_MESSAGE
+    assert "menú o en la sala" in service_module.UNSAFE_MESSAGE
     assert list(h.download_dir.glob("*.exe")) == []
 
 
@@ -446,3 +448,105 @@ async def test_unexpected_error_in_update_is_logged(
     assert h.statuses[-1].error and "raro" not in h.statuses[-1].error
     assert h.launched == [] and "quit" not in h.calls
     assert list(h.download_dir.glob("*.exe")) == []
+
+
+# --- Registro de lo que hace el servicio ----------------------------------------------------
+
+
+async def test_check_logs_each_outcome(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+    caplog.set_level(logging.DEBUG, logger="erizocoach.update.service")
+    await Harness(tmp_path, FakeDownloader(None)).service.check()
+    assert "No hay manifiesto de versión publicado (404)" in caplog.text
+    caplog.clear()
+    await Harness(tmp_path, FakeDownloader(_manifest("0.22.0"))).service.check()
+    assert "Última versión publicada 0.22.0; la instalada es 0.22.0" in caplog.text
+    assert not [r for r in caplog.records if r.levelno >= logging.INFO]
+    caplog.clear()
+    await Harness(tmp_path, FakeDownloader(_manifest("0.23.0"))).service.check()
+    (info,) = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert "Nueva versión 0.23.0 disponible" in info.getMessage()
+
+
+async def test_launching_the_installer_is_logged(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    caplog.set_level(logging.INFO, logger="erizocoach.update.service")
+    h = Harness(tmp_path, FakeDownloader(_manifest()))
+    await h.announce()
+    await h.request()
+    assert "Actualizando a 0.23.0: se abre el instalador y Erizo Coach se cierra" in caplog.text
+
+
+def test_disabled_reason(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    settings = Settings(data_dir=tmp_path)
+    monkeypatch.setattr(sys, "frozen", False, raising=False)
+    assert "desde el código" in (disabled_reason(settings, PUBLIC) or "")
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    assert disabled_reason(settings, PUBLIC) is None
+    off = Settings(data_dir=tmp_path, update_check=False)
+    assert "update_check" in (disabled_reason(off, PUBLIC) or "")
+    assert "clave pública" in (disabled_reason(settings, b"") or "")
+
+
+# --- La app no se cierra tras lanzar el instalador -----------------------------------------
+
+
+async def test_app_that_does_not_quit_reports_failure_and_allows_retry(tmp_path: Path) -> None:
+    waits: list[float] = []
+
+    async def instant(seconds: float) -> None:
+        waits.append(seconds)
+
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader, sleep=instant)
+    await h.announce()
+    await h.request()
+    watch = h.service.quit_watch_task
+    assert watch is not None
+    await watch
+    assert waits == [service_module.QUIT_TIMEOUT] and service_module.QUIT_TIMEOUT >= 45
+    last = h.statuses[-1]
+    assert last.state is UpdateState.FAILED
+    assert last.error == service_module.NOT_CLOSED_MESSAGE
+    assert "vuelve a abrirlo" in last.error
+    h.calls.clear()
+    await h.request()  # un segundo intento funciona con normalidad
+    assert h.calls[-1] == "quit" and len(downloader.requests) == 2
+
+
+async def test_app_that_quits_in_time_is_not_reported(tmp_path: Path) -> None:
+    gate = asyncio.Event()
+
+    async def hold(_seconds: float) -> None:
+        await gate.wait()
+
+    h = Harness(tmp_path, FakeDownloader(_manifest()), sleep=hold)
+    await h.announce()
+    await h.request()
+    watch = h.service.quit_watch_task
+    assert watch is not None and not watch.done()
+    await h.service._cancel_update()  # la app se cierra: la espera se cancela
+    assert watch.cancelled()
+    assert h.statuses[-1].state is UpdateState.INSTALLING
+
+
+# --- Instalador sobrante --------------------------------------------------------------------
+
+
+async def test_first_check_deletes_leftover_installer(tmp_path: Path) -> None:
+    h = Harness(tmp_path, FakeDownloader(None))
+    h.download_dir.mkdir()
+    leftover = h.download_dir / "Instalar-Erizo-Coach-0.22.0.exe"
+    leftover.write_bytes(b"MZ")
+    await h.service.check()
+    assert not leftover.exists()
+
+
+async def test_only_the_first_check_cleans(tmp_path: Path) -> None:
+    h = Harness(tmp_path, FakeDownloader(None))
+    await h.service.check()
+    h.download_dir.mkdir()
+    later = h.download_dir / "en-uso.exe"
+    later.write_bytes(b"MZ")
+    await h.service.check()
+    assert later.exists()

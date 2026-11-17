@@ -449,7 +449,8 @@ def update(args: list[str], version: str) -> int:
         return 1
     if not wait_for_exit(pid, UPDATE_WAIT_SECONDS):
         message(
-            f"{APP_NAME} no se ha cerrado: ciérralo y vuelve a pulsar Actualizar.",
+            f"{APP_NAME} no se ha cerrado a tiempo: ciérralo, vuelve a abrirlo y "
+            "pulsa Actualizar otra vez.",
             MB_OK | MB_ICONWARN,
         )
         return 1

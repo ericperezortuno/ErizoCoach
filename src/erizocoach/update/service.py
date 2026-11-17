@@ -48,12 +48,28 @@ DOWNLOAD_MESSAGE = (
     "No se ha podido descargar la actualización. Comprueba tu conexión y vuelve a intentarlo."
 )
 UNEXPECTED_MESSAGE = "No se ha podido actualizar. Vuelve a intentarlo."
-UNSAFE_MESSAGE = "Se ha empezado una partida: actualiza cuando vuelvas al menú."
+UNSAFE_MESSAGE = "Ahora no se puede actualizar: espera a estar en el menú o en la sala."
+NOT_CLOSED_MESSAGE = (
+    "No se ha podido cerrar Erizo Coach para actualizar: ciérralo y vuelve a abrirlo."
+)
+# Tras lanzar el instalador: lo que se espera a que la app se cierre (el instalador espera 30 s)
+QUIT_TIMEOUT = 45.0
+
+
+def disabled_reason(settings: Settings, public_key: bytes) -> str | None:
+    """Por qué no se busca versión nueva (``None`` si se busca)."""
+    if not getattr(sys, "frozen", False):
+        return "se ejecuta desde el código, no la app instalada"
+    if not settings.update_check:
+        return "update_check = false en la configuración"
+    if not public_key:
+        return "falta la clave pública de firma"
+    return None
 
 
 def should_check(settings: Settings, public_key: bytes) -> bool:
     """Solo se busca en la app instalada, con el ajuste activo y la clave de firma puesta."""
-    return bool(getattr(sys, "frozen", False) and settings.update_check and public_key)
+    return disabled_reason(settings, public_key) is None
 
 
 def default_download_dir() -> Path:
@@ -97,6 +113,8 @@ class UpdateService:
         self._phase = GameflowPhase.NONE
         self._available: Manifest | None = None
         self._update_task: asyncio.Task[None] | None = None
+        self._quit_watch: asyncio.Task[None] | None = None
+        self._cleaned = False
         bus.subscribe(ClientConnected, self._on_connected)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
         bus.subscribe(GameflowPhaseChanged, self._on_phase)
@@ -130,27 +148,40 @@ class UpdateService:
 
     @property
     def _updating(self) -> bool:
-        return self._update_task is not None and not self._update_task.done()
+        return any(t is not None and not t.done() for t in (self._update_task, self._quit_watch))
 
     @property
     def update_task(self) -> asyncio.Task[None] | None:
         """La actualización en curso (o la última), para esperarla en las pruebas."""
         return self._update_task
 
+    @property
+    def quit_watch_task(self) -> asyncio.Task[None] | None:
+        """La espera a que la app se cierre tras lanzar el instalador (para las pruebas)."""
+        return self._quit_watch
+
     async def _cancel_update(self) -> None:
-        task = self._update_task
-        if task is not None and not task.done():
-            task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await task
+        for task in (self._update_task, self._quit_watch):
+            if task is not None and not task.done():
+                task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await task
 
     async def check(self) -> Manifest | None:
         """Devuelve el manifiesto si hay una versión más nueva (y la anuncia); si no, ``None``."""
+        if not self._cleaned:  # el instalador de la actualización anterior ya no hace falta
+            self._cleaned = True
+            await asyncio.to_thread(shutil.rmtree, self._download_dir, ignore_errors=True)
         try:
             manifest = await self._fetch_manifest()
             if manifest is None:
                 return None
             if parse_version(manifest.version) <= parse_version(self._current):
+                log.debug(
+                    "Última versión publicada %s; la instalada es %s",
+                    manifest.version,
+                    self._current,
+                )
                 return None
         except UpdateError as exc:
             log.debug("Sin comprobación de versión: %s", exc)
@@ -158,6 +189,9 @@ class UpdateService:
         except Exception:  # un fallo aquí nunca debe tumbar la app
             log.warning("Fallo inesperado al buscar versión nueva", exc_info=True)
             return None
+        log.info(
+            "Nueva versión %s disponible (la instalada es %s)", manifest.version, self._current
+        )
         self._available = manifest
         if not self._updating:  # con una descarga en marcha, la ventana sigue con su progreso
             await self._status(manifest, UpdateState.AVAILABLE)
@@ -166,9 +200,11 @@ class UpdateService:
     async def _fetch_manifest(self) -> Manifest | None:
         data = await self._downloader.fetch(MANIFEST_URL, MAX_MANIFEST_BYTES)
         if data is None:
+            log.debug("No hay manifiesto de versión publicado (404)")
             return None
         signature = await self._downloader.fetch(SIGNATURE_URL, MAX_SIGNATURE_BYTES)
         if signature is None:
+            log.debug("No hay firma del manifiesto publicada (404)")
             return None
         return verify_manifest(data, signature, self._public_key)
 
@@ -233,9 +269,23 @@ class UpdateService:
                 manifest, "No se ha podido abrir el instalador. Inténtalo de nuevo.", path
             )
             return
+        log.info(
+            "Actualizando a %s: se abre el instalador y Erizo Coach se cierra", manifest.version
+        )
         await self._status(manifest, UpdateState.INSTALLING, 100)
         self._quit_app()
+        self._quit_watch = asyncio.create_task(self._fail_if_still_open(manifest, path))
+        self._quit_watch.add_done_callback(self._log_failure)
+
+    async def _fail_if_still_open(self, manifest: Manifest, path: Path) -> None:
+        """Si la app sigue viva pasado el plazo, el instalador ya se habrá rendido: avisa."""
+        await self._sleep(QUIT_TIMEOUT)
+        log.warning(
+            "Erizo Coach no se ha cerrado tras lanzar el instalador de %s", manifest.version
+        )
+        await self._fail(manifest, NOT_CLOSED_MESSAGE, path)
 
     async def _fail(self, manifest: Manifest, error: str, path: Path) -> None:
-        await asyncio.to_thread(path.unlink, missing_ok=True)
+        with contextlib.suppress(OSError):  # puede seguir en uso por el instalador
+            await asyncio.to_thread(path.unlink, missing_ok=True)
         await self._status(manifest, UpdateState.FAILED, error=error)

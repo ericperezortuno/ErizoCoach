@@ -322,7 +322,7 @@ def test_update_mode_app_still_open_warns_and_does_not_install(
     code, seen = run_update(monkeypatch, tmp_path, ["--actualizar", "1234"], exited=False)
     assert code == 1
     assert not seen["installs"] and not seen["opened"]
-    assert len(seen["messages"]) == 1 and "no se ha cerrado" in seen["messages"][0][0]
+    assert len(seen["messages"]) == 1 and "no se ha cerrado a tiempo" in seen["messages"][0][0]
 
 
 @pytest.mark.parametrize(
