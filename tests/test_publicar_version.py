@@ -69,12 +69,16 @@ class FakeOpener:
         return FakeResponse(201)
 
 
-def fake_git(tag_exists: bool = True, pushed: bool = True, dirty: bool = False):  # type: ignore[no-untyped-def]
+def fake_git(
+    tag_exists: bool = True, pushed: bool = True, dirty: bool = False, tag_at_head: bool = True
+):  # type: ignore[no-untyped-def]
     def run(args: list[str]) -> tuple[int, str]:
         if args[0] == "status":
             return 0, " M archivo.py\n" if dirty else ""
+        if args[0] == "rev-parse" and args[-1] == "HEAD":
+            return 0, "abc\n"
         if args[0] == "rev-parse":
-            return (0, "abc\n") if tag_exists else (1, "")
+            return (0, "abc\n" if tag_at_head else "def\n") if tag_exists else (1, "")
         if args[0] == "ls-remote":
             return 0, "abc\trefs/tags/v1.2.3\n" if pushed else ""
         if args[0] == "tag":
@@ -104,6 +108,12 @@ def test_preflight_lists_problems() -> None:
     assert len(problems) == 2
     problems = publisher.preflight("1.2.3", run_git=fake_git(pushed=False))
     assert len(problems) == 1 and "origin" in problems[0]
+
+
+def test_preflight_requires_the_tag_at_head() -> None:
+    problems = publisher.preflight("1.2.3", run_git=fake_git(tag_at_head=False))
+    assert len(problems) == 1 and "no apunta al commit actual" in problems[0]
+    assert publisher.preflight("1.2.3", run_git=fake_git(tag_at_head=True)) == []
 
 
 def test_release_notes_use_the_tag_subject() -> None:

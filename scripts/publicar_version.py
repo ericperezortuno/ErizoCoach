@@ -93,9 +93,16 @@ def preflight(version: str, run_git: RunGit = run_git) -> list[str]:
         problems.append("No se ha podido consultar el estado de git.")
     elif out.strip():
         problems.append("Hay cambios sin guardar (commit) en el repositorio.")
-    code, _ = run_git(["rev-parse", "-q", "--verify", f"refs/tags/{tag}"])
+    code, tagged = run_git(["rev-parse", "-q", "--verify", f"refs/tags/{tag}^{{commit}}"])
     if code != 0:
         problems.append(f"No existe la etiqueta {tag} (créala con «git tag -a {tag} -m ...»).")
+    else:
+        head_code, head = run_git(["rev-parse", "HEAD"])
+        if head_code != 0 or head.strip() != tagged.strip():
+            problems.append(
+                f"La etiqueta {tag} no apunta al commit actual: "
+                "publica desde ese commit o vuelve a etiquetar."
+            )
     code, out = run_git(["ls-remote", "--tags", "origin", f"refs/tags/{tag}"])
     if code != 0 or not out.strip():
         problems.append(f"La etiqueta {tag} no está en origin («git push origin {tag}»).")
