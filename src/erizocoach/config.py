@@ -25,8 +25,8 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
 
 Para publicar tus estadísticas para los demás (ver ``stats/publish.py``)::
 
-    stats_publish_repo = "git@github.com:<usuario>/ErizoCoach-datos.git"
-    stats_publish_key = "C:/Users/<usuario>/.ssh/erizocoach_datos_ed25519"
+    stats_publish_repo = "git@github.com:<usuario>/ErizoCoach.git"  # se publica en su rama datos
+    stats_publish_key = "C:/Users/<usuario>/.ssh/erizocoach_deploy_ed25519"
 """
 
 from __future__ import annotations

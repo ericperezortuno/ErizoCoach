@@ -2,13 +2,15 @@
 
 Solo lo hace quien lo configura en ``config.toml``::
 
-    stats_publish_repo = "git@github.com:<usuario>/ErizoCoach-datos.git"
-    stats_publish_key = "C:/Users/<usuario>/.ssh/erizocoach_datos_ed25519"
+    stats_publish_repo = "git@github.com:<usuario>/ErizoCoach.git"
+    stats_publish_key = "C:/Users/<usuario>/.ssh/erizocoach_deploy_ed25519"
 
-La clave SSH debe ser una «deploy key» con escritura **solo** en ese repositorio de
-datos. Cada publicación sube un único commit nuevo (el repositorio no crece con el
-tiempo) con el paquete y un README. Se publica como mucho cada pocas horas, y antes si
-cambia el parche; nunca con pocas partidas.
+Se publica **siempre en la rama** ``datos`` (nunca en ``main``): cada publicación la
+sustituye por un único commit nuevo con el paquete y un README, así que no crece con el
+tiempo. La clave SSH es una «deploy key» con escritura en ese repositorio; para que un
+fallo nunca pueda reescribir el código, ``main`` y las etiquetas de versión deben estar
+protegidas en GitHub (sin forzar ni borrar). Se publica como mucho cada pocas horas, y
+antes si cambia el parche; nunca con pocas partidas.
 
 Necesita ``git`` instalado. Si falla (sin red, clave rechazada...), lo deja en el
 registro y lo vuelve a intentar en la siguiente ocasión.
@@ -37,6 +39,7 @@ from .pack import PACK_FILE, encode_pack
 log = logging.getLogger(__name__)
 
 STATE_FILE = "publicado.json"
+DATA_BRANCH = "datos"  # la única rama en la que se publica (ref completo al subir)
 PUBLISH_EVERY_SECONDS = 3 * 3600
 MIN_MATCHES = 100  # con menos partidas no merece la pena publicar
 GIT_TIMEOUT = 120
@@ -61,8 +64,8 @@ class PublishError(Exception):
 
 @dataclass(frozen=True, slots=True)
 class PublishTarget:
-    repo: str  # dirección SSH del repositorio de datos
-    key: Path  # clave privada SSH (deploy key del repositorio de datos)
+    repo: str  # dirección SSH del repositorio (se publica en su rama DATA_BRANCH)
+    key: Path  # clave privada SSH (deploy key de ese repositorio)
 
 
 def from_settings(settings: Settings) -> PackPublisher | None:
@@ -132,10 +135,11 @@ class PackPublisher:
             readme = README.format(patch=patch, matches=matches)
             (work / "README.md").write_bytes(readme.encode("utf-8"))
             message = f"Estadísticas del parche {patch} ({matches} partidas)"
-            self._git(git, work, "init", "-q", "-b", "main")
+            self._git(git, work, "init", "-q", "-b", DATA_BRANCH)
             self._git(git, work, "add", PACK_FILE, "README.md")
             self._git(git, work, "commit", "-q", "-m", message)
-            self._git(git, work, "push", "-q", "--force", self._target.repo, "HEAD:main")
+            ref = f"HEAD:refs/heads/{DATA_BRANCH}"
+            self._git(git, work, "push", "-q", "--force", self._target.repo, ref)
 
     def _git(self, git: str, work: Path, *args: str) -> None:
         key = self._target.key.as_posix()

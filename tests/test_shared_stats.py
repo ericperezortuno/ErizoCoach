@@ -225,7 +225,7 @@ class FakeGit:
 def publisher(tmp_path: Path, git: FakeGit, clock: Clock) -> PackPublisher:
     key = tmp_path / "clave"
     key.write_text("x", encoding="utf-8")
-    target = PublishTarget("git@github.com:alguien/ErizoCoach-datos.git", key)
+    target = PublishTarget("git@github.com:alguien/ErizoCoach.git", key)
     return PackPublisher(target, tmp_path, runner=git, clock=clock, every_seconds=3600)
 
 
@@ -237,8 +237,10 @@ def test_publishes_when_it_makes_sense(tmp_path: Path) -> None:
     assert publisher_.maybe_publish(stats("16.22", 500))
     assert decode_pack(git.pushed)[:2] == ("16.22", 500)
     push = git.calls[-1]
-    assert push[3:] == ["push", "-q", "--force", "git@github.com:alguien/ErizoCoach-datos.git",
-                        "HEAD:main"]  # fmt: skip
+    assert push[3:] == ["push", "-q", "--force", "git@github.com:alguien/ErizoCoach.git",
+                        "HEAD:refs/heads/datos"]  # fmt: skip
+    # Nunca en main: el código vive en el mismo repositorio.
+    assert not any("main" in part for call in git.calls for part in call[3:])
     assert "IdentitiesOnly=yes" in git.envs[-1]["GIT_SSH_COMMAND"]
     assert "BatchMode=yes" in git.envs[-1]["GIT_SSH_COMMAND"]
 
@@ -274,9 +276,10 @@ def test_real_git_push_keeps_a_single_commit(tmp_path: Path) -> None:
             ["git", "--git-dir", str(remote), *args], check=True, capture_output=True
         ).stdout
 
-    assert git("rev-list", "--count", "main").strip() == b"1"
-    assert decode_pack(git("show", f"main:{pack.PACK_FILE}"))[:2] == ("16.23", 300)
-    assert b"16.23" in git("show", "main:README.md")
+    assert git("rev-list", "--count", "datos").strip() == b"1"
+    assert decode_pack(git("show", f"datos:{pack.PACK_FILE}"))[:2] == ("16.23", 300)
+    assert b"16.23" in git("show", "datos:README.md")
+    assert git("branch", "--list", "main").strip() == b""  # main no se toca
 
 
 def test_publish_settings_need_both_values(tmp_path: Path) -> None:

@@ -9,7 +9,7 @@ lo graba con Microsoft Edge sin ventana (protocolo DevTools):
 
 * Datos del juego: los del parche 16.22 de las pruebas, con las rutas de los iconos.
 * Iconos: CommunityDragon (copia pública de los archivos del cliente: las mismas imágenes).
-* Builds, runas y hechizos: el paquete público de estadísticas de alto elo (ErizoCoach-datos).
+* Builds, runas y hechizos: el paquete público de estadísticas de alto elo (rama datos del repo).
 
 No necesita el cliente de LoL ni toca tus datos: no escribe nada fuera de ``docs/img`` y
 de la caché en ``build/capturas``.
@@ -72,7 +72,7 @@ OUT = ROOT / "docs" / "img"
 CACHE = ROOT / "build" / "capturas"
 EDGE = Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
 CDRAGON = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/"
-PACK_URL = "https://raw.githubusercontent.com/eriizzo/ErizoCoach-datos/main/estadisticas.json.gz"
+PACK_URL = "https://raw.githubusercontent.com/eriizzo/ErizoCoach/datos/estadisticas.json.gz"
 ASSETS = "/lol-game-data/assets/"
 SR = QueueInfo(420, "Clasificatoria en solitario", "CLASSIC", 11)
 WIDTH, HEIGHT = 1056, 700  # el tamaño con el que se abre la ventana de Erizo Coach
