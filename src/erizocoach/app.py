@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import threading
+from collections.abc import Callable
 from enum import StrEnum
 
+from . import __version__
 from .builds.service import BuildService
 from .bus import EventBus
 from .champselect.tracker import ChampSelectTracker
@@ -37,6 +40,9 @@ from .ui.web.icons import IconProvider
 from .ui.web.presenter import UiPresenter
 from .ui.web.server import UiServer
 from .ui.web.window import AppWindow
+from .update.download import Downloader
+from .update.service import UpdateService, should_check
+from .update.signing_key import PUBLIC_KEY
 
 log = logging.getLogger(__name__)
 ui = logging.getLogger("erizocoach.ui")
@@ -125,6 +131,16 @@ class Application:
             self.window = AppWindow(
                 settings.window_profile_dir, prefer_secondary=settings.window_on_secondary
             )
+        # Cerrar la app (la ventana de escritorio lo cambia por cerrar la ventana)
+        self.quit: Callable[[], None] = self.request_stop
+        # Aviso de versión nueva y actualización con un botón
+        self.updates = UpdateService(
+            self.bus,
+            current_version=__version__,
+            public_key=PUBLIC_KEY,
+            downloader=Downloader(),
+            quit_app=lambda: self.quit(),
+        )
         if demo:
             self.connector.on_connect(self._publish_demo)
 
@@ -150,9 +166,16 @@ class Application:
                 ui.info("Ventana abierta (si la cierras, ábrela con: %s)", self.ui_server.url)
             else:
                 ui.info("Ventana disponible en: %s", self.ui_server.url)
+        updates_task = None
+        if should_check(self.settings, PUBLIC_KEY):
+            updates_task = asyncio.create_task(self.updates.run())
         try:
             await self.connector.run()
         finally:
+            if updates_task is not None:
+                updates_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await updates_task
             if self.window is not None:
                 self.window.close()
             if self.ui_server is not None:

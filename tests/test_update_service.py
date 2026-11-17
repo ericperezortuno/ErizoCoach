@@ -1,0 +1,319 @@
+"""Servicio de actualización: aviso, descarga verificada, instalación y fases seguras."""
+
+from __future__ import annotations
+
+import asyncio
+import sys
+from collections.abc import Awaitable, Callable
+from pathlib import Path
+
+import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+from erizocoach.bus import EventBus
+from erizocoach.config import Settings, load_settings
+from erizocoach.events import (
+    ClientConnected,
+    ClientDisconnected,
+    GameflowPhaseChanged,
+    UpdateRequested,
+    UpdateState,
+    UpdateStatus,
+)
+from erizocoach.models import ClientInfo, GameflowPhase
+from erizocoach.update import service as service_module
+from erizocoach.update.download import MANIFEST_URL
+from erizocoach.update.manifest import Manifest, UpdateError, encode_manifest, sign
+from erizocoach.update.service import UpdateService, should_check
+
+SHA = "b" * 64
+CURRENT = "0.22.0"
+
+
+def _keys() -> tuple[bytes, bytes]:
+    key = Ed25519PrivateKey.generate()
+    private = key.private_bytes(
+        serialization.Encoding.Raw,
+        serialization.PrivateFormat.Raw,
+        serialization.NoEncryption(),
+    )
+    public = key.public_key().public_bytes(
+        serialization.Encoding.Raw, serialization.PublicFormat.Raw
+    )
+    return private, public
+
+
+PRIVATE, PUBLIC = _keys()
+
+
+def _manifest(version: str = "0.23.0") -> Manifest:
+    return Manifest(
+        version=version,
+        installer=f"Instalar-Erizo-Coach-{version}.exe",
+        size=1234,
+        sha256=SHA,
+        notes="Novedades",
+        published="2026-11-17",
+    )
+
+
+class FakeDownloader:
+    def __init__(self, manifest: Manifest | None, *, signature: bytes | None = None) -> None:
+        self.data = encode_manifest(manifest) if manifest else None
+        if signature is None and self.data is not None:
+            signature = sign(self.data, PRIVATE)
+        self.signature = signature
+        self.files: list[Path] = []
+        self.fail: UpdateError | None = None
+        self.on_download: Callable[[], Awaitable[None]] | None = None
+
+    async def fetch(self, url: str, limit: int) -> bytes | None:
+        return self.data if url == MANIFEST_URL else self.signature
+
+    async def to_file(self, url, path, size, sha256, progress) -> None:  # type: ignore[no-untyped-def]
+        await progress(size // 2)
+        if self.on_download is not None:
+            await self.on_download()
+        if self.fail is not None:
+            raise self.fail
+        path.write_bytes(b"MZ")
+        self.files.append(path)
+
+
+class Harness:
+    def __init__(self, tmp_path: Path, downloader: FakeDownloader) -> None:
+        self.bus = EventBus()
+        self.statuses: list[UpdateStatus] = []
+        self.calls: list[str] = []
+        self.launched: list[Path] = []
+        self.launch_error: OSError | None = None
+        self.download_dir = tmp_path / "descargas"
+        self.bus.subscribe(UpdateStatus, self._on_status)
+        self.service = UpdateService(
+            self.bus,
+            current_version=CURRENT,
+            public_key=PUBLIC,
+            downloader=downloader,  # type: ignore[arg-type]
+            download_dir=self.download_dir,
+            launch_installer=self._launch,
+            quit_app=lambda: self.calls.append("quit"),
+        )
+
+    def _on_status(self, status: UpdateStatus) -> None:
+        self.statuses.append(status)
+        self.calls.append(status.state.value)
+
+    def _launch(self, path: Path) -> None:
+        if self.launch_error is not None:
+            raise self.launch_error
+        self.launched.append(path)
+        self.calls.append("launch")
+
+    async def phase(self, phase: GameflowPhase) -> None:
+        await self.bus.publish(ClientConnected(ClientInfo("16.1", "EUW", "es_ES")))
+        await self.bus.publish(GameflowPhaseChanged(GameflowPhase.NONE, phase))
+
+    async def announce(self) -> None:
+        assert await self.service.check() is not None
+
+    async def request(self) -> None:
+        await self.bus.publish(UpdateRequested())
+
+
+async def test_newer_version_is_announced(tmp_path: Path) -> None:
+    h = Harness(tmp_path, FakeDownloader(_manifest("0.23.0")))
+    manifest = await h.service.check()
+    assert manifest is not None and manifest.version == "0.23.0"
+    assert h.statuses == [
+        UpdateStatus(version="0.23.0", notes="Novedades", state=UpdateState.AVAILABLE)
+    ]
+
+
+@pytest.mark.parametrize("version", ["0.22.0", "0.21.9", "0.9.0"])
+async def test_same_or_older_version_is_ignored(tmp_path: Path, version: str) -> None:
+    h = Harness(tmp_path, FakeDownloader(_manifest(version)))
+    assert await h.service.check() is None
+    assert h.statuses == []
+
+
+async def test_bad_signature_is_ignored(tmp_path: Path) -> None:
+    other_private, _ = _keys()
+    data = encode_manifest(_manifest())
+    h = Harness(tmp_path, FakeDownloader(_manifest(), signature=sign(data, other_private)))
+    assert await h.service.check() is None
+    assert h.statuses == []
+
+
+async def test_missing_manifest_is_silent(tmp_path: Path) -> None:
+    h = Harness(tmp_path, FakeDownloader(None))
+    assert await h.service.check() is None
+    assert h.statuses == []
+
+
+async def test_network_error_in_check_is_silent(tmp_path: Path) -> None:
+    class Broken(FakeDownloader):
+        async def fetch(self, url: str, limit: int) -> bytes | None:
+            raise UpdateError("sin red")
+
+    h = Harness(tmp_path, Broken(_manifest()))
+    assert await h.service.check() is None
+    assert h.statuses == []
+
+
+async def test_update_downloads_verifies_launches_and_quits(tmp_path: Path) -> None:
+    h = Harness(tmp_path, FakeDownloader(_manifest()))
+    await h.announce()
+    h.calls.clear()
+    await h.request()
+    assert h.calls == ["downloading", "downloading", "launch", "installing", "quit"]
+    downloading = [s for s in h.statuses if s.state is UpdateState.DOWNLOADING]
+    assert [s.progress for s in downloading] == [0, 50]
+    (path,) = h.launched
+    assert path.parent == h.download_dir
+    assert path.name == "Instalar-Erizo-Coach-0.23.0.exe"
+    assert path.exists()
+
+
+async def test_request_without_announced_update_does_nothing(tmp_path: Path) -> None:
+    h = Harness(tmp_path, FakeDownloader(_manifest()))
+    await h.request()
+    assert h.statuses == [] and h.calls == []
+
+
+async def test_request_in_unsafe_phase_is_refused(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    await h.phase(GameflowPhase.CHAMP_SELECT)
+    h.calls.clear()
+    await h.request()
+    assert downloader.files == [] and "quit" not in h.calls
+    assert h.statuses[-1].state is UpdateState.FAILED
+    assert h.statuses[-1].error
+
+
+@pytest.mark.parametrize(
+    "phase", [GameflowPhase.NONE, GameflowPhase.LOBBY, GameflowPhase.END_OF_GAME]
+)
+async def test_safe_phases_allow_update(tmp_path: Path, phase: GameflowPhase) -> None:
+    h = Harness(tmp_path, FakeDownloader(_manifest()))
+    await h.announce()
+    await h.phase(phase)
+    await h.request()
+    assert h.calls[-1] == "quit"
+
+
+async def test_disconnected_is_safe(tmp_path: Path) -> None:
+    h = Harness(tmp_path, FakeDownloader(_manifest()))
+    assert h.service.safe
+    await h.phase(GameflowPhase.IN_PROGRESS)
+    assert not h.service.safe
+    await h.bus.publish(ClientDisconnected())
+    assert h.service.safe
+
+
+async def test_phase_turns_unsafe_during_download(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    await h.phase(GameflowPhase.LOBBY)
+
+    async def start_champ_select() -> None:
+        await h.bus.publish(GameflowPhaseChanged(GameflowPhase.LOBBY, GameflowPhase.CHAMP_SELECT))
+
+    downloader.on_download = start_champ_select
+    await h.request()
+    assert h.launched == [] and "quit" not in h.calls
+    assert h.statuses[-1].state is UpdateState.FAILED
+    assert "partida" in h.statuses[-1].error
+    assert list(h.download_dir.glob("*.exe")) == []
+
+
+async def test_failed_download_reports_and_allows_retry(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    downloader.fail = UpdateError("Descarga cortada")
+    await h.request()
+    assert h.statuses[-1].state is UpdateState.FAILED
+    assert h.statuses[-1].error and h.launched == []
+    downloader.fail = None
+    await h.request()
+    assert h.calls[-1] == "quit"
+
+
+async def test_launch_failure_reports_and_does_not_quit(tmp_path: Path) -> None:
+    h = Harness(tmp_path, FakeDownloader(_manifest()))
+    await h.announce()
+    h.launch_error = OSError("bloqueado")
+    await h.request()
+    assert h.statuses[-1].state is UpdateState.FAILED
+    assert h.statuses[-1].error and "quit" not in h.calls
+
+
+async def test_requests_during_update_are_ignored(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    downloader.on_download = h.request
+    await h.request()
+    assert len(downloader.files) == 1 and h.calls.count("quit") == 1
+
+
+async def test_run_checks_after_first_delay_then_every_interval(tmp_path: Path) -> None:
+    sleeps: list[float] = []
+
+    async def fake_sleep(seconds: float) -> None:
+        sleeps.append(seconds)
+        if len(sleeps) == 3:
+            raise asyncio.CancelledError
+
+    service = UpdateService(
+        EventBus(),
+        current_version=CURRENT,
+        public_key=PUBLIC,
+        downloader=FakeDownloader(None),  # type: ignore[arg-type]
+        download_dir=tmp_path / "descargas",
+        launch_installer=lambda p: None,
+        quit_app=lambda: None,
+        sleep=fake_sleep,
+    )
+    with pytest.raises(asyncio.CancelledError):
+        await service.run()
+    assert sleeps == [30.0, 6 * 3600, 6 * 3600]
+
+
+def test_should_check_only_in_frozen_app_with_key(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    settings = Settings(data_dir=tmp_path)
+    monkeypatch.setattr(sys, "frozen", False, raising=False)
+    assert not should_check(settings, PUBLIC)
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    assert should_check(settings, PUBLIC)
+    assert not should_check(settings, b"")
+    assert not should_check(Settings(data_dir=tmp_path, update_check=False), PUBLIC)
+
+
+def test_update_check_setting(tmp_path: Path) -> None:
+    settings, _ = load_settings(data_dir=tmp_path)
+    assert settings.update_check is True
+    (tmp_path / "config.toml").write_text("update_check = false\n")
+    settings, warnings = load_settings(data_dir=tmp_path)
+    assert settings.update_check is False
+    assert warnings == []
+
+
+def test_launch_installer_detached_passes_pid(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_popen(args, **kwargs):  # type: ignore[no-untyped-def]
+        captured["args"], captured["kwargs"] = args, kwargs
+
+    monkeypatch.setattr(service_module.subprocess, "Popen", fake_popen)
+    service_module.launch_installer_detached(Path("C:/x/Instalar.exe"))
+    args = captured["args"]
+    assert args[1] == "--actualizar" and args[2].isdigit()  # type: ignore[index]
+    flags = captured["kwargs"]["creationflags"]  # type: ignore[index]
+    assert flags & 0x00000008 and flags & 0x00000200

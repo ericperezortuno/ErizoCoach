@@ -21,6 +21,7 @@ Todo funciona sin configurar nada. Opcionalmente se puede crear
     stats_auto_download = true # descargar estadísticas solo, con la app abierta
     stats_target_matches = 20000 # partidas por parche a partir de las que se para
     stats_shared = true        # sin clave (o pocos datos): usar las estadísticas compartidas
+    update_check = true        # avisar de las versiones nuevas (solo en la app instalada)
 
 Para publicar tus estadísticas para los demás (ver ``stats/publish.py``)::
 
@@ -110,6 +111,7 @@ class Settings:
     stats_shared: bool = True  # usar las estadísticas compartidas si faltan las propias
     stats_publish_repo: str = ""  # publicar las propias (vacío = no se publica)
     stats_publish_key: Path | None = None  # clave SSH con escritura en ese repositorio
+    update_check: bool = True  # comprobar si hay una versión nueva (solo en la app instalada)
 
     @property
     def window_profile_dir(self) -> Path:
@@ -177,6 +179,7 @@ def load_settings(
         min_games = 20
     auto_download = _bool(values, "stats_auto_download", True, warnings)
     shared = _bool(values, "stats_shared", True, warnings)
+    update_check = _bool(values, "update_check", True, warnings)
     publish_repo = values.get("stats_publish_repo", "")
     publish_key = values.get("stats_publish_key", "")
     if not isinstance(publish_repo, str) or not isinstance(publish_key, str):
@@ -232,6 +235,7 @@ def load_settings(
         stats_shared=shared,
         stats_publish_repo=publish_repo,
         stats_publish_key=Path(publish_key) if publish_key else None,
+        update_check=update_check,
     )
     return settings, warnings
 

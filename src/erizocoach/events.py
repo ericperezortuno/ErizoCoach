@@ -220,3 +220,26 @@ class CountersUpdated:
     picks: tuple[CounterPick, ...]
     mine: CounterPick | None = None  # ya has bloqueado: cómo va tu enfrentamiento
     locked: bool = False
+
+
+class UpdateState(StrEnum):
+    AVAILABLE = "available"  # hay una versión nueva y se puede instalar
+    DOWNLOADING = "downloading"
+    INSTALLING = "installing"  # instalador lanzado: la app se cierra
+    FAILED = "failed"
+
+
+@dataclass(frozen=True, slots=True)
+class UpdateStatus:
+    """Estado de la actualización para la ventana (``progress`` de 0 a 100)."""
+
+    version: str
+    notes: str
+    state: UpdateState
+    progress: int = 0
+    error: str = ""  # texto para el usuario cuando ``state`` es FAILED
+
+
+@dataclass(frozen=True, slots=True)
+class UpdateRequested:
+    """El usuario ha pulsado «Actualizar»."""
