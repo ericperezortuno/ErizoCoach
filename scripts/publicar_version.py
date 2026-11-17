@@ -20,7 +20,6 @@ import base64
 import getpass
 import hashlib
 import json
-import logging
 import shutil
 import subprocess
 import sys
@@ -34,6 +33,7 @@ from pathlib import Path
 from typing import Any
 
 import keyring
+import keyring.errors
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
@@ -53,8 +53,6 @@ from erizocoach.update.manifest import (  # noqa: E402
     sign,
     verify_manifest,
 )
-
-log = logging.getLogger(__name__)
 
 SERVICE = "ErizoCoach-publicar"
 TOKEN_ACCOUNT = "github_token"
@@ -103,10 +101,21 @@ def preflight(version: str, run_git: RunGit = run_git) -> list[str]:
                 f"La etiqueta {tag} no apunta al commit actual: "
                 "publica desde ese commit o vuelve a etiquetar."
             )
-    code, out = run_git(["ls-remote", "--tags", "origin", f"refs/tags/{tag}"])
-    if code != 0 or not out.strip():
+    remote = _remote_tag_commit(tag, run_git)
+    if remote is None:
         problems.append(f"La etiqueta {tag} no está en origin («git push origin {tag}»).")
+    elif code == 0 and remote != tagged.strip():
+        problems.append(f"La etiqueta {tag} de origin apunta a otro commit que la local.")
     return problems
+
+
+def _remote_tag_commit(tag: str, run_git: RunGit) -> str | None:
+    """Commit al que apunta la etiqueta en origin (``None`` si no está)."""
+    for pattern in (f"refs/tags/{tag}^{{}}", f"refs/tags/{tag}"):  # anotada y ligera
+        code, out = run_git(["ls-remote", "origin", pattern])
+        if code == 0 and out.strip():
+            return out.split()[0]
+    return None
 
 
 def release_notes(tag: str, run_git: RunGit = run_git) -> str:
@@ -120,8 +129,18 @@ def release_notes(tag: str, run_git: RunGit = run_git) -> str:
 # --- Claves y token ----------------------------------------------------------------------------
 
 
-def create_signing_key(key_file: Path = SIGNING_KEY_FILE, store: Any = keyring) -> str:
+def create_signing_key(
+    key_file: Path = SIGNING_KEY_FILE,
+    store: Any = keyring,
+    current_public: bytes | None = None,
+) -> str:
     """Genera el par Ed25519: privada al keyring, pública (hex) en ``key_file``. Devuelve la hex."""
+    if signing_key.PUBLIC_KEY if current_public is None else current_public:
+        raise PublishError(
+            "El proyecto ya tiene una clave pública: con una clave nueva todas las copias "
+            "instaladas rechazarían las próximas actualizaciones. Si de verdad quieres "
+            "rotarla, edita signing_key.py a mano."
+        )
     if store.get_password(SERVICE, KEY_ACCOUNT):
         raise PublishError("Ya existe una clave de firma en el Administrador de credenciales.")
     private = Ed25519PrivateKey.generate()
@@ -131,16 +150,28 @@ def create_signing_key(key_file: Path = SIGNING_KEY_FILE, store: Any = keyring) 
         serialization.NoEncryption(),
     )
     public_hex = private.public_key().public_bytes_raw().hex()
-    store.set_password(SERVICE, KEY_ACCOUNT, base64.b64encode(raw_private).decode("ascii"))
-    key_file.write_text(
+    previous = key_file.read_text(encoding="utf-8") if key_file.exists() else None
+    key_file.write_text(_signing_key_module(public_hex), encoding="utf-8")
+    try:
+        store.set_password(SERVICE, KEY_ACCOUNT, base64.b64encode(raw_private).decode("ascii"))
+    except BaseException:
+        if previous is None:
+            key_file.unlink(missing_ok=True)
+        else:
+            key_file.write_text(previous, encoding="utf-8")
+        raise
+    return public_hex
+
+
+def _signing_key_module(public_hex: str) -> str:
+    """Texto de ``signing_key.py`` tal como lo deja ``ruff format``."""
+    return (
         '"""Clave pública Ed25519 con la que se comprueba el manifiesto de actualización.\n\n'
         "La escribe `scripts/publicar_version.py --crear-clave`; la privada no está en el repo.\n"
         '"""\n\n'
         "from __future__ import annotations\n\n"
-        f'PUBLIC_KEY: bytes = bytes.fromhex("{public_hex}")\n',
-        encoding="utf-8",
+        f'PUBLIC_KEY: bytes = bytes.fromhex(\n    "{public_hex}"\n)\n'
     )
-    return public_hex
 
 
 def store_token(store: Any = keyring, ask: Callable[[str], str] = getpass.getpass) -> None:
@@ -149,16 +180,6 @@ def store_token(store: Any = keyring, ask: Callable[[str], str] = getpass.getpas
     if not token:
         raise PublishError("El token está vacío; no se ha guardado nada.")
     store.set_password(SERVICE, TOKEN_ACCOUNT, token)
-
-
-def read_public_key(key_file: Path) -> bytes:
-    """Lee la clave pública hex de un ``signing_key.py`` (para pruebas y comprobaciones)."""
-    text = key_file.read_text(encoding="utf-8")
-    start = text.find('bytes.fromhex("')
-    if start < 0:
-        return b""
-    start += len('bytes.fromhex("')
-    return bytes.fromhex(text[start : text.index('"', start)])
 
 
 def _private_key(store: Any) -> bytes:
@@ -214,40 +235,72 @@ class GitHubReleases:
             request.add_header("Content-Type", content_type)
         return self._opener(request, timeout=HTTP_TIMEOUT)
 
+    def _send(
+        self,
+        url: str,
+        method: str,
+        what: str,
+        data: bytes | None = None,
+        content_type: str | None = None,
+        allow_404: bool = False,
+    ) -> tuple[int, bytes]:
+        """Hace la petición y devuelve (estado, cuerpo); los fallos son ``PublishError``."""
+        try:
+            with self._request(url, method, data, content_type) as response:
+                status, body = response.status, response.read()
+        except urllib.error.HTTPError as exc:
+            if allow_404 and exc.code == 404:
+                return 404, b""
+            raise PublishError(f"GitHub ha rechazado {what} ({exc.code}).") from exc
+        except OSError as exc:  # conexión cortada, tiempo agotado, archivo ilegible...
+            raise PublishError(f"No se ha podido {what} ({type(exc).__name__}).") from exc
+        if not 200 <= status < 300:
+            raise PublishError(f"GitHub ha respondido {status} al intentar {what}.")
+        return status, body
+
     def release_exists(self, tag: str) -> bool:
         url = f"{API}/repos/{self._repo}/releases/tags/{urllib.parse.quote(tag, safe='')}"
-        try:
-            with self._request(url, "GET") as response:
-                return response.status == 200
-        except urllib.error.HTTPError as exc:
-            if exc.code == 404:
-                return False
-            raise PublishError(f"GitHub ha respondido {exc.code} al buscar la release.") from exc
-        except urllib.error.URLError as exc:
-            raise PublishError("No se ha podido conectar con GitHub.") from exc
+        status, _ = self._send(url, "GET", "buscar la release", allow_404=True)
+        return status == 200
 
     def create_release(self, tag: str, name: str, body: str) -> int:
-        payload = json.dumps({"tag_name": tag, "name": name, "body": body}).encode("utf-8")
+        """Crea la release como borrador (no es pública ni «latest» hasta publicarla)."""
+        payload = json.dumps({"tag_name": tag, "name": name, "body": body, "draft": True}).encode(
+            "utf-8"
+        )
+        _, answer = self._send(
+            f"{API}/repos/{self._repo}/releases",
+            "POST",
+            "crear la release",
+            payload,
+            "application/json",
+        )
         try:
-            with self._request(
-                f"{API}/repos/{self._repo}/releases", "POST", payload, "application/json"
-            ) as response:
-                return int(json.loads(response.read())["id"])
-        except urllib.error.HTTPError as exc:
-            raise PublishError(f"GitHub ha rechazado crear la release ({exc.code}).") from exc
-        except (urllib.error.URLError, ValueError, KeyError) as exc:
-            raise PublishError("No se ha podido crear la release en GitHub.") from exc
+            return int(json.loads(answer)["id"])
+        except (ValueError, KeyError, TypeError) as exc:
+            raise PublishError("GitHub ha respondido algo inesperado al crear la release.") from exc
 
     def upload_asset(self, release_id: int, path: Path, name: str, content_type: str) -> None:
         quoted = urllib.parse.quote(name, safe="")
         url = f"{UPLOADS}/repos/{self._repo}/releases/{release_id}/assets?name={quoted}"
         try:
-            with self._request(url, "POST", path.read_bytes(), content_type):
-                pass
-        except urllib.error.HTTPError as exc:
-            raise PublishError(f"GitHub ha rechazado subir {name} ({exc.code}).") from exc
-        except urllib.error.URLError as exc:
-            raise PublishError(f"No se ha podido subir {name} a GitHub.") from exc
+            data = path.read_bytes()
+        except OSError as exc:
+            raise PublishError(f"No se ha podido leer {name}.") from exc
+        self._send(url, "POST", f"subir {name}", data, content_type)
+
+    def publish_release(self, release_id: int) -> None:
+        """Quita el estado de borrador: a partir de aquí la release es pública."""
+        self._send(
+            f"{API}/repos/{self._repo}/releases/{release_id}",
+            "PATCH",
+            "publicar la release",
+            json.dumps({"draft": False}).encode("utf-8"),
+            "application/json",
+        )
+
+    def delete_release(self, release_id: int) -> None:
+        self._send(f"{API}/repos/{self._repo}/releases/{release_id}", "DELETE", "borrar la release")
 
 
 # --- Comprobación final ------------------------------------------------------------------------
@@ -324,6 +377,9 @@ def publish(
     except PublishError as exc:
         print(exc)
         return 1
+    except keyring.errors.KeyringError as exc:
+        print(f"No se ha podido usar el Administrador de credenciales ({type(exc).__name__}).")
+        return 1
     return 0
 
 
@@ -377,20 +433,35 @@ def _publish(
     manifest_file.write_bytes(manifest)
     signature_file.write_bytes(signature)
 
-    print(f"Creando la release {tag}...")
+    print(f"Creando la release {tag} (borrador)...")
     release_id = github.create_release(tag, f"Erizo Coach {version}", notes)
+    # El instalador primero y el manifiesto el último: nadie ve una versión sin instalador.
     uploads = (
-        (manifest_file, MANIFEST_NAME, "application/json"),
-        (signature_file, SIGNATURE_NAME, "text/plain"),
         (installer, installer.name, "application/vnd.microsoft.portable-executable"),
+        (signature_file, SIGNATURE_NAME, "text/plain"),
+        (manifest_file, MANIFEST_NAME, "application/json"),
     )
-    for path, name, content_type in uploads:
-        print(f"Subiendo {name}...")
-        github.upload_asset(release_id, path, name, content_type)
+    try:
+        for path, name, content_type in uploads:
+            print(f"Subiendo {name}...")
+            github.upload_asset(release_id, path, name, content_type)
+        github.publish_release(release_id)
+    except BaseException:
+        _discard_draft(github, release_id, tag)
+        raise
 
     print("Comprobando lo publicado...")
     check_published(version, public)
     print(f"Publicada la versión {version}.")
+
+
+def _discard_draft(github: GitHubReleases, release_id: int, tag: str) -> None:
+    """Borra el borrador si algo ha fallado (mejor esfuerzo) y lo cuenta."""
+    print(f"La release {tag} NO se ha publicado.")
+    try:
+        github.delete_release(release_id)
+    except BaseException:
+        print(f"Puede quedar un borrador {tag} en GitHub > Releases: bórralo a mano.")
 
 
 def main(argv: list[str] | None = None) -> int:
