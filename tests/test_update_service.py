@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 from collections.abc import Awaitable, Callable
 from pathlib import Path
@@ -23,7 +24,7 @@ from erizocoach.events import (
 )
 from erizocoach.models import ClientInfo, GameflowPhase
 from erizocoach.update import service as service_module
-from erizocoach.update.download import MANIFEST_URL
+from erizocoach.update.download import MANIFEST_URL, installer_url
 from erizocoach.update.manifest import Manifest, UpdateError, encode_manifest, sign
 from erizocoach.update.service import UpdateService, should_check
 
@@ -65,24 +66,40 @@ class FakeDownloader:
             signature = sign(self.data, PRIVATE)
         self.signature = signature
         self.files: list[Path] = []
-        self.fail: UpdateError | None = None
+        self.fail: Exception | None = None
         self.on_download: Callable[[], Awaitable[None]] | None = None
+        self.requests: list[tuple[str, int, str]] = []
+        self.manifest_fetches = 0
 
     async def fetch(self, url: str, limit: int) -> bytes | None:
-        return self.data if url == MANIFEST_URL else self.signature
+        if url == MANIFEST_URL:
+            self.manifest_fetches += 1
+            return self.data
+        return self.signature
 
     async def to_file(self, url, path, size, sha256, progress) -> None:  # type: ignore[no-untyped-def]
-        await progress(size // 2)
-        if self.on_download is not None:
-            await self.on_download()
-        if self.fail is not None:
-            raise self.fail
-        path.write_bytes(b"MZ")
+        self.requests.append((url, size, sha256))
+        path.write_bytes(b"MZ")  # a medias
+        try:
+            await progress(50)  # como el Downloader real: porcentaje
+            if self.on_download is not None:
+                await self.on_download()
+            if self.fail is not None:
+                raise self.fail
+            await progress(100)
+        except BaseException:
+            path.unlink(missing_ok=True)  # el Downloader real no deja archivos si falla
+            raise
         self.files.append(path)
 
 
 class Harness:
-    def __init__(self, tmp_path: Path, downloader: FakeDownloader) -> None:
+    def __init__(
+        self,
+        tmp_path: Path,
+        downloader: FakeDownloader,
+        sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
+    ) -> None:
         self.bus = EventBus()
         self.statuses: list[UpdateStatus] = []
         self.calls: list[str] = []
@@ -98,6 +115,7 @@ class Harness:
             download_dir=self.download_dir,
             launch_installer=self._launch,
             quit_app=lambda: self.calls.append("quit"),
+            sleep=sleep,
         )
 
     def _on_status(self, status: UpdateStatus) -> None:
@@ -166,13 +184,16 @@ async def test_network_error_in_check_is_silent(tmp_path: Path) -> None:
 
 
 async def test_update_downloads_verifies_launches_and_quits(tmp_path: Path) -> None:
-    h = Harness(tmp_path, FakeDownloader(_manifest()))
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
     await h.announce()
     h.calls.clear()
     await h.request()
-    assert h.calls == ["downloading", "downloading", "launch", "installing", "quit"]
+    assert h.calls == ["downloading"] * 3 + ["launch", "installing", "quit"]
     downloading = [s for s in h.statuses if s.state is UpdateState.DOWNLOADING]
-    assert [s.progress for s in downloading] == [0, 50]
+    assert [s.progress for s in downloading] == [0, 50, 100]
+    manifest = _manifest()
+    assert downloader.requests == [(installer_url(manifest), manifest.size, manifest.sha256)]
     (path,) = h.launched
     assert path.parent == h.download_dir
     assert path.name == "Instalar-Erizo-Coach-0.23.0.exe"
@@ -254,42 +275,27 @@ async def test_launch_failure_reports_and_does_not_quit(tmp_path: Path) -> None:
     await h.request()
     assert h.statuses[-1].state is UpdateState.FAILED
     assert h.statuses[-1].error and "quit" not in h.calls
-
-
-async def test_requests_during_update_are_ignored(tmp_path: Path) -> None:
-    downloader = FakeDownloader(_manifest())
-    h = Harness(tmp_path, downloader)
-    await h.announce()
-
-    async def again() -> None:
-        await h.bus.publish(UpdateRequested())
-
-    downloader.on_download = again
-    await h.request()
-    assert len(downloader.files) == 1 and h.calls.count("quit") == 1
+    assert list(h.download_dir.glob("*.exe")) == []  # el instalador descargado se borra
 
 
 async def test_run_checks_after_first_delay_then_every_interval(tmp_path: Path) -> None:
-    sleeps: list[float] = []
+    events: list[str] = []
+    downloader = FakeDownloader(None)
 
     async def fake_sleep(seconds: float) -> None:
-        sleeps.append(seconds)
-        if len(sleeps) == 3:
+        events.append(f"sleep {seconds}")
+        events.append(f"fetches {downloader.manifest_fetches}")
+        if events.count("sleep 21600") == 2:
             raise asyncio.CancelledError
 
-    service = UpdateService(
-        EventBus(),
-        current_version=CURRENT,
-        public_key=PUBLIC,
-        downloader=FakeDownloader(None),  # type: ignore[arg-type]
-        download_dir=tmp_path / "descargas",
-        launch_installer=lambda p: None,
-        quit_app=lambda: None,
-        sleep=fake_sleep,
-    )
+    h = Harness(tmp_path, downloader, sleep=fake_sleep)
     with pytest.raises(asyncio.CancelledError):
-        await service.run()
-    assert sleeps == [30.0, 6 * 3600, 6 * 3600]
+        await h.service.run()
+    assert events == [
+        "sleep 30.0", "fetches 0",
+        "sleep 21600", "fetches 1",
+        "sleep 21600", "fetches 2",
+    ]  # fmt: skip
 
 
 def test_should_check_only_in_frozen_app_with_key(
@@ -322,7 +328,7 @@ def test_launch_installer_detached_passes_pid(monkeypatch: pytest.MonkeyPatch) -
     monkeypatch.setattr(service_module.subprocess, "Popen", fake_popen)
     service_module.launch_installer_detached(Path("C:/x/Instalar.exe"))
     args = captured["args"]
-    assert args[1] == "--actualizar" and args[2].isdigit()  # type: ignore[index]
+    assert args == [str(Path("C:/x/Instalar.exe")), "--actualizar", str(os.getpid())]
     flags = captured["kwargs"]["creationflags"]  # type: ignore[index]
     assert flags & 0x00000008 and flags & 0x00000200
 
@@ -346,7 +352,7 @@ async def test_request_returns_before_download_finishes(tmp_path: Path) -> None:
     assert h.calls[-1] == "quit"
 
 
-async def test_second_request_while_in_flight_is_ignored(tmp_path: Path) -> None:
+async def test_requests_during_update_are_ignored(tmp_path: Path) -> None:
     downloader = FakeDownloader(_manifest())
     h = Harness(tmp_path, downloader)
     await h.announce()
@@ -365,9 +371,44 @@ async def test_second_request_while_in_flight_is_ignored(tmp_path: Path) -> None
     assert len(downloader.files) == 1 and h.calls.count("quit") == 1
 
 
-async def test_cancelling_run_cancels_update_in_flight(tmp_path: Path) -> None:
+async def test_check_during_update_does_not_reannounce(tmp_path: Path) -> None:
     downloader = FakeDownloader(_manifest())
     h = Harness(tmp_path, downloader)
+    await h.announce()
+    gate = asyncio.Event()
+
+    async def wait_gate() -> None:
+        await gate.wait()
+
+    downloader.on_download = wait_gate
+    await h.bus.publish(UpdateRequested())
+    await asyncio.sleep(0)
+    before = len(h.statuses)
+    assert await h.service.check() is not None
+    assert len(h.statuses) == before
+    gate.set()
+    await h.request()
+
+
+async def test_connected_without_known_phase_is_not_safe(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    await h.bus.publish(ClientConnected(ClientInfo("16.1", "EUW", "es_ES")))
+    assert not h.service.safe
+    await h.request()
+    assert downloader.files == [] and "quit" not in h.calls
+    assert h.statuses[-1].state is UpdateState.FAILED
+
+
+async def test_cancelling_run_cancels_update_in_flight(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    forever = asyncio.Event()
+
+    async def sleep(_seconds: float) -> None:
+        await forever.wait()
+
+    h = Harness(tmp_path, downloader, sleep=sleep)
     await h.announce()
     started = asyncio.Event()
 
@@ -376,12 +417,6 @@ async def test_cancelling_run_cancels_update_in_flight(tmp_path: Path) -> None:
         await asyncio.Event().wait()
 
     downloader.on_download = block
-    forever = asyncio.Event()
-
-    async def sleep(_seconds: float) -> None:
-        await forever.wait()
-
-    h.service._sleep = sleep  # type: ignore[assignment]
     runner = asyncio.create_task(h.service.run())
     await h.bus.publish(UpdateRequested())
     await started.wait()
@@ -406,4 +441,8 @@ async def test_unexpected_error_in_update_is_logged(
     task = h.service.update_task
     assert task is not None
     await asyncio.wait([task])
-    assert "Fallo inesperado al actualizar" in caplog.text
+    assert "Fallo inesperado al descargar la actualización" in caplog.text
+    assert h.statuses[-1].state is UpdateState.FAILED
+    assert h.statuses[-1].error and "raro" not in h.statuses[-1].error
+    assert h.launched == [] and "quit" not in h.calls
+    assert list(h.download_dir.glob("*.exe")) == []

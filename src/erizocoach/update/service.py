@@ -44,6 +44,10 @@ log = logging.getLogger(__name__)
 SAFE_PHASES = frozenset({GameflowPhase.NONE, GameflowPhase.LOBBY, GameflowPhase.END_OF_GAME})
 MAX_MANIFEST_BYTES = 64 * 1024
 MAX_SIGNATURE_BYTES = 1024
+DOWNLOAD_MESSAGE = (
+    "No se ha podido descargar la actualización. Comprueba tu conexión y vuelve a intentarlo."
+)
+UNEXPECTED_MESSAGE = "No se ha podido actualizar. Vuelve a intentarlo."
 UNSAFE_MESSAGE = "Se ha empezado una partida: actualiza cuando vuelvas al menú."
 
 
@@ -105,6 +109,7 @@ class UpdateService:
 
     def _on_connected(self, _event: ClientConnected) -> None:
         self._connected = True
+        self._phase = GameflowPhase.UNKNOWN  # hasta saber la fase real, no es seguro
 
     def _on_disconnected(self, _event: ClientDisconnected) -> None:
         self._connected = False
@@ -122,6 +127,10 @@ class UpdateService:
                 await self._sleep(self._interval)
         finally:  # la app se cierra: una actualización a medias se cancela (sin archivo suelto)
             await self._cancel_update()
+
+    @property
+    def _updating(self) -> bool:
+        return self._update_task is not None and not self._update_task.done()
 
     @property
     def update_task(self) -> asyncio.Task[None] | None:
@@ -147,10 +156,11 @@ class UpdateService:
             log.debug("Sin comprobación de versión: %s", exc)
             return None
         except Exception:  # un fallo aquí nunca debe tumbar la app
-            log.debug("Fallo inesperado al buscar versión nueva", exc_info=True)
+            log.warning("Fallo inesperado al buscar versión nueva", exc_info=True)
             return None
         self._available = manifest
-        await self._status(manifest, UpdateState.AVAILABLE)
+        if not self._updating:  # con una descarga en marcha, la ventana sigue con su progreso
+            await self._status(manifest, UpdateState.AVAILABLE)
         return manifest
 
     async def _fetch_manifest(self) -> Manifest | None:
@@ -178,7 +188,7 @@ class UpdateService:
     def _on_requested(self, _event: UpdateRequested) -> None:
         """Arranca la actualización en segundo plano: quien publica el evento no espera."""
         manifest = self._available
-        if manifest is None or (self._update_task is not None and not self._update_task.done()):
+        if manifest is None or self._updating:
             return
         self._update_task = asyncio.create_task(self._update(manifest))
         self._update_task.add_done_callback(self._log_failure)
@@ -197,21 +207,20 @@ class UpdateService:
         try:
             await asyncio.to_thread(self._download_dir.mkdir, parents=True, exist_ok=True)
             await self._status(manifest, UpdateState.DOWNLOADING, 0)
-            last = 0
 
-            async def progress(done: int) -> None:
-                nonlocal last
-                percent = min(100, done * 100 // manifest.size) if manifest.size else 0
-                if percent != last:
-                    last = percent
-                    await self._status(manifest, UpdateState.DOWNLOADING, percent)
+            async def progress(percent: int) -> None:  # el Downloader ya avisa en porcentaje
+                await self._status(manifest, UpdateState.DOWNLOADING, percent)
 
             await self._downloader.to_file(
                 installer_url(manifest), path, manifest.size, manifest.sha256, progress
             )
         except (UpdateError, OSError) as exc:
             log.warning("Descarga de la actualización fallida: %s", exc)
-            await self._fail(manifest, f"No se ha podido descargar la actualización: {exc}", path)
+            await self._fail(manifest, DOWNLOAD_MESSAGE, path)
+            return
+        except Exception:  # un fallo inesperado no debe dejar la ventana a medias
+            log.exception("Fallo inesperado al descargar la actualización")
+            await self._fail(manifest, UNEXPECTED_MESSAGE, path)
             return
         if not self.safe:  # la fase pudo cambiar durante la descarga
             await self._fail(manifest, UNSAFE_MESSAGE, path)
