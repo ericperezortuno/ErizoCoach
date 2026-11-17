@@ -14,6 +14,10 @@ Se construye con ``uv run python scripts/build_installer.py`` y lleva dentro la 
   que el archivo está firmado por Microsoft y lo instala para tu usuario. Si no puede (por
   ejemplo, sin internet), Erizo Coach funciona igual: abre su ventana con Edge.
 
+Con ``--actualizar <pid>`` (lo usa el botón «Actualizar» de la app) no pregunta nada: espera a que
+se cierre el proceso ``<pid>``, instala con su ventanita de progreso y vuelve a abrir Erizo Coach.
+Solo avisa si algo falla.
+
 Solo usa la biblioteca estándar de Python (``ctypes`` y ``tkinter`` para las ventanas).
 """
 
@@ -55,6 +59,11 @@ WEBVIEW2_MAX_BYTES = 20_000_000  # el bootstrapper ocupa ~2 MB; más es que algo
 WEBVIEW2_DOWNLOAD_TIMEOUT = 60  # segundos sin respuesta
 WEBVIEW2_INSTALL_TIMEOUT = 15 * 60  # descarga el motor (~150 MB) e instala
 MICROSOFT_SIGNER = "O=Microsoft Corporation"
+
+UPDATE_FLAG = "--actualizar"
+UPDATE_WAIT_SECONDS = 30  # lo que se espera a que la app se cierre antes de instalar
+SYNCHRONIZE = 0x00100000
+WAIT_OBJECT_0 = 0
 
 MB_OK, MB_YESNO, MB_ICONINFO, MB_ICONWARN, MB_ICONERROR, IDYES = 0, 4, 0x40, 0x30, 0x10, 6
 CREATE_NO_WINDOW = 0x08000000
@@ -370,6 +379,87 @@ def bundled(name: str) -> Path:
     return Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / name
 
 
+def wait_for_exit(pid: int, timeout: float) -> bool:
+    """Espera hasta ``timeout`` segundos a que termine el proceso ``pid``.
+
+    Devuelve ``True`` si ya no existe (o acaba a tiempo) y ``False`` si sigue abierto.
+    """
+    if sys.platform != "win32":
+        return True
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+    kernel32.OpenProcess.restype = wintypes.HANDLE
+    kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+    kernel32.WaitForSingleObject.restype = wintypes.DWORD
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.CloseHandle.restype = wintypes.BOOL
+    handle = kernel32.OpenProcess(SYNCHRONIZE, False, pid)
+    if not handle:  # no se puede abrir: el proceso ya no existe
+        return True
+    try:
+        return kernel32.WaitForSingleObject(handle, int(timeout * 1000)) == WAIT_OBJECT_0
+    finally:
+        kernel32.CloseHandle(handle)
+
+
+def install_all(version: str, needs_webview2: bool) -> tuple[Path, str | None] | None:
+    """Instala con la ventanita de progreso (y WebView2 si falta).
+
+    Devuelve ``(ejecutable, problema_con_webview2)``, o ``None`` si ha fallado (y ya se ha
+    avisado). Un problema con WebView2 no es un fallo: la app abre su ventana con Edge.
+    """
+
+    def work(say: Callable[[str], None]) -> tuple[Path, str | None]:
+        exe = install(bundled(PAYLOAD), default_places(), version)
+        if not needs_webview2:
+            return exe, None
+        say(
+            "Descargando e instalando WebView2 de Microsoft…\n"
+            "Puede tardar unos minutos según tu conexión."
+        )
+        try:
+            with tempfile.TemporaryDirectory(prefix="erizocoach-") as tmp:
+                install_webview2(Path(tmp))
+        except Exception as exc:
+            return exe, str(exc)
+        return exe, None
+
+    try:
+        return with_progress(f"Instalando {APP_NAME} {version}…", work)
+    except InstallError as exc:
+        message(str(exc), MB_OK | MB_ICONWARN)
+    except Exception as exc:  # p. ej., sin permiso para escribir: que se vea el motivo
+        message(f"No se ha podido instalar: {exc}", MB_OK | MB_ICONERROR)
+    return None
+
+
+def reopen(exe: Path) -> None:
+    # A través del Explorador: así la app no hereda el entorno temporal del instalador.
+    subprocess.Popen(["explorer.exe", str(exe)], creationflags=CREATE_NO_WINDOW)
+
+
+def update(args: list[str], version: str) -> int:
+    """Modo ``--actualizar <pid>``: sin preguntas; solo se muestra algo si falla."""
+    pid = int(args[1]) if len(args) == 2 and args[1].isascii() and args[1].isdigit() else 0
+    if pid <= 0:
+        message(f"Uso: {UPDATE_FLAG} <pid de Erizo Coach>", MB_OK | MB_ICONERROR)
+        return 1
+    if not wait_for_exit(pid, UPDATE_WAIT_SECONDS):
+        message(
+            f"{APP_NAME} no se ha cerrado: ciérralo y vuelve a pulsar Actualizar.",
+            MB_OK | MB_ICONWARN,
+        )
+        return 1
+    result = install_all(version, not webview2_installed())
+    if result is None:
+        return 1
+    reopen(result[0])
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     version = bundled(VERSION_FILE).read_text(encoding="utf-8").strip()
@@ -388,6 +478,8 @@ def main(argv: list[str] | None = None) -> int:
         with_progress(f"Instalando {APP_NAME} {version} (prueba)…", work)
         (target.parent / "ventana.txt").write_text(str(shown[0]), encoding="utf-8")
         return 0
+    if args and args[0] == UPDATE_FLAG:
+        return update(args, version)
     needs_webview2 = not webview2_installed()
     question = (
         f"Se va a instalar {APP_NAME} {version} para tu usuario (no hacen falta permisos de "
@@ -403,29 +495,10 @@ def main(argv: list[str] | None = None) -> int:
     if message(question, MB_YESNO | MB_ICONINFO) != IDYES:
         return 0
 
-    def work(say: Callable[[str], None]) -> tuple[Path, str | None]:
-        exe = install(bundled(PAYLOAD), default_places(), version)
-        if not needs_webview2:
-            return exe, None
-        say(
-            "Descargando e instalando WebView2 de Microsoft…\n"
-            "Puede tardar unos minutos según tu conexión."
-        )
-        try:
-            with tempfile.TemporaryDirectory(prefix="erizocoach-") as tmp:
-                install_webview2(Path(tmp))
-        except Exception as exc:
-            return exe, str(exc)
-        return exe, None
-
-    try:
-        exe, webview2_problem = with_progress(f"Instalando {APP_NAME} {version}…", work)
-    except InstallError as exc:
-        message(str(exc), MB_OK | MB_ICONWARN)
+    result = install_all(version, needs_webview2)
+    if result is None:
         return 1
-    except Exception as exc:  # p. ej., sin permiso para escribir: que se vea el motivo
-        message(f"No se ha podido instalar: {exc}", MB_OK | MB_ICONERROR)
-        return 1
+    exe, webview2_problem = result
     done = f"{APP_NAME} {version} está instalado.\n\n"
     if webview2_problem:
         done += (
@@ -439,8 +512,7 @@ def main(argv: list[str] | None = None) -> int:
         "¿Quieres abrirlo ahora?"
     )
     if message(done, MB_YESNO | MB_ICONINFO) == IDYES:
-        # A través del Explorador: así la app no hereda el entorno temporal del instalador.
-        subprocess.Popen(["explorer.exe", str(exe)], creationflags=CREATE_NO_WINDOW)
+        reopen(exe)
     return 0
 
 

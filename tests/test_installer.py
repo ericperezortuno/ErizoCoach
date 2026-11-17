@@ -258,6 +258,128 @@ def test_installer_still_works_if_webview2_cannot_be_installed(
     assert seen["opened"]  # Erizo Coach queda instalado y se puede abrir
 
 
+def run_update(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    args: list[str],
+    *,
+    exited: bool = True,
+    has_webview2: bool = True,
+    install_error: Exception | None = None,
+):  # type: ignore[no-untyped-def]
+    """Ejecuta el instalador en modo ``--actualizar``; devuelve (código, qué pasó)."""
+    seen: dict[str, list] = {"messages": [], "waits": [], "installs": [], "opened": []}
+    monkeypatch.setattr(installer, "bundled", lambda name: tmp_path / name)
+    (tmp_path / installer.VERSION_FILE).write_text("9.9.9", encoding="utf-8")
+    monkeypatch.setattr(installer, "default_places", lambda: None)
+
+    def fake_install(*_a: object, **_kw: object) -> Path:
+        seen["installs"].append(1)
+        if install_error:
+            raise install_error
+        return tmp_path / "Erizo Coach.exe"
+
+    def fake_wait(pid: int, timeout: float) -> bool:
+        seen["waits"].append((pid, timeout))
+        return exited
+
+    def fake_message(text: str, flags: int = 0) -> int:
+        seen["messages"].append((text, flags))
+        return installer.IDYES
+
+    def fake_webview2(_work: Path) -> None:
+        raise installer.InstallError("sin conexión")
+
+    monkeypatch.setattr(installer, "install", fake_install)
+    monkeypatch.setattr(installer, "wait_for_exit", fake_wait)
+    monkeypatch.setattr(installer, "message", fake_message)
+    monkeypatch.setattr(installer, "webview2_installed", lambda: has_webview2)
+    monkeypatch.setattr(installer, "install_webview2", fake_webview2)
+    monkeypatch.setattr(installer, "with_progress", lambda _text, work: work(lambda _t: None))
+    monkeypatch.setattr(
+        installer.subprocess, "Popen", lambda args, **_kw: seen["opened"].append(args)
+    )
+    return installer.main(args), seen
+
+
+def test_update_mode_installs_without_asking_and_reopens(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    code, seen = run_update(monkeypatch, tmp_path, ["--actualizar", "1234"])
+    assert code == 0
+    assert seen["installs"] and seen["messages"] == []  # ni pregunta ni mensaje final
+    assert seen["opened"] == [["explorer.exe", str(tmp_path / "Erizo Coach.exe")]]
+
+
+def test_update_mode_waits_for_the_app(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _, seen = run_update(monkeypatch, tmp_path, ["--actualizar", "1234"])
+    assert seen["waits"] == [(1234, 30)]
+
+
+def test_update_mode_app_still_open_warns_and_does_not_install(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    code, seen = run_update(monkeypatch, tmp_path, ["--actualizar", "1234"], exited=False)
+    assert code == 1
+    assert not seen["installs"] and not seen["opened"]
+    assert len(seen["messages"]) == 1 and "no se ha cerrado" in seen["messages"][0][0]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [["--actualizar", "abc"], ["--actualizar", "0"], ["--actualizar"], ["--actualizar", "-5"],
+     ["--actualizar", "1", "2"]],
+)  # fmt: skip
+def test_update_mode_bad_pid_argument(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, args: list[str]
+) -> None:
+    code, seen = run_update(monkeypatch, tmp_path, args)
+    assert code == 1
+    assert not seen["installs"] and not seen["waits"] and not seen["opened"]
+    assert len(seen["messages"]) == 1
+
+
+def test_update_mode_webview2_problem_is_silent_and_still_reopens(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    code, seen = run_update(monkeypatch, tmp_path, ["--actualizar", "7"], has_webview2=False)
+    assert code == 0 and seen["messages"] == [] and seen["opened"]
+
+
+def test_update_mode_install_error_warns_and_does_not_reopen(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    err = installer.InstallError("Erizo Coach está abierto")
+    code, seen = run_update(monkeypatch, tmp_path, ["--actualizar", "7"], install_error=err)
+    assert code == 1 and not seen["opened"]
+    assert seen["messages"] == [
+        ("Erizo Coach está abierto", installer.MB_OK | installer.MB_ICONWARN)
+    ]
+
+
+def test_update_mode_unexpected_error_is_shown(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    code, seen = run_update(
+        monkeypatch, tmp_path, ["--actualizar", "7"], install_error=PermissionError("denegado")
+    )
+    assert code == 1 and not seen["opened"]
+    assert "denegado" in seen["messages"][0][0]
+
+
+def test_wait_for_exit_false_while_alive_true_once_gone() -> None:
+    import subprocess
+
+    child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+    try:
+        assert installer.wait_for_exit(child.pid, 0.2) is False
+        child.kill()
+        child.wait()
+        assert installer.wait_for_exit(child.pid, 5) is True
+    finally:
+        child.kill()
+
+
 def test_exe_version_info_matches_the_app_version() -> None:
     """Lo que Windows enseña en Propiedades > Detalles es la versión de verdad."""
     sys.path.insert(0, str(ROOT / "src"))
