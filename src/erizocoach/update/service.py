@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import os
 import shutil
@@ -91,7 +92,7 @@ class UpdateService:
         self._connected = False
         self._phase = GameflowPhase.NONE
         self._available: Manifest | None = None
-        self._busy = False
+        self._update_task: asyncio.Task[None] | None = None
         bus.subscribe(ClientConnected, self._on_connected)
         bus.subscribe(ClientDisconnected, self._on_disconnected)
         bus.subscribe(GameflowPhaseChanged, self._on_phase)
@@ -114,10 +115,25 @@ class UpdateService:
 
     async def run(self) -> None:
         """Comprueba a los ``first_delay`` s y luego cada ``interval`` s (hasta cancelarla)."""
-        await self._sleep(self._first_delay)
-        while True:
-            await self.check()
-            await self._sleep(self._interval)
+        try:
+            await self._sleep(self._first_delay)
+            while True:
+                await self.check()
+                await self._sleep(self._interval)
+        finally:  # la app se cierra: una actualización a medias se cancela (sin archivo suelto)
+            await self._cancel_update()
+
+    @property
+    def update_task(self) -> asyncio.Task[None] | None:
+        """La actualización en curso (o la última), para esperarla en las pruebas."""
+        return self._update_task
+
+    async def _cancel_update(self) -> None:
+        task = self._update_task
+        if task is not None and not task.done():
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
 
     async def check(self) -> Manifest | None:
         """Devuelve el manifiesto si hay una versión más nueva (y la anuncia); si no, ``None``."""
@@ -159,15 +175,18 @@ class UpdateService:
             )
         )
 
-    async def _on_requested(self, _event: UpdateRequested) -> None:
+    def _on_requested(self, _event: UpdateRequested) -> None:
+        """Arranca la actualización en segundo plano: quien publica el evento no espera."""
         manifest = self._available
-        if manifest is None or self._busy:
+        if manifest is None or (self._update_task is not None and not self._update_task.done()):
             return
-        self._busy = True
-        try:
-            await self._update(manifest)
-        finally:
-            self._busy = False
+        self._update_task = asyncio.create_task(self._update(manifest))
+        self._update_task.add_done_callback(self._log_failure)
+
+    @staticmethod
+    def _log_failure(task: asyncio.Task[None]) -> None:
+        if not task.cancelled() and task.exception() is not None:
+            log.error("Fallo inesperado al actualizar", exc_info=task.exception())
 
     async def _update(self, manifest: Manifest) -> None:
         if not self.safe:

@@ -118,7 +118,11 @@ class Harness:
         assert await self.service.check() is not None
 
     async def request(self) -> None:
+        """Pide la actualización y espera a que termine."""
         await self.bus.publish(UpdateRequested())
+        task = self.service.update_task
+        if task is not None:
+            await task
 
 
 async def test_newer_version_is_announced(tmp_path: Path) -> None:
@@ -256,7 +260,11 @@ async def test_requests_during_update_are_ignored(tmp_path: Path) -> None:
     downloader = FakeDownloader(_manifest())
     h = Harness(tmp_path, downloader)
     await h.announce()
-    downloader.on_download = h.request
+
+    async def again() -> None:
+        await h.bus.publish(UpdateRequested())
+
+    downloader.on_download = again
     await h.request()
     assert len(downloader.files) == 1 and h.calls.count("quit") == 1
 
@@ -317,3 +325,85 @@ def test_launch_installer_detached_passes_pid(monkeypatch: pytest.MonkeyPatch) -
     assert args[1] == "--actualizar" and args[2].isdigit()  # type: ignore[index]
     flags = captured["kwargs"]["creationflags"]  # type: ignore[index]
     assert flags & 0x00000008 and flags & 0x00000200
+
+
+async def test_request_returns_before_download_finishes(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    gate = asyncio.Event()
+
+    async def wait_gate() -> None:
+        await gate.wait()
+
+    downloader.on_download = wait_gate
+    await h.bus.publish(UpdateRequested())  # vuelve sin esperar a la descarga
+    task = h.service.update_task
+    assert task is not None and not task.done()
+    assert h.launched == []
+    gate.set()
+    await task
+    assert h.calls[-1] == "quit"
+
+
+async def test_second_request_while_in_flight_is_ignored(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    gate = asyncio.Event()
+
+    async def wait_gate() -> None:
+        await gate.wait()
+
+    downloader.on_download = wait_gate
+    await h.bus.publish(UpdateRequested())
+    first = h.service.update_task
+    await h.bus.publish(UpdateRequested())
+    assert h.service.update_task is first
+    gate.set()
+    await h.request()
+    assert len(downloader.files) == 1 and h.calls.count("quit") == 1
+
+
+async def test_cancelling_run_cancels_update_in_flight(tmp_path: Path) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    started = asyncio.Event()
+
+    async def block() -> None:
+        started.set()
+        await asyncio.Event().wait()
+
+    downloader.on_download = block
+    forever = asyncio.Event()
+
+    async def sleep(_seconds: float) -> None:
+        await forever.wait()
+
+    h.service._sleep = sleep  # type: ignore[assignment]
+    runner = asyncio.create_task(h.service.run())
+    await h.bus.publish(UpdateRequested())
+    await started.wait()
+    task = h.service.update_task
+    assert task is not None
+    runner.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await runner
+    assert task.cancelled()
+    assert h.launched == [] and "quit" not in h.calls
+    assert list(h.download_dir.glob("*.exe")) == []
+
+
+async def test_unexpected_error_in_update_is_logged(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    downloader = FakeDownloader(_manifest())
+    h = Harness(tmp_path, downloader)
+    await h.announce()
+    downloader.fail = RuntimeError("raro")  # type: ignore[assignment]
+    await h.bus.publish(UpdateRequested())
+    task = h.service.update_task
+    assert task is not None
+    await asyncio.wait([task])
+    assert "Fallo inesperado al actualizar" in caplog.text
