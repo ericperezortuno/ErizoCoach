@@ -60,7 +60,7 @@ def allowed_url(
     try:
         parts = urlsplit(url)
         host = parts.hostname
-        parts.port  # noqa: B018 - lanza ValueError si el puerto no es válido
+        _ = parts.port  # lanza ValueError si el puerto no es válido
     except ValueError:
         return False
     if parts.scheme not in schemes or not host:

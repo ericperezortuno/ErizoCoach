@@ -1042,6 +1042,15 @@ function renderTeamGold(teamGold) {
   const says = even ? "Los dos equipos van igualados en oro"
     : diff > 0 ? `Tu equipo lleva ${Math.abs(diff)} de oro más`
       : `Los rivales llevan ${Math.abs(diff)} de oro más`;
+  const total = (teamGold.mine + teamGold.theirs) || 1;
+  const allyShare = Math.min(0.80, Math.max(0.20, teamGold.mine / total));
+  const meter = el("div", { class: "team-gold-meter", "aria-hidden": "true" }, [
+    el("div", { class: classes("meter-bar ally", state) }),
+    el("div", { class: "meter-divider" }),
+    el("div", { class: classes("meter-bar enemy", state) }),
+  ]);
+  meter.style.setProperty("--ally-pct", `${(allyShare * 100).toFixed(1)}%`);
+
   return el("div", { class: "matchup-head team-gold", role: "group", "aria-label": says, title: says }, [
     el("span", { "aria-hidden": "true" }, ["Tu equipo ", el("b", { text: goldAmount(teamGold.mine) })]),
     el("span", { class: classes("gap-value", state), "aria-hidden": "true" }, [
@@ -1050,7 +1059,53 @@ function renderTeamGold(teamGold) {
       diff < 0 && !even ? el("span", { class: "arrow", text: "▶" }) : null,
     ]),
     el("span", { "aria-hidden": "true" }, [el("b", { text: goldAmount(teamGold.theirs) }), " Rivales"]),
+    meter,
   ]);
+}
+
+function setupBrandCheer() {
+  const brand = document.querySelector(".brand");
+  if (!brand || brand.dataset.cheerBound) return;
+  brand.dataset.cheerBound = "true";
+  brand.setAttribute("role", "button");
+  brand.setAttribute("tabindex", "0");
+  brand.title = "¡Haz clic en el erizo!";
+  const cheers = [
+    "¡A pinchar rivales! 🦔✨",
+    "¡Erizo Coach a tu lado!",
+    "¡Hoy se gana!",
+    "¡Buena suerte en la Grieta!",
+    "¡Build optimizada!",
+  ];
+  let cheerIndex = 0;
+  let toastTimer = null;
+  const triggerCheer = () => {
+    brand.classList.remove("cheer");
+    void brand.offsetWidth;
+    brand.classList.add("cheer");
+    setTimeout(() => brand.classList.remove("cheer"), 750);
+
+    const msg = cheers[cheerIndex % cheers.length];
+    cheerIndex++;
+    let toast = document.getElementById("erizo-toast");
+    if (!toast) {
+      toast = el("div", { id: "erizo-toast", class: "erizo-toast", "aria-live": "polite" });
+      document.body.append(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+  };
+  brand.addEventListener("click", triggerCheer);
+  brand.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      triggerCheer();
+    }
+  });
 }
 
 function renderMatchups(matchups, teamGold) {
@@ -1087,6 +1142,7 @@ function renderMatchups(matchups, teamGold) {
   ], { className: "wide lanes" });
 }
 
+setupBrandCheer();
 render({ phaseLabel: "Conectando…", connected: false }, true);
 if (DESKTOP) startDesktop();
 else connect();

@@ -176,6 +176,20 @@ body {
   font: 600 15px/1 var(--font-display);
   color: var(--gold-bright);
   white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 2px 8px 2px 4px;
+  transition: background-color .2s ease;
+}
+
+.brand:hover {
+  background: rgba(200, 170, 110, .10);
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
 }
 
 /* El erizo con su sombrero. Sobresale un poco de la barra sin hacerla más alta. */
@@ -186,6 +200,49 @@ body {
   background: var(--logo-mini) center / contain no-repeat;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .55));
   flex: none;
+  transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), filter .35s ease;
+}
+
+.brand:hover .logo {
+  transform: translateY(-2px) scale(1.18) rotate(-6deg);
+  filter: drop-shadow(0 2px 8px rgba(200, 170, 110, .65));
+}
+
+.brand:active .logo {
+  transform: scale(0.92) rotate(4deg);
+}
+
+.brand.cheer .logo {
+  animation: erizo-spin .65s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+@keyframes erizo-spin {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.3) rotate(180deg) translateY(-4px); filter: drop-shadow(0 0 14px rgba(242, 223, 174, .95)); }
+  100% { transform: scale(1) rotate(360deg); }
+}
+
+.erizo-toast {
+  position: fixed;
+  top: 56px;
+  left: 20px;
+  z-index: 100;
+  pointer-events: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font: 600 13px/1.2 var(--font-display);
+  color: var(--gold-bright);
+  background: var(--navy);
+  border: 1px solid rgba(242, 223, 174, .45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .65), 0 0 16px rgba(200, 170, 110, .35);
+  opacity: 0;
+  transform: translateY(-8px) scale(.92);
+  transition: opacity .25s ease-out, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.erizo-toast.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .status {
@@ -324,7 +381,17 @@ main > .wide { grid-column: 1 / -1; }
 .card.lens h2 { color: var(--gold-bright); }
 
 .card.lens.ready {
-  box-shadow: var(--glass-shadow), var(--glass-inner), 0 0 30px -6px rgba(200, 170, 110, .55);
+  box-shadow: var(--glass-shadow), var(--glass-inner), 0 0 32px -4px rgba(200, 170, 110, .65);
+  animation: pulse-ready 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-ready {
+  0%, 100% {
+    box-shadow: var(--glass-shadow), var(--glass-inner), 0 0 24px -4px rgba(200, 170, 110, .45);
+  }
+  50% {
+    box-shadow: var(--glass-shadow), var(--glass-inner), 0 0 38px -2px rgba(242, 223, 174, .75);
+  }
 }
 
 /* Un único destello cuando cambia la recomendación (nunca en bucle). */
@@ -700,6 +767,47 @@ main > .wide { grid-column: 1 / -1; }
 .team-gold .gap-value.behind { color: var(--red); background: rgba(255, 93, 110, .10); box-shadow: inset 0 0 0 1px rgba(255, 93, 110, .28); }
 .team-gold .gap-value.even { background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10); }
 
+/* Barra dinámica de ventaja de oro entre equipos (tira y afloja) */
+.team-gold-meter {
+  grid-column: 1 / -1;
+  display: flex;
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .08);
+  margin-top: 4px;
+  margin-bottom: 2px;
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .4);
+}
+.team-gold-meter .meter-bar.ally {
+  width: var(--ally-pct, 50%);
+  background: linear-gradient(90deg, #10b981, #34d399);
+  transition: width .7s cubic-bezier(.16, 1, .3, 1);
+  box-shadow: 0 0 8px rgba(52, 211, 153, .4);
+}
+.team-gold-meter .meter-bar.enemy {
+  flex: 1;
+  background: linear-gradient(90deg, #f87171, #ef4444);
+  box-shadow: 0 0 8px rgba(239, 68, 68, .4);
+}
+.team-gold-meter .meter-divider {
+  width: 2px;
+  height: 100%;
+  background: var(--gold-bright);
+  box-shadow: 0 0 4px var(--gold-bright);
+  z-index: 1;
+  flex: none;
+}
+.team-gold-meter .meter-bar.ally.ahead {
+  background: linear-gradient(90deg, #059669, #4fd6a2);
+  box-shadow: 0 0 10px rgba(79, 214, 162, .6);
+}
+.team-gold-meter .meter-bar.enemy.behind {
+  background: linear-gradient(90deg, #ff5d6e, #dc2626);
+  box-shadow: 0 0 10px rgba(255, 93, 110, .6);
+}
+
 /* Estrecha: uno debajo de otro (compañero, diferencia, rival), sin espejo. */
 @media (max-width: 760px) {
   .matchup-head:not(.team-gold) { display: none; }
@@ -990,6 +1098,18 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
   background:
     radial-gradient(circle closest-side, transparent 0 84%, rgba(200, 170, 110, .55) 85% 86.5%, transparent 87.5%),
     radial-gradient(circle closest-side, rgba(200, 170, 110, .2), rgba(200, 170, 110, .06) 62%, transparent 80%);
+  transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), filter .4s ease;
+  animation: float-erizo 4s ease-in-out infinite alternate;
+}
+
+@keyframes float-erizo {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+.emblem:hover {
+  transform: translateY(-8px) scale(1.05);
+  filter: drop-shadow(0 0 16px rgba(200, 170, 110, .4));
 }
 
 /* Marcas del sello: giran un cuarto de vuelta al aparecer (una sola vez). */
@@ -1288,7 +1408,11 @@ button.spell-slot.picking .rune img { box-shadow: 0 0 0 2px var(--gold-bright), 
    cortos que hace app.js se mantienen para que nada aparezca de golpe. */
 @media (prefers-reduced-motion: reduce) {
   .card.lens.fresh::after,
+  .card.lens.ready,
+  .emblem,
+  .brand.cheer .logo,
   .dot.on::after { animation: none; display: none; }
+  .team-gold-meter .meter-bar { transition: none; }
   .scene::after { animation: none; }
   .icon img { transition: none; }
   .icon:hover img { transform: none; }

@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -260,7 +261,47 @@ def test_failed_push_is_retried_later(tmp_path: Path) -> None:
     assert publisher_.maybe_publish(stats("16.22", 500))
 
 
-@pytest.mark.skipif(shutil.which("git") is None, reason="hace falta git")
+def _can_git_push() -> bool:
+    if shutil.which("git") is None:
+        return False
+    try:
+        with tempfile.TemporaryDirectory(prefix="erizo-test-git-") as td:
+            p = Path(td)
+            bare = p / "b.git"
+            work = p / "w"
+            subprocess.run(
+                ["git", "init", "-q", "--bare", str(bare)], check=True, capture_output=True
+            )
+            subprocess.run(["git", "init", "-q", str(work)], check=True, capture_output=True)
+            (work / "f").write_text("x", encoding="utf-8")
+            env = {
+                **os.environ,
+                "GIT_AUTHOR_NAME": "x",
+                "GIT_AUTHOR_EMAIL": "x@x",
+                "GIT_COMMITTER_NAME": "x",
+                "GIT_COMMITTER_EMAIL": "x@x",
+            }
+            subprocess.run(["git", "add", "."], cwd=work, env=env, check=True, capture_output=True)
+            subprocess.run(
+                ["git", "commit", "-q", "-m", "m"],
+                cwd=work,
+                env=env,
+                check=True,
+                capture_output=True,
+            )
+            res = subprocess.run(
+                ["git", "push", "-q", str(bare), "HEAD:main"],
+                cwd=work,
+                env=env,
+                capture_output=True,
+                text=True,
+            )
+            return res.returncode == 0
+    except Exception:
+        return False
+
+
+@pytest.mark.skipif(not _can_git_push(), reason="hace falta git push funcional")
 def test_real_git_push_keeps_a_single_commit(tmp_path: Path) -> None:
     remote = tmp_path / "datos.git"
     subprocess.run(["git", "init", "-q", "--bare", str(remote)], check=True)

@@ -292,12 +292,17 @@ def test_create_key_writes_ruff_clean_module_and_refuses_a_second_time(tmp_path:
     assert private is not None and private not in text
     for command in (["format", "--check"], ["check"]):
         config = str(ROOT / "pyproject.toml")
-        result = subprocess.run(
-            [sys.executable, "-m", "ruff", *command, "--config", config, str(key_file)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        cmd = [
+            sys.executable,
+            "-m",
+            "ruff",
+            *command,
+            "--no-cache",
+            "--config",
+            config,
+            str(key_file),
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         assert result.returncode == 0, result.stdout + result.stderr
     with pytest.raises(publisher.PublishError, match="Ya existe"):
         publisher.create_signing_key(key_file, store=store, current_public=b"")
