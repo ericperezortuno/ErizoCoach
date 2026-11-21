@@ -67,6 +67,7 @@ class ChampSelectSnapshot:
     has_pick_actions: bool = True
     all_picks_completed: bool = False
     bench_enabled: bool = False  # ARAM: banquillo de campeones
+    my_ban_pending: bool = False  # te queda un baneo por hacer (reclutamiento, clasificatorias)
 
     @property
     def me(self) -> PlayerSlot | None:

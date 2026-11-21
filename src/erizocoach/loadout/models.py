@@ -119,3 +119,14 @@ class CounterPick:
     games: int
     wins: int
     win_rate: float  # 0-1, mezclado con lo que gana ese campeón en general (ver counters.py)
+
+
+@dataclass(frozen=True, slots=True)
+class BanPick:
+    """Un campeón que conviene banear: te gana en tu línea y te lo encuentras a menudo."""
+
+    champion_id: int
+    games: int  # partidas de tu campeón contra él (alto elo, tu posición)
+    wins: int  # las que ganó tu campeón
+    win_rate: float  # 0-1, tus victorias contra él, mezcladas con tu media (ver bans.py)
+    share: float  # 0-1, parte de tus partidas en esa línea en las que te toca contra él

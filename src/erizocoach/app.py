@@ -23,6 +23,7 @@ from .lcu.discovery import ClientLocator
 from .lcu.launcher import ClientLauncher
 from .lcu.tls import create_ssl_context
 from .lcu.websocket import LcuEventStream
+from .loadout.bans import BanService
 from .loadout.counters import CounterService
 from .loadout.service import LoadoutService
 from .logs import REDACTOR
@@ -93,6 +94,10 @@ class Application:
         # Counters contra tu rival de línea, de los enfrentamientos de alto elo
         self.counters = CounterService(
             self.bus, self.connector, self.gamedata.positions_for, self.build_source
+        )
+        # A quién banear con el campeón que preseleccionas (lo mantienes 3 s)
+        self.bans = BanService(
+            self.bus, self.gamedata.positions_for, self.build_source, position_hint=hint
         )
         # Sin clave de Riot, las estadísticas compartidas por quien sí la tiene.
         shared = None

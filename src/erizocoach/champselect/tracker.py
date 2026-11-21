@@ -10,6 +10,7 @@ from ..events import (
     ChampSelectEnded,
     ChampSelectOutcome,
     ChampSelectStarted,
+    ChampSelectUpdated,
     MyChampionChanged,
     MyPickPreviewChanged,
     PicksFinalized,
@@ -86,6 +87,8 @@ class ChampSelectTracker:
         if snapshot.is_finalized and not self._finalized:
             self._finalized = True
             await self._bus.publish(PicksFinalized(snapshot, self._queue))
+
+        await self._bus.publish(ChampSelectUpdated(snapshot))
 
     async def end(self, phase: GameflowPhase) -> None:
         """El cliente ha salido de la selección de campeones hacia ``phase``."""

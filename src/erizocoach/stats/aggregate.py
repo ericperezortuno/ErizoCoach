@@ -32,7 +32,7 @@ from typing import Any
 from ..builds.models import ItemCount
 from ..gamedata.items import Item
 from ..util import as_dict, as_int, as_list, as_str
-from .extract import POSITIONS, PlayerBuild
+from .extract import POSITIONS, RUNE_FIELDS, PlayerBuild
 
 STARTING_SECONDS = 60
 TRINKETS = frozenset({3340, 3363, 3364})  # guardianes/lentes: no forman parte de la build
@@ -85,33 +85,85 @@ def is_upgraded_boots(item: Item | None) -> bool:
     return item is not None and item.is_boots and 1001 in item.from_ids
 
 
+@dataclass(frozen=True, slots=True)
+class _Game:
+    """De cada build, solo lo que usa el resumen (sin la lista de compras).
+
+    Con 20 000 partidas hay 200 000 builds: guardarlas enteras llevaba la app a ~800 MB
+    de memoria que luego Python no devolvía al sistema. Así son unos pocos MB.
+    """
+
+    win: bool
+    start: tuple[int, ...]  # objetos iniciales, ordenados; () = ninguno
+    boots: int | None  # primeras botas de nivel 2
+    sequence: tuple[int, ...]  # legendarios en orden de compra, sin repetir
+    runes: tuple[int, ...]
+    spells: tuple[int, ...]
+
+    @property
+    def has_loadout(self) -> bool:
+        return len(self.runes) == RUNE_FIELDS and len(self.spells) == 2
+
+
+class _Compactor:
+    """Reduce cada build a un ``_Game``. Las tuplas iguales se comparten (casi todas se
+    repiten: mismas runas, mismos hechizos, mismo inicio) y cada objeto se consulta una vez."""
+
+    def __init__(self, item: ItemLookup) -> None:
+        self._item = item
+        self._shared: dict[tuple[int, ...], tuple[int, ...]] = {}
+        self._legendary: dict[int, bool] = {}
+        self._boots: dict[int, bool] = {}
+
+    def __call__(self, build: PlayerBuild) -> _Game:
+        purchases = build.purchases
+        start = tuple(
+            sorted(i for t, i in purchases if t <= STARTING_SECONDS and i not in TRINKETS)
+        )
+        first_boots = next((i for _, i in purchases if self._is_boots(i)), None)
+        sequence: list[int] = []
+        for _, item_id in purchases:
+            if item_id not in sequence and self._is_legendary(item_id):
+                sequence.append(item_id)
+        return _Game(
+            win=build.win,
+            start=self._share(start),
+            boots=first_boots,
+            sequence=self._share(tuple(sequence)),
+            runes=self._share(build.runes),
+            spells=self._share(build.spells),
+        )
+
+    def _share(self, value: tuple[int, ...]) -> tuple[int, ...]:
+        return self._shared.setdefault(value, value)
+
+    def _is_legendary(self, item_id: int) -> bool:
+        found = self._legendary.get(item_id)
+        if found is None:
+            found = self._legendary[item_id] = is_legendary(self._item(item_id))
+        return found
+
+    def _is_boots(self, item_id: int) -> bool:
+        found = self._boots.get(item_id)
+        if found is None:
+            found = self._boots[item_id] = is_upgraded_boots(self._item(item_id))
+        return found
+
+
 def aggregate(
     builds: Iterable[PlayerBuild], item: ItemLookup
 ) -> dict[tuple[int, str], ChampionStats]:
-    groups: dict[tuple[int, str], list[PlayerBuild]] = {}
+    compact = _Compactor(item)
+    groups: dict[tuple[int, str], list[_Game]] = {}
     for build in builds:
-        groups.setdefault((build.champion_id, build.position), []).append(build)
+        groups.setdefault((build.champion_id, build.position), []).append(compact(build))
     return {key: _summarize(key, games, item) for key, games in groups.items()}
 
 
-def _summarize(key: tuple[int, str], games: list[PlayerBuild], item: ItemLookup) -> ChampionStats:
-    starts: Counter[tuple[int, ...]] = Counter()
-    boots: Counter[int] = Counter()
-    sequences: list[list[int]] = []
-    for game in games:
-        start = tuple(
-            sorted(i for t, i in game.purchases if t <= STARTING_SECONDS and i not in TRINKETS)
-        )
-        if start:
-            starts[start] += 1
-        first_boots = next((i for _, i in game.purchases if is_upgraded_boots(item(i))), None)
-        if first_boots is not None:
-            boots[first_boots] += 1
-        sequence: list[int] = []
-        for _, item_id in game.purchases:
-            if item_id not in sequence and is_legendary(item(item_id)):
-                sequence.append(item_id)
-        sequences.append(sequence)
+def _summarize(key: tuple[int, str], games: list[_Game], item: ItemLookup) -> ChampionStats:
+    starts: Counter[tuple[int, ...]] = Counter(g.start for g in games if g.start)
+    boots: Counter[int] = Counter(g.boots for g in games if g.boots is not None)
+    sequences = [g.sequence for g in games]
 
     core = _core_chain(sequences)
     later: Counter[int] = Counter(i for s in sequences for i in s[3:6] if i not in core)
@@ -193,7 +245,7 @@ def _most_common(values: Iterable[Any]) -> Any:
     return counts.most_common(1)[0][0] if counts else None
 
 
-def _rune_page(games: list[PlayerBuild]) -> tuple[int, ...]:
+def _rune_page(games: list[_Game]) -> tuple[int, ...]:
     """(árbol principal, secundario, 9 runas) partiendo de la piedra angular más elegida."""
     if not games:
         return ()
@@ -202,11 +254,11 @@ def _rune_page(games: list[PlayerBuild]) -> tuple[int, ...]:
     return _page_with_keystone([g for g in games if _keystone(g) == keystone], keystone)
 
 
-def _keystone(game: PlayerBuild) -> tuple[int, int]:
+def _keystone(game: _Game) -> tuple[int, int]:
     return game.runes[0], game.runes[2]  # (árbol principal, piedra angular)
 
 
-def _rune_options(games: list[PlayerBuild]) -> tuple[tuple[int, ...], ...]:
+def _rune_options(games: list[_Game]) -> tuple[tuple[int, ...], ...]:
     """Las páginas de las piedras angulares más jugadas, con sus partidas y victorias."""
     options: list[tuple[int, ...]] = []
     for keystone, count in Counter(_keystone(g) for g in games).most_common(RUNE_OPTIONS):
@@ -218,7 +270,7 @@ def _rune_options(games: list[PlayerBuild]) -> tuple[tuple[int, ...], ...]:
     return tuple(options)
 
 
-def _page_with_keystone(same: list[PlayerBuild], keystone: tuple[int, int]) -> tuple[int, ...]:
+def _page_with_keystone(same: list[_Game], keystone: tuple[int, int]) -> tuple[int, ...]:
     """La página más habitual entre las partidas que llevan esa piedra angular."""
     rows = [_most_common(g.runes[i] for g in same) for i in (3, 4, 5)]
     sub = _most_common(g.runes[1] for g in same)
@@ -229,7 +281,7 @@ def _page_with_keystone(same: list[PlayerBuild], keystone: tuple[int, int]) -> t
     return (keystone[0], sub, keystone[1], *rows, *pair, *shards)
 
 
-def _spell_pair(games: list[PlayerBuild]) -> tuple[int, ...]:
+def _spell_pair(games: list[_Game]) -> tuple[int, ...]:
     if not games:
         return ()
     pair = _most_common(tuple(sorted(g.spells)) for g in games)
@@ -241,10 +293,11 @@ def item_price(item: ItemLookup, item_id: int) -> int:
     return found.price_total if found else 0
 
 
-def _core_chain(sequences: list[list[int]]) -> list[int]:
+def _core_chain(sequences: list[tuple[int, ...]]) -> list[int]:
     core: list[int] = []
     for slot in range(3):
-        matching = [s for s in sequences if s[:slot] == core and len(s) > slot]
+        prefix = tuple(core)
+        matching = [s for s in sequences if s[:slot] == prefix and len(s) > slot]
         pool = (
             matching
             if len(matching) >= CHAIN_MIN_SUPPORT

@@ -13,6 +13,7 @@ from ... import __version__
 from ...builds.models import ARCHETYPE_LABELS, BuildPlan
 from ...bus import EventBus
 from ...events import (
+    BansUpdated,
     BuildReady,
     ChampSelectStarted,
     ClientConnected,
@@ -99,6 +100,7 @@ class UiPresenter:
             "game": None,
             "stats": None,  # estado de la descarga automática de estadísticas
             "counters": None,  # counters contra tu rival de línea (selección)
+            "bans": None,  # a quién banear con el campeón que preseleccionas (selección)
             "runeCatalog": None,  # árboles de runas, para cambiarlas desde la ventana
             "spellCatalog": [],  # hechizos que se pueden elegir en este modo
             "spellRule": "",  # Aplastar: "required" (jungla), "forbidden" (otra posición) o libre
@@ -119,6 +121,7 @@ class UiPresenter:
         bus.subscribe(LiveGameEnded, self._on_live_ended)
         bus.subscribe(StatsStatus, self._on_stats)
         bus.subscribe(CountersUpdated, self._on_counters)
+        bus.subscribe(BansUpdated, self._on_bans)
         bus.subscribe(ClientLaunchStatus, self._on_launch)
         bus.subscribe(UpdateStatus, self._on_update)
 
@@ -231,6 +234,30 @@ class UiPresenter:
                 "picks": [pick(p) for p in event.picks],
                 "mine": pick(event.mine) if event.mine else None,
                 "locked": event.locked,
+            }
+        )
+
+    async def _on_bans(self, event: BansUpdated) -> None:
+        """Baneos recomendados para tu preselección (los rivales que más te ganan)."""
+        if not event.champion_id or not event.picks:
+            await self._set(bans=None)
+            return
+        await self._set(
+            bans={
+                "champion": self._champion(
+                    event.champion_id, POSITION_LABELS.get(event.position, "")
+                ),
+                "picks": [
+                    {
+                        "id": p.champion_id,
+                        "name": self._gd.champion_name(p.champion_id),
+                        "winRate": round(p.win_rate * 100),
+                        "share": max(round(p.share * 100), 1),
+                        "games": p.games,
+                        "wins": p.wins,
+                    }
+                    for p in event.picks
+                ],
             }
         )
 

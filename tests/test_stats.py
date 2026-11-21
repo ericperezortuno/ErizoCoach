@@ -18,7 +18,13 @@ from erizocoach.builds.recommender import BuildRecommender
 from erizocoach.logs import REDACTOR
 from erizocoach.models import Position
 from erizocoach.stats import keystore
-from erizocoach.stats.aggregate import ChampionStats, aggregate, load_stats, save_stats
+from erizocoach.stats.aggregate import (
+    ChampionStats,
+    _Compactor,
+    aggregate,
+    load_stats,
+    save_stats,
+)
 from erizocoach.stats.crawler import Crawler
 from erizocoach.stats.extract import PlayerBuild, extract_builds, extract_loadout, patch_of
 from erizocoach.stats.riot_api import (
@@ -489,6 +495,19 @@ def test_rune_page_follows_the_most_played_keystone() -> None:
     # Electrocutar (5 de 9); en cada fila, lo más elegido entre quienes llevan Electrocutar
     assert stats.runes == (8100, 8200, 8112, 8139, 8140, 8106, 8226, 8210, 5005, 5008, 5001)
     assert stats.spells == (4, 14)  # Destello + Prender, en el orden de teclas más habitual
+
+
+def test_aggregate_keeps_little_of_each_build() -> None:
+    """Con 200 000 builds, guardarlas enteras subía la app a ~800 MB: solo queda lo que
+    usa el resumen, y las tuplas repetidas (runas, inicio, núcleo) se comparten."""
+    gd = loaded_gamedata()
+    compact = _Compactor(gd.item)
+    first, second = [compact(b) for b in sample_builds() if b.champion_id == AHRI][:2]
+    assert not hasattr(first, "purchases") and not hasattr(first, "__dict__")
+    assert first.runes == AHRI_RUNES and first.has_loadout
+    assert second.runes is first.runes and second.start is first.start
+    assert first.start == (1056, 2003, 2003) and first.boots == 3020
+    assert first.sequence[:3] == (6655, 4645, 3089)
 
 
 def test_stats_file_round_trip(tmp_path: Path) -> None:

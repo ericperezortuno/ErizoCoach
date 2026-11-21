@@ -19,7 +19,7 @@ from .gamedata.runes import RunePage
 from .ingame.advisor import Advice
 from .ingame.analysis import GameReport
 from .ingame.models import LiveGame
-from .loadout.models import CounterPick, Loadout
+from .loadout.models import BanPick, CounterPick, Loadout
 from .models import ClientInfo, GameflowPhase, Position, QueueInfo
 
 
@@ -67,6 +67,13 @@ class MyPickPreviewChanged:
     """Antes del último pick: cambia el campeón que preseleccionas, miras o bloqueas."""
 
     champion_id: int  # 0 = ya no miras ninguno
+    snapshot: ChampSelectSnapshot
+
+
+@dataclass(frozen=True, slots=True)
+class ChampSelectUpdated:
+    """La selección ha cambiado de verdad (se emite después de los eventos más concretos)."""
+
     snapshot: ChampSelectSnapshot
 
 
@@ -220,6 +227,15 @@ class CountersUpdated:
     picks: tuple[CounterPick, ...]
     mine: CounterPick | None = None  # ya has bloqueado: cómo va tu enfrentamiento
     locked: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class BansUpdated:
+    """A quién banear con el campeón que preseleccionas (``champion_id`` 0 = no mostrar)."""
+
+    champion_id: int
+    position: Position
+    picks: tuple[BanPick, ...]
 
 
 class UpdateState(StrEnum):

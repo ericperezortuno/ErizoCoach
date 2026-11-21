@@ -216,7 +216,7 @@ function originLine(source, fallback) {
 
 function viewOf(state) {
   if (state.game) return "game";
-  if (state.champion || state.loadout || state.build || state.counters) return "champ";
+  if (state.champion || state.loadout || state.build || state.counters || state.bans) return "champ";
   return state.connected ? "menu" : "offline";
 }
 
@@ -415,12 +415,45 @@ function renderChampSelect(state) {
   const counters = state.counters ? renderCounters(state.counters) : null;
   const choosing = state.counters && !state.counters.locked;
   return [
+    state.bans ? renderBans(state.bans) : null, // te toca banear: lo primero, a quién
     choosing ? counters : null, // aún eliges: lo primero, qué te puedes coger
     state.champion ? renderHero(state) : null,
     choosing ? null : counters,
     state.loadout ? renderLoadout(state.loadout, state) : null,
     state.build ? renderBuild(state.build) : null,
   ];
+}
+
+// Baneos recomendados para el campeón que preseleccionas: los rivales de tu línea que más
+// te ganan, por lo a menudo que te tocan (de las partidas de alto elo).
+function renderBans(bans) {
+  const mine = bans.champion;
+  const rows = bans.picks.map((pick, index) => {
+    const says = `Banea a ${pick.name}: con ${mine.name} ganas el ${pick.winRate} % contra él `
+      + `(${pick.wins} de ${pick.games} partidas de alto elo) y te toca en el ${pick.share} % `
+      + "de tus partidas";
+    return el("li", { class: "counter weak ban", title: says, "aria-label": says }, [
+      el("span", { class: "ban-rank", "aria-hidden": "true", text: `${index + 1}` }),
+      championIcon(pick.id, pick.name),
+      el("div", { class: "counter-who" }, [
+        el("span", { class: "counter-name", text: pick.name }),
+        el("small", { class: "muted", text: `${pick.share} % de tus partidas` }),
+      ]),
+      el("span", { class: "counter-rate", "aria-hidden": "true", text: `${pick.winRate} %` }),
+    ]);
+  });
+  const extra = el("span", { class: "counter-enemy" }, [
+    mine.position ? el("span", { class: "tag", text: mine.position }) : null,
+    championIcon(mine.id, mine.name),
+  ]);
+  return card(`A quién banear con ${mine.name}`, [
+    el("ol", { class: "counters" }, rows),
+    el("div", {
+      class: "muted small",
+      text: "Tus victorias contra él en alto elo. Primero los que más te ganan y más salen; "
+        + "sin los ya baneados ni lo que miran tus aliados.",
+    }),
+  ], { className: "wide counters-card bans-card", extra });
 }
 
 // Counters contra tu rival de línea (de las partidas de alto elo) o, si ya has elegido,
@@ -1142,7 +1175,23 @@ function renderMatchups(matchups, teamGold) {
   ], { className: "wide lanes" });
 }
 
+// Las animaciones en bucle (rueda, erizo, brillos) solo se mueven con la ventana delante
+// o con el ratón encima: cada una obliga a repintar el vidrio a la tasa de refresco
+// (~30 % de un núcleo). En segundo plano, mientras juegas, se quedan quietas.
+function setupStillWhenAway() {
+  const root = document.documentElement;
+  let hovered = false;
+  const update = () => root.classList.toggle("still", document.hidden || !(document.hasFocus() || hovered));
+  window.addEventListener("focus", update);
+  window.addEventListener("blur", update);
+  document.addEventListener("visibilitychange", update);
+  root.addEventListener("pointerenter", () => { hovered = true; update(); });
+  root.addEventListener("pointerleave", () => { hovered = false; update(); });
+  update();
+}
+
 setupBrandCheer();
+setupStillWhenAway();
 render({ phaseLabel: "Conectando…", connected: false }, true);
 if (DESKTOP) startDesktop();
 else connect();

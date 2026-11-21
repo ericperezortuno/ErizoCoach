@@ -64,6 +64,12 @@ def parse_session(data: Any) -> ChampSelectSnapshot:
         all_picks_completed=bool(pick_actions)
         and all(bool(action.get("completed")) for action in pick_actions),
         bench_enabled=bool(data.get("benchEnabled")),
+        my_ban_pending=any(
+            action.get("type") == "ban"
+            and not action.get("completed")
+            and as_int(action.get("actorCellId"), -1) == local_cell
+            for action in actions
+        ),
     )
 
 
